@@ -12,7 +12,7 @@ import pandas as pd
 
 ### Shade calculation setup
 
-def shadecalculation_setup(filepath_dsm = 'None', filepath_veg = 'None', date = dt.datetime.now(), intervalTime = 30, onetime =1, filepath_save='None', UTC=0, dst=1, useveg=0, trunkheight=25, transmissivity=20):
+def shadecalculation_setup(filepath_dsm = 'None', filepath_veg = 'None', tile_no='/', date = dt.datetime.now(), intervalTime = 30, onetime =1, filepath_save='None', UTC=0, dst=1, useveg=0, trunkheight=25, transmissivity=20):
     '''Calculates spot, hourly and or daily shading for a DSM
     Needs: 
     filepath_dsm = a path to a (building) dsm,
@@ -201,19 +201,22 @@ def shadecalculation_setup(filepath_dsm = 'None', filepath_veg = 'None', date = 
 
         shadowresult = dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem,
                                     intervalTime, onetime, filepath_save, gdal_dsm, trans, 
-                                    dst, wallsh, wheight, waspect)
+                                    dst, wallsh, wheight, waspect, tile_no)
 
         shfinal = shadowresult["shfinal"]
         time_vector = shadowresult["time_vector"]
 
         if onetime == 0:
             timestr = time_vector.strftime("%Y%m%d")
-            savestr = '/shadow_fraction_on_'
+            # Changed filepath to include the tile_id in the filename.
+            #savestr = '/shadow_fraction_on_'
+            savestr = '_shadow_fraction_on_'
         else:
             timestr = time_vector.strftime("%Y%m%d_%H%M")
-            savestr = '/Shadow_at_'
+            #savestr = '/Shadow_at_'
+            savestr = 'Shadow_at_'
 
-    filename = filepath_save + savestr + timestr + '.tif'
+    filename = filepath_save + tile_no + savestr + timestr + '.tif'
 
 ## TODO: change to saverasternd or other function
     saveraster(gdal_dsm, filename, shfinal)
@@ -221,7 +224,7 @@ def shadecalculation_setup(filepath_dsm = 'None', filepath_veg = 'None', date = 
 
 ############## DAILYSHADING ################
 
-def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem, timeInterval, onetime, folder, gdal_data, trans, dst, wallshadow, wheight, waspect):
+def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem, timeInterval, onetime, folder, gdal_data, trans, dst, wallshadow, wheight, waspect, tile_no):
 
     # lon = lonlat[0]
     # lat = lonlat[1]
@@ -357,7 +360,7 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
                 # sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, 0)
 
                 if onetime == 0:
-                    filename = folder + '/Shadow_' + timestr + '_LST.tif'
+                    filename = folder + tile_no + '_Shadow_' + timestr + '_LST.tif'
                     ## EDITED 
                     saveraster(gdal_data, filename, sh)
 
