@@ -388,8 +388,8 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date):
     building_directory = f'../results/output/{osmid}/building_shade{folder_no}/'
     tree_directory = f'../results/output/{osmid}/tree_shade{folder_no}/'
     
-    building_shadow_files_exist = directory_check(building_directory)
-    tree_shadow_files_exist = directory_check(tree_directory)
+    building_shadow_files_exist = directory_check(building_directory, shadow_check=True, date=date)
+    tree_shadow_files_exist = directory_check(tree_directory, shadow_check=True, date=date)
     
     if not building_shadow_files_exist:
         shade_bldg = shade.shadecalculation_setup(
@@ -638,7 +638,7 @@ def extract_identifier(path):
     
     return identifier
 
-def directory_check(directory, shadow_check=True):
+def directory_check(directory, shadow_check=True, date='None'):
     """
     Check if the directory exists and contains 'shadow_fraction_on_' files.
 
@@ -656,10 +656,13 @@ def directory_check(directory, shadow_check=True):
         print(f"Directory {directory} created.")
     
     print(f"Directory {directory} already exists.")
+
+    # time_vector = dt.datetime(year, month, day, time['hour'], time['min'], time['sec'])
+    timestr = date.strftime("%Y%m%d")
     
     if shadow_check:
         # Check for files containing 'shadow_fraction_on_' in their names
-        shadow_files = [f for f in os.listdir(directory) if 'shadow_fraction_on_' in f]
+        shadow_files = [f for f in os.listdir(directory) if f'shadow_fraction_on_{timestr}' in f]
         
         if shadow_files:
             print(f"Files containing 'shadow_fraction_on_' found: {shadow_files}")
@@ -678,7 +681,7 @@ def directory_check(directory, shadow_check=True):
 current_date = dt.datetime.now()
 
 # Create a new date for the 21st of July
-date = dt.datetime(current_date.year, 6, 20)
+date = dt.datetime(current_date.year, 9, 22)
 
 if __name__ == "__main__":
     main(date)
