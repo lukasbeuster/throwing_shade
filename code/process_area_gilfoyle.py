@@ -1,618 +1,635 @@
-import argparse
-import os
-import re
-import glob
-import importlib
-import rasterio
-from rasterio.warp import reproject, Resampling
-from rasterio.windows import from_bounds
-from rasterio.features import rasterize
-from rasterio.transform import from_origin
-from rasterio.transform import Affine
-import datetime as dt
-from osgeo import gdal, osr
-from osgeo.gdalconst import *
-import shade_setup as shade
-import numpy as np
-import geopandas as gpd
-import pandas as pd
-from shapely.geometry import box
-from shapely.geometry import mapping
-
-import matplotlib.pyplot as plt
-
-
-
-from scipy.ndimage import median_filter
-from scipy.ndimage import uniform_filter
-from scipy.ndimage import gaussian_filter
-from scipy.ndimage import minimum_filter
-
-import startinpy
-
-importlib.reload(shade)
-
-# Set exception handling
-gdal.UseExceptions()
-
-
-def main(date):
-    # Initialize the parser
-    parser = argparse.ArgumentParser(description="Process a OSM area.")
-    
-    # Add the argument
-    parser.add_argument('number', type=int, help='OSMID to be processed')
-
-    # Parse the arguments
-    args = parser.parse_args()
-
-    # Access the number argument
-    osmid = args.number
-
-    print(f'working on OSMID:{osmid}')
-
-    # print(dt.datetime.now())
-
-    # Directory containing the raster files
-    raster_dir = f'../data/clean_data/solar/{osmid}'
-
-    # Get a list of all raster files in the directory so we can load them incrementally
-    raster_files = glob.glob(os.path.join(raster_dir, '*dsm.tif'))
-
-    print(f'Found {(len(raster_files)/2)} tiles')
-
-    # Process each DSM file
-    for path in raster_files:
-        # Find the index of the last '/' character
-        last_slash_index = path.rfind('/')
-        # Extract the part after the last '/' (excluding '/')
-        file_name = path[last_slash_index + 1:]
-        file_name_building = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + "building_dsm.tif"
-        file_name_trees = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + "canopy_dsm.tif"
-
-        # List of file paths to check
-        file_paths = [file_name_building, file_name_trees]
-
-        # Check if the files already exist
-        if check_files_exist(file_paths):
-            print("Files already exist. Skipping creation.")
-        else:
-            # Read DSM
-            with rasterio.open(path) as src:
-                dsm_data = src.read(1)
-                dsm_meta = src.meta.copy()
-                dsm_crs = src.crs
-                dsm_bounds = src.bounds
-                dsm_transform = src.transform
-                dsm_shape = dsm_data.shape
-            
-            # Extract further metadata
-                width = src.width
-                height = src.height
-                nodata_value = src.nodata
-                dtype = src.dtypes[0]
-
-                # Calculate resolution
-                resolution_x = dsm_transform[0]
-                resolution_y = -dsm_transform[4]  # Typically negative in the geotransform
-
-                # Calculate extent
-                xmin = dsm_transform[2]
-                ymax = dsm_transform[5]
-                xmax = xmin + (width * resolution_x)
-                ymin = ymax + (height * dsm_transform[4])  # Typically negative
-
-            # Create a bounding box polygon from the raster bounds
-            dsm_bbox = box(dsm_bounds.left, dsm_bounds.bottom, dsm_bounds.right, dsm_bounds.top)
-            # Convert the bounding box to a GeoDataFrame and assign the raster's CRS
-            dsm_bbox_gdf = gpd.GeoDataFrame({'geometry': [dsm_bbox]}, crs=dsm_crs)
-
-            # Load corresponding AHN subtiles
-            subtiles_path = '../data/raw_data/ahn/AHN_subunits_GeoTiles.shp'
-            subtiles = gpd.read_file(subtiles_path, mask=dsm_bbox_gdf)
-            if subtiles.crs != dsm_crs:
-                subtiles = subtiles.to_crs(dsm_crs)
-            
-            tile_list = list(subtiles.GT_AHNSUB)
-            chm_path = '../data/clean_data/chm/'
-
-            chm_tile_paths = []
-
-            for tile in tile_list:
-                full_path = chm_path + tile + '.tif'
-                chm_tile_paths.append(full_path)
-                print(chm_tile_paths)
-
-            # Initialize a mask with the same shape as the DSM data
-            combined_chm_mask = np.zeros(dsm_shape, dtype=bool)
-
-            # Loop through the additional raster files and update the combined mask
-            for raster_path in chm_tile_paths:
-                update_mask_within_extent(raster_path, combined_chm_mask, dsm_bounds, dsm_transform, dsm_crs, dsm_shape)
-
-            # The combined_mask can now be applied to the dsm_data as required
-            canopy_dsm = np.where(combined_chm_mask, dsm_data, np.nan)  # Use NaN for masked-out areas
-
-            # Read building_mask
-            mask_path = path.replace("dsm", "mask")
-
-            with rasterio.open(mask_path) as src:
-                bldg_mask = src.read(1)
-                bldg_mask_meta = src.meta.copy()
-                bldg_transform = src.transform
-                bldg_crs = src.crs
-                bldg_dtype = src.dtypes[0]
-
-            # Read osm_buildings (commented out is the old function, that wasn't able to handle the edge cases where no buildings in osm)
-
-            # # Load corresponding AHN subtiles
-            # buildings_path = f'../data/clean_data/solar/{osmid}/{osmid}_buildings.gpkg'
-            # buildings = gpd.read_file(buildings_path, mask=dsm_bbox_gdf)
-            # if buildings.crs != dsm_crs:
-            #     buildings = buildings.to_crs(dsm_crs)
-
-            # # Buffer to combat artefacts.
-            # buildings.geometry = buildings.buffer(1.5)
-
-            # # Rasterize building polygons (same size as dsm so it works with UMEP)
-            # # TODO: THIS STILL NEEDS A TRY/EXCEPT function. 
-            
-            # osm_bldg_mask = rasterize(
-            #     ((mapping(geom), 1) for geom in buildings.geometry),
-            #     out_shape=dsm_data.shape,
-            #     transform=dsm_meta['transform'],
-            #     fill=0,
-            #     dtype='uint8'
-            # )
-
-            # combined_building_mask = np.logical_or(bldg_mask, osm_bldg_mask).astype(np.uint8)
-            # combined_bldg_tree_mask = np.logical_or(combined_chm_mask, combined_building_mask).astype(np.uint8)
-
-
-            # Load corresponding AHN subtiles
-            buildings_path = f'../data/clean_data/solar/{osmid}/{osmid}_buildings.gpkg'
-            buildings = gpd.read_file(buildings_path, mask=dsm_bbox_gdf)
-
-            # Check if buildings GeoDataFrame is empty
-            if buildings.empty:
-                print("No buildings found in the mask area.")
-                osm_bldg_mask = np.zeros(dsm_data.shape, dtype='uint8')  # Create an empty mask
-            else:
-                if buildings.crs != dsm_crs:
-                    buildings = buildings.to_crs(dsm_crs)
-
-                # Buffer to combat artefacts.
-                buildings.geometry = buildings.buffer(1.5)
-
-                # Rasterize building polygons (same size as dsm so it works with UMEP)
-                try:
-                    osm_bldg_mask = rasterize(
-                        ((mapping(geom), 1) for geom in buildings.geometry),
-                        out_shape=dsm_data.shape,
-                        transform=dsm_meta['transform'],
-                        fill=0,
-                        dtype='uint8'
-                    )
-                except Exception as e:
-                    print(f"Error during rasterization: {e}")
-                    osm_bldg_mask = np.zeros(dsm_data.shape, dtype='uint8')  # Create an empty mask in case of failure
-
-            combined_building_mask = np.logical_or(bldg_mask, osm_bldg_mask).astype(np.uint8)
-            combined_bldg_tree_mask = np.logical_or(combined_chm_mask, combined_building_mask).astype(np.uint8)
-
-            dtm_raw = np.where(combined_bldg_tree_mask == 0, dsm_data, np.nan)
-
-            ### Filter the raw data
-            ## Apply minimum filter
-            filtered_data = apply_minimum_filter(dtm_raw, np.nan, size=50)
-            # filtered_data = apply_minimum_filter(filtered_data, np.nan, size=50)
-            filtered_data = apply_minimum_filter(filtered_data, np.nan, size=30)
-            filtered_data = apply_minimum_filter(filtered_data, np.nan, size=10)
-
-            ### Interpolate: 
-
-            t = dsm_transform
-            pts = []
-            coords = []
-            for i in range(filtered_data.shape[0]):
-                for j in range(filtered_data.shape[1]):
-                    x = t[2] + (j * t[0]) + (t[0] / 2)
-                    y = t[5] + (i * t[4]) + (t[4] / 2)
-                    z = filtered_data[i][j]
-                    # Add all point coordinates. Laplace interpolation keeps existing values. 
-                    coords.append([x,y])
-                    if not np.isnan(z):
-                        pts.append([x, y, z])
-                        # print('data found')
-            dt = startinpy.DT()
-            dt.insert(pts, insertionstrategy="BBox")
-
-            interpolated = dt.interpolate({"method": "Laplace"}, coords)
-
-            # Calculate the number of rows and columns
-            ncols = int((xmax - xmin) / resolution_x)
-            nrows = int((ymax - ymin) / resolution_y)
-
-            # Create an empty raster array
-            raster_array = np.full((nrows, ncols), np.nan, dtype=np.float32)
-
-            # Ensure the points are in the correct structure (startinpy returns a flattened 1D array containing only the interpolated values for some reason)
-
-            # Combine the coordinates and values into a 2D array with shape (n, 3)
-            points = np.array([(x, y, val) for (x, y), val in zip(coords, interpolated)])
-            points
-
-
-            # Check if the array length is a multiple of 3
-            if points.size % 3 != 0:
-                raise ValueError(f"Array size {points.size} is not a multiple of 3, cannot reshape.")
-            # Reshape the points array if it's flattened
-            if points.ndim == 1:
-                points = points.reshape(-1, 3)
-
-            # In this example, points should be a 2D array with shape (n, 3)
-            print(f"Points shape: {points.shape}")
-
-            # Map the points to the raster grid
-            for point in points:
-                if len(point) != 3:
-                    raise ValueError(f"Expected point to have 3 elements (x, y, value), but got {len(point)} elements.")
-                x, y, value = point
-                # Skip points with NaN values
-                if np.isnan(value):
-                    continue
-                
-                col = int((x - xmin) / resolution_x)
-                row = int((ymax - y) / resolution_y)
-                
-                # Ensure the indices are within bounds
-                if 0 <= col < ncols and 0 <= row < nrows:
-                    raster_array[row, col] = value
-
-            # Define the transform (mapping from pixel coordinates to spatial coordinates)
-            transform = from_origin(xmin, ymax, resolution_x, resolution_y)
-
-            # print(transform)
-
-            # Define the metadata for the new raster
-            meta = {
-                'driver': 'GTiff',
-                'dtype': dtype,
-                'nodata': nodata_value,
-                'width': width,
-                'height': height,
-                'count': 1,
-                'crs': dsm_crs,
-                'transform': transform
-            }
-
-            post_interpol_filter = apply_minimum_filter(raster_array, np.nan, size=40)
-            post_interpol_filter = apply_minimum_filter(post_interpol_filter, np.nan, size=20)
-
-            dsm_buildings = np.where(combined_building_mask == 0, post_interpol_filter, dsm_data)
-
-            # Save building dsm and canopy dsm
-
-            # Find the index of the last '/' character
-            last_slash_index = path.rfind('/')
-            # Extract the part after the last '/' (excluding '/')
-            file_name = path[last_slash_index + 1:]
-            file_name_building = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + "building_dsm.tif"
-            file_name_trees = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + "canopy_dsm.tif"
-
-
-            # Replace nan values with 0 for canopy raster: 
-            canopy_dsm = np.nan_to_num(canopy_dsm, nan=0)
-
-            n = 50
-
-            crop_and_save_raster(canopy_dsm, dsm_transform, dsm_meta, nodata_value, n,file_name_trees)
-            crop_and_save_raster(dsm_buildings, dsm_transform, dsm_meta, nodata_value, n,file_name_building)
-
-        
-
-        ## Turn back into raster
-        # 
-        # # For testing, only process the first DSM file
-
-
-    # Directory containing the raster files
-    processing_dir = f'../data/clean_data/solar/{osmid}/rdy_for_processing/'
-
-    # Get a list of all raster files in the directory so we can load them incrementally
-    building_files = glob.glob(os.path.join(processing_dir, '*building_dsm.tif'))
-
-    canopy_files = glob.glob(os.path.join(processing_dir, '*canopy_dsm.tif'))
-
-
-    print(len(building_files))
-
-
-    # Iterate over building_files and find matching paths in canopy_files
-    # TODO: Instead of append to list, why don't I just create a chm string within the for loop?
-    # DON'T FORGET TO CHANGE BACK TO USING COMPLETE LIST.
-    for bldg_path in building_files[0:2]:
-        identifier = extract_identifier(bldg_path)
-        matched_chm_path = []
-        for chm_path in canopy_files:
-            if identifier in chm_path:
-                matched_chm_path.append(chm_path)
-
-            # Check if the file exists
-        if os.path.isfile(matched_chm_path[0]):
-            print(f"The file {matched_chm_path[0]} exists.")
-        else:
-            print(f"The file {matched_chm_path[0]} does not exist.")
-        # print(str(matched_chm_path[0]))
-        
-        # TODO: What is this? Not used, right?
-        directory_list = ['building_shade','bldg_tree_shade']
-
-        # subdirectory for each tile:
-        folder_no = identifier.split('_')[-1]
-        folder_no = '/' + folder_no
-        tile_no = '/' + identifier
-        
-        building_directory = f'../results/output/{osmid}/building_shade{folder_no}/'
-
-        tree_directory = f'../results/output/{osmid}/tree_shade{folder_no}/'
-
-        building_shadow_files_exist = directory_check(building_directory)
-        tree_shadow_files_exist = directory_check(tree_directory)
-
-        if not building_shadow_files_exist:
-        
-            shade_bldg = shade.shadecalculation_setup(filepath_dsm = bldg_path, filepath_veg = str(matched_chm_path[0]), tile_no=tile_no, date = date, intervalTime = 30, onetime =0, filepath_save=building_directory, UTC=2, dst=1, useveg=0, trunkheight=25, transmissivity=20)
-
-        if not tree_shadow_files_exist:
-            shade_veg = shade.shadecalculation_setup(filepath_dsm = bldg_path, filepath_veg = matched_chm_path[0], tile_no=tile_no, date = date, intervalTime = 30, onetime =0, filepath_save=tree_directory, UTC=2, dst=1, useveg=1, trunkheight=25, transmissivity=20)
-
-
-def reproject_raster_to_dsm(src_raster, src_transform, src_crs, dst_crs, dst_transform, dst_shape):
-    """
-    Reproject a raster to the DSM's CRS.
-    
-    The CHM might be in a different CRS to the DSM.
-
-    This function reprojects the CHM to the DSM crs.
-    """
-    dst_raster = np.empty(dst_shape, dtype=src_raster.dtype)
-    reproject(
-        source=src_raster,
-        destination=dst_raster,
-        src_transform=src_transform,
-        src_crs=src_crs,
-        dst_transform=dst_transform,
-        dst_crs=dst_crs,
-        resampling=Resampling.nearest
-    )
-    return dst_raster
-
-def update_mask_within_extent(raster_path, combined_mask, dsm_bounds, dsm_transform, dsm_crs, dsm_shape):
-    """
-    This function reflects the fact that each DSM tile only overlaps the CHM partially, or overlaps multiple CHM tiles.
-    
-    We already have a list of CHM tiles that overlap. 
-    
-    In this function we open the tile(s), reproject, and compute the window in which the CHM overlaps with the DSM
-     
-    Then we use the data in the window to create a raster mask for the original DSM"""
-    with rasterio.open(raster_path) as src:
-        # Reproject the entire additional raster to the DSM's CRS
-        src_data = src.read(1)
-        src_transform = src.transform
-        src_crs = src.crs
-        
-        reprojected_data = reproject_raster_to_dsm(
-            src_data, src_transform, src_crs, dsm_crs, dsm_transform, dsm_shape
-        )
-        
-        # Compute the window of the reprojected raster that overlaps with the DSM extent
-        window = from_bounds(
-            left=dsm_bounds.left, bottom=dsm_bounds.bottom,
-            right=dsm_bounds.right, top=dsm_bounds.top,
-            transform=dsm_transform
-        )
-
-        # Convert window indices to integers
-        row_off = int(window.row_off)
-        col_off = int(window.col_off)
-        height = int(window.height)
-        width = int(window.width)
-
-        # Extract the overlapping window from the reprojected raster
-        window_data = reprojected_data[
-            row_off:row_off + height,
-            col_off:col_off + width
-        ]
-
-        # Create a mask from the reprojected raster within the window
-        additional_mask = window_data > 0  # Example condition to create a mask from the additional raster
-        
-        # Update the combined mask using the window's index
-        row_start, col_start = row_off, col_off
-        row_end, col_end = row_start + additional_mask.shape[0], col_start + additional_mask.shape[1]
-
-        # Ensure the indices are within the bounds of the combined mask
-        if row_start < 0 or col_start < 0 or row_end > combined_mask.shape[0] or col_end > combined_mask.shape[1]:
-            print(f"Skipping {raster_path} due to out of bounds indices")
-            return
-
-        combined_mask[row_start:row_end, col_start:col_end] |= additional_mask
-
-
-### FILTER FUNCTIONS:
-
-
-# Function to apply a median filter to a raster dataset
-def apply_median_filter(data, nodata_value, size=3, nodata=True):
-    
-    if nodata:
-        # Create a mask for nodata values
-        mask = (data == nodata_value)
-    
-        # Apply the median filter only to valid data
-        filtered_data = data.copy()
-        filtered_data[~mask] = median_filter(data[~mask], size=size)
-        print('Filtering: Ignoring Nodata')
-    else:
-        filtered_data = data.copy()
-        filtered_data = median_filter(data, size=size)
-        print('Filtering; Handling nodata')
-    
-    return filtered_data
-
-
-# Function to apply a mean filter to a raster dataset
-def apply_mean_filter(data, nodata_value, size=3):
-    # Create a mask for nodata values
-    mask = (data == nodata_value)
-    
-    # Apply the mean filter only to valid data
-    filtered_data = data.copy()
-    filtered_data[~mask] = uniform_filter(data[~mask], size=size)
-    
-    return filtered_data
-
-# Function to apply a Gaussian filter to a raster dataset
-def apply_gaussian_filter(data, nodata_value, sigma=1):
-    # Create a mask for nodata values
-    mask = (data == nodata_value)
-    
-    # Apply the Gaussian filter only to valid data
-    filtered_data = data.copy()
-    filtered_data[~mask] = gaussian_filter(data[~mask], sigma=sigma)
-    
-    return filtered_data
-
-# # Function to apply a minimum filter to a raster dataset
-# def apply_minimum_filter(data, nodata_value, size=3):
-#     # Create a mask for nodata values
-#     mask = (data == nodata_value)
-    
-#     # Apply the Gaussian filter only to valid data
-#     filtered_data = data.copy()
-#     filtered_data[~mask] = minimum_filter(data[~mask], size=size)
-    
-#     return filtered_data
-
-# Function to apply a minimum filter to a raster dataset
-def apply_minimum_filter(data, nodata_value, size=3, nodata=True):
-    
-    if nodata: 
-        # Create a mask for nodata values
-        mask = (data == nodata_value)
-        
-        # Apply the Gaussian filter only to valid data
-        filtered_data = data.copy()
-        filtered_data[~mask] = minimum_filter(data[~mask], size=size)
-        print('Filtering: Ignoring Nodata')
-    else:
-        filtered_data = data.copy()
-        filtered_data = minimum_filter(data, size=size)
-        print('Filtering; Handling nodata')
-
-    
-    return filtered_data
-
-
-### CROP AND SAVE RASTER
-
-def crop_and_save_raster(raster, transform, meta, nodata, n, out_path):
-    
-    # Calculate new top-left corner coordinates
-    new_x = transform.c + n * transform.a
-    new_y = transform.f + n * transform.e
-
-    # Calculate new transformation matrix
-    new_transform = Affine(transform.a, transform.b, new_x,
-                        transform.d, transform.e, new_y)
-
-    # Crop the data by removing n pixels from each edge
-    cropped_data = raster[n:-n, n:-n]
-
-    # Update the metadata
-    meta.update({
-        'height': cropped_data.shape[0],
-        'width': cropped_data.shape[1],
-        'transform': new_transform
-    })
-
-    # Save the cropped raster data
-    with rasterio.open(out_path, 'w', **meta) as dst:
-        dst.write(cropped_data, 1)
-        if nodata is not None:
-            dst.nodata = nodata
-
-    print(f"Cropped raster saved to {out_path}")
-
-def check_files_exist(file_paths):
-    """
-    Check if all files in the list exist.
-
-    Parameters:
-    file_paths (list of str): List of file paths to check.
-
-    Returns:
-    bool: True if all files exist, False otherwise.
-    """
-    return all(os.path.exists(file_path) for file_path in file_paths)
-
-
-
-### The 
-# Function to extract the identifier from the file path
-def extract_identifier(path):
-    # Extract the last segment of the path
-    last_segment = path.split('/')[-1]
-    
-    # Use regular expression to match the pattern before _20xx_
-    match = re.match(r'(.*)_20\d{2}_', last_segment)
-    
-    if match:
-        identifier = match.group(1)
-    else:
-        identifier = last_segment.split('_20')[0]
-    
-    return identifier
-
-def directory_check(directory, shadow_check=True):
-    """
-    Check if the directory exists and contains 'shadow_fraction_on_' files.
-
-    Parameters:
-    directory (str): The path to the directory to check/create.
-    shadow_check (bool): Whether to check for shadow_fraction_on_ files.
-
-    Returns:
-    bool: True if the directory exists and contains the required files, False otherwise.
-    """
-    # Check if the directory exists
-    if not os.path.exists(directory):
-        # Create the directory
-        os.makedirs(directory)
-        print(f"Directory {directory} created.")
-    
-    print(f"Directory {directory} already exists.")
-    
-    if shadow_check:
-        # Check for files containing 'shadow_fraction_on_' in their names
-        shadow_files = [f for f in os.listdir(directory) if 'shadow_fraction_on_' in f]
-        
-        if shadow_files:
-            print(f"Files containing 'shadow_fraction_on_' found: {shadow_files}")
-            return True  # Required files found
-        else:
-            print("No files containing 'shadow_fraction_on_' found.")
-            return False  # Required files not found
-
-
-
-## Solar API downloads are organised per OSM ID for which they are downloaded. Change to select a different area:
-# Common ID's:
-# - Amsterdam West: 15419236
-
-date = dt.datetime.now()
-
-if __name__ == "__main__":
-    main(date)
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import re\n",
+    "import glob\n",
+    "import importlib\n",
+    "import rasterio\n",
+    "from rasterio.warp import reproject, Resampling\n",
+    "from rasterio.windows import from_bounds\n",
+    "from rasterio.features import rasterize\n",
+    "from rasterio.transform import from_origin\n",
+    "from rasterio.transform import Affine\n",
+    "import datetime as dt\n",
+    "from osgeo import gdal, osr\n",
+    "from osgeo.gdalconst import *\n",
+    "import shade_setup as shade\n",
+    "import numpy as np\n",
+    "import geopandas as gpd\n",
+    "import pandas as pd\n",
+    "from shapely.geometry import box\n",
+    "from shapely.geometry import mapping\n",
+    "\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "\n",
+    "\n",
+    "from scipy.ndimage import median_filter\n",
+    "from scipy.ndimage import uniform_filter\n",
+    "from scipy.ndimage import gaussian_filter\n",
+    "from scipy.ndimage import minimum_filter\n",
+    "\n",
+    "import startinpy\n",
+    "\n",
+    "importlib.reload(shade)\n",
+    "\n",
+    "pd.set_option('display.max_columns', None) #-- to show all columns in a dataframe. To reset: pd.reset_option(“max_columns”)\n",
+    "\n",
+    "\n",
+    "\n",
+    "def reproject_raster_to_dsm(src_raster, src_transform, src_crs, dst_crs, dst_transform, dst_shape):\n",
+    "    \"\"\"\n",
+    "    Reproject a raster to the DSM's CRS.\n",
+    "    \n",
+    "    The CHM might be in a different CRS to the DSM.\n",
+    "\n",
+    "    This function reprojects the CHM to the DSM crs.\n",
+    "    \"\"\"\n",
+    "    dst_raster = np.empty(dst_shape, dtype=src_raster.dtype)\n",
+    "    reproject(\n",
+    "        source=src_raster,\n",
+    "        destination=dst_raster,\n",
+    "        src_transform=src_transform,\n",
+    "        src_crs=src_crs,\n",
+    "        dst_transform=dst_transform,\n",
+    "        dst_crs=dst_crs,\n",
+    "        resampling=Resampling.nearest\n",
+    "    )\n",
+    "    return dst_raster\n",
+    "\n",
+    "def update_mask_within_extent(raster_path, combined_mask, dsm_bounds, dsm_transform, dsm_crs, dsm_shape):\n",
+    "    \"\"\"\n",
+    "    This function reflects the fact that each DSM tile only overlaps the CHM partially, or overlaps multiple CHM tiles.\n",
+    "    \n",
+    "    We already have a list of CHM tiles that overlap. \n",
+    "    \n",
+    "    In this function we open the tile(s), reproject, and compute the window in which the CHM overlaps with the DSM\n",
+    "     \n",
+    "    Then we use the data in the window to create a raster mask for the original DSM\"\"\"\n",
+    "    with rasterio.open(raster_path) as src:\n",
+    "        # Reproject the entire additional raster to the DSM's CRS\n",
+    "        src_data = src.read(1)\n",
+    "        src_transform = src.transform\n",
+    "        src_crs = src.crs\n",
+    "        \n",
+    "        reprojected_data = reproject_raster_to_dsm(\n",
+    "            src_data, src_transform, src_crs, dsm_crs, dsm_transform, dsm_shape\n",
+    "        )\n",
+    "        \n",
+    "        # Compute the window of the reprojected raster that overlaps with the DSM extent\n",
+    "        window = from_bounds(\n",
+    "            left=dsm_bounds.left, bottom=dsm_bounds.bottom,\n",
+    "            right=dsm_bounds.right, top=dsm_bounds.top,\n",
+    "            transform=dsm_transform\n",
+    "        )\n",
+    "\n",
+    "        # Convert window indices to integers\n",
+    "        row_off = int(window.row_off)\n",
+    "        col_off = int(window.col_off)\n",
+    "        height = int(window.height)\n",
+    "        width = int(window.width)\n",
+    "\n",
+    "        # Extract the overlapping window from the reprojected raster\n",
+    "        window_data = reprojected_data[\n",
+    "            row_off:row_off + height,\n",
+    "            col_off:col_off + width\n",
+    "        ]\n",
+    "\n",
+    "        # Create a mask from the reprojected raster within the window\n",
+    "        additional_mask = window_data > 0  # Example condition to create a mask from the additional raster\n",
+    "        \n",
+    "        # Update the combined mask using the window's index\n",
+    "        row_start, col_start = row_off, col_off\n",
+    "        row_end, col_end = row_start + additional_mask.shape[0], col_start + additional_mask.shape[1]\n",
+    "\n",
+    "        # Ensure the indices are within the bounds of the combined mask\n",
+    "        if row_start < 0 or col_start < 0 or row_end > combined_mask.shape[0] or col_end > combined_mask.shape[1]:\n",
+    "            print(f\"Skipping {raster_path} due to out of bounds indices\")\n",
+    "            return\n",
+    "\n",
+    "        combined_mask[row_start:row_end, col_start:col_end] |= additional_mask\n",
+    "\n",
+    "\n",
+    "### FILTER FUNCTIONS:\n",
+    "\n",
+    "\n",
+    "# Function to apply a median filter to a raster dataset\n",
+    "def apply_median_filter(data, nodata_value, size=3, nodata=True):\n",
+    "    \n",
+    "    if nodata:\n",
+    "        # Create a mask for nodata values\n",
+    "        mask = (data == nodata_value)\n",
+    "    \n",
+    "        # Apply the median filter only to valid data\n",
+    "        filtered_data = data.copy()\n",
+    "        filtered_data[~mask] = median_filter(data[~mask], size=size)\n",
+    "        print('Filtering: Ignoring Nodata')\n",
+    "    else:\n",
+    "        filtered_data = data.copy()\n",
+    "        filtered_data = median_filter(data, size=size)\n",
+    "        print('Filtering; Handling nodata')\n",
+    "    \n",
+    "    return filtered_data\n",
+    "\n",
+    "\n",
+    "# Function to apply a mean filter to a raster dataset\n",
+    "def apply_mean_filter(data, nodata_value, size=3):\n",
+    "    # Create a mask for nodata values\n",
+    "    mask = (data == nodata_value)\n",
+    "    \n",
+    "    # Apply the mean filter only to valid data\n",
+    "    filtered_data = data.copy()\n",
+    "    filtered_data[~mask] = uniform_filter(data[~mask], size=size)\n",
+    "    \n",
+    "    return filtered_data\n",
+    "\n",
+    "# Function to apply a Gaussian filter to a raster dataset\n",
+    "def apply_gaussian_filter(data, nodata_value, sigma=1):\n",
+    "    # Create a mask for nodata values\n",
+    "    mask = (data == nodata_value)\n",
+    "    \n",
+    "    # Apply the Gaussian filter only to valid data\n",
+    "    filtered_data = data.copy()\n",
+    "    filtered_data[~mask] = gaussian_filter(data[~mask], sigma=sigma)\n",
+    "    \n",
+    "    return filtered_data\n",
+    "\n",
+    "# # Function to apply a minimum filter to a raster dataset\n",
+    "# def apply_minimum_filter(data, nodata_value, size=3):\n",
+    "#     # Create a mask for nodata values\n",
+    "#     mask = (data == nodata_value)\n",
+    "    \n",
+    "#     # Apply the Gaussian filter only to valid data\n",
+    "#     filtered_data = data.copy()\n",
+    "#     filtered_data[~mask] = minimum_filter(data[~mask], size=size)\n",
+    "    \n",
+    "#     return filtered_data\n",
+    "\n",
+    "# Function to apply a minimum filter to a raster dataset\n",
+    "def apply_minimum_filter(data, nodata_value, size=3, nodata=True):\n",
+    "    \n",
+    "    if nodata: \n",
+    "        # Create a mask for nodata values\n",
+    "        mask = (data == nodata_value)\n",
+    "        \n",
+    "        # Apply the Gaussian filter only to valid data\n",
+    "        filtered_data = data.copy()\n",
+    "        filtered_data[~mask] = minimum_filter(data[~mask], size=size)\n",
+    "        print('Filtering: Ignoring Nodata')\n",
+    "    else:\n",
+    "        filtered_data = data.copy()\n",
+    "        filtered_data = minimum_filter(data, size=size)\n",
+    "        print('Filtering; Handling nodata')\n",
+    "\n",
+    "    \n",
+    "    return filtered_data\n",
+    "\n",
+    "\n",
+    "### CROP AND SAVE RASTER\n",
+    "\n",
+    "def crop_and_save_raster(raster, transform, meta, nodata, n, out_path):\n",
+    "    \n",
+    "    # Calculate new top-left corner coordinates\n",
+    "    new_x = transform.c + n * transform.a\n",
+    "    new_y = transform.f + n * transform.e\n",
+    "\n",
+    "    # Calculate new transformation matrix\n",
+    "    new_transform = Affine(transform.a, transform.b, new_x,\n",
+    "                        transform.d, transform.e, new_y)\n",
+    "\n",
+    "    # Crop the data by removing n pixels from each edge\n",
+    "    cropped_data = raster[n:-n, n:-n]\n",
+    "\n",
+    "    # Update the metadata\n",
+    "    meta.update({\n",
+    "        'height': cropped_data.shape[0],\n",
+    "        'width': cropped_data.shape[1],\n",
+    "        'transform': new_transform\n",
+    "    })\n",
+    "\n",
+    "    # Save the cropped raster data\n",
+    "    with rasterio.open(out_path, 'w', **meta) as dst:\n",
+    "        dst.write(cropped_data, 1)\n",
+    "        if nodata is not None:\n",
+    "            dst.nodata = nodata\n",
+    "\n",
+    "    print(f\"Cropped raster saved to {out_path}\")\n",
+    "\n",
+    "def check_files_exist(file_paths):\n",
+    "    \"\"\"\n",
+    "    Check if all files in the list exist.\n",
+    "\n",
+    "    Parameters:\n",
+    "    file_paths (list of str): List of file paths to check.\n",
+    "\n",
+    "    Returns:\n",
+    "    bool: True if all files exist, False otherwise.\n",
+    "    \"\"\"\n",
+    "    return all(os.path.exists(file_path) for file_path in file_paths)\n",
+    "\n",
+    "\n",
+    "\n",
+    "### The \n",
+    "# Function to extract the identifier from the file path\n",
+    "def extract_identifier(path):\n",
+    "    # Extract the last segment of the path\n",
+    "    last_segment = path.split('/')[-1]\n",
+    "    \n",
+    "    # Use regular expression to match the pattern before _20xx_\n",
+    "    match = re.match(r'(.*)_20\\d{2}_', last_segment)\n",
+    "    \n",
+    "    if match:\n",
+    "        identifier = match.group(1)\n",
+    "    else:\n",
+    "        identifier = last_segment.split('_20')[0]\n",
+    "    \n",
+    "    return identifier\n",
+    "\n",
+    "def directory_check(directory, shadow_check=True):\n",
+    "    \"\"\"\n",
+    "    Check if the directory exists and contains 'shadow_fraction_on_' files.\n",
+    "\n",
+    "    Parameters:\n",
+    "    directory (str): The path to the directory to check/create.\n",
+    "    shadow_check (bool): Whether to check for shadow_fraction_on_ files.\n",
+    "\n",
+    "    Returns:\n",
+    "    bool: True if the directory exists and contains the required files, False otherwise.\n",
+    "    \"\"\"\n",
+    "    # Check if the directory exists\n",
+    "    if not os.path.exists(directory):\n",
+    "        # Create the directory\n",
+    "        os.makedirs(directory)\n",
+    "        print(f\"Directory {directory} created.\")\n",
+    "    \n",
+    "    print(f\"Directory {directory} already exists.\")\n",
+    "    \n",
+    "    if shadow_check:\n",
+    "        # Check for files containing 'shadow_fraction_on_' in their names\n",
+    "        shadow_files = [f for f in os.listdir(directory) if 'shadow_fraction_on_' in f]\n",
+    "        \n",
+    "        if shadow_files:\n",
+    "            print(f\"Files containing 'shadow_fraction_on_' found: {shadow_files}\")\n",
+    "            return True  # Required files found\n",
+    "        else:\n",
+    "            print(\"No files containing 'shadow_fraction_on_' found.\")\n",
+    "            return False  # Required files not found\n",
+    "\n",
+    "\n",
+    "\n",
+    "## Solar API downloads are organised per OSM ID for which they are downloaded. Change to select a different area:\n",
+    "# Common ID's:\n",
+    "# - Amsterdam West: 15419236\n",
+    "\n",
+    "osmid = 15419236\n",
+    "\n",
+    "\n",
+    "\n",
+    "# Directory containing the raster files\n",
+    "raster_dir = f'../data/clean_data/solar/{osmid}'\n",
+    "\n",
+    "# Get a list of all raster files in the directory so we can load them incrementally\n",
+    "raster_files = glob.glob(os.path.join(raster_dir, '*dsm.tif'))\n",
+    "\n",
+    "print(len(raster_files))\n",
+    "\n",
+    "\n",
+    "\n",
+    "\n",
+    "# Process each DSM file\n",
+    "for path in raster_files:\n",
+    "    # Find the index of the last '/' character\n",
+    "    last_slash_index = path.rfind('/')\n",
+    "    # Extract the part after the last '/' (excluding '/')\n",
+    "    file_name = path[last_slash_index + 1:]\n",
+    "    file_name_building = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + \"building_dsm.tif\"\n",
+    "    file_name_trees = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + \"canopy_dsm.tif\"\n",
+    "\n",
+    "    # List of file paths to check\n",
+    "    file_paths = [file_name_building, file_name_trees]\n",
+    "\n",
+    "    # Check if the files already exist\n",
+    "    if check_files_exist(file_paths):\n",
+    "        print(\"Files already exist. Skipping creation.\")\n",
+    "    else:\n",
+    "        # Read DSM\n",
+    "        with rasterio.open(path) as src:\n",
+    "            dsm_data = src.read(1)\n",
+    "            dsm_meta = src.meta.copy()\n",
+    "            dsm_crs = src.crs\n",
+    "            dsm_bounds = src.bounds\n",
+    "            dsm_transform = src.transform\n",
+    "            dsm_shape = dsm_data.shape\n",
+    "        \n",
+    "        # Extract further metadata\n",
+    "            width = src.width\n",
+    "            height = src.height\n",
+    "            nodata_value = src.nodata\n",
+    "            dtype = src.dtypes[0]\n",
+    "\n",
+    "            # Calculate resolution\n",
+    "            resolution_x = dsm_transform[0]\n",
+    "            resolution_y = -dsm_transform[4]  # Typically negative in the geotransform\n",
+    "\n",
+    "            # Calculate extent\n",
+    "            xmin = dsm_transform[2]\n",
+    "            ymax = dsm_transform[5]\n",
+    "            xmax = xmin + (width * resolution_x)\n",
+    "            ymin = ymax + (height * dsm_transform[4])  # Typically negative\n",
+    "\n",
+    "        # Create a bounding box polygon from the raster bounds\n",
+    "        dsm_bbox = box(dsm_bounds.left, dsm_bounds.bottom, dsm_bounds.right, dsm_bounds.top)\n",
+    "        # Convert the bounding box to a GeoDataFrame and assign the raster's CRS\n",
+    "        dsm_bbox_gdf = gpd.GeoDataFrame({'geometry': [dsm_bbox]}, crs=dsm_crs)\n",
+    "\n",
+    "        # Load corresponding AHN subtiles\n",
+    "        subtiles_path = '../data/raw_data/ahn/AHN_subunits_GeoTiles.shp'\n",
+    "        subtiles = gpd.read_file(subtiles_path, mask=dsm_bbox_gdf)\n",
+    "        if subtiles.crs != dsm_crs:\n",
+    "            subtiles = subtiles.to_crs(dsm_crs)\n",
+    "        \n",
+    "        tile_list = list(subtiles.GT_AHNSUB)\n",
+    "        chm_path = '/Users/lbeuster/Documents/TU Delft/Projects/lidR/data/gilfoyle/results/'\n",
+    "\n",
+    "        chm_tile_paths = []\n",
+    "\n",
+    "        for tile in tile_list:\n",
+    "            full_path = chm_path + tile + '.tif'\n",
+    "            chm_tile_paths.append(full_path)\n",
+    "            print(chm_tile_paths)\n",
+    "\n",
+    "        # Initialize a mask with the same shape as the DSM data\n",
+    "        combined_chm_mask = np.zeros(dsm_shape, dtype=bool)\n",
+    "\n",
+    "        # Loop through the additional raster files and update the combined mask\n",
+    "        for raster_path in chm_tile_paths:\n",
+    "            update_mask_within_extent(raster_path, combined_chm_mask, dsm_bounds, dsm_transform, dsm_crs, dsm_shape)\n",
+    "\n",
+    "        # The combined_mask can now be applied to the dsm_data as required\n",
+    "        canopy_dsm = np.where(combined_chm_mask, dsm_data, np.nan)  # Use NaN for masked-out areas\n",
+    "\n",
+    "        # Read building_mask\n",
+    "        mask_path = path.replace(\"dsm\", \"mask\")\n",
+    "\n",
+    "        with rasterio.open(mask_path) as src:\n",
+    "            bldg_mask = src.read(1)\n",
+    "            bldg_mask_meta = src.meta.copy()\n",
+    "            bldg_transform = src.transform\n",
+    "            bldg_crs = src.crs\n",
+    "            bldg_dtype = src.dtypes[0]\n",
+    "\n",
+    "        # Read osm_buildings (commented out is the old function, that wasn't able to handle the edge cases where no buildings in osm)\n",
+    "\n",
+    "        # # Load corresponding AHN subtiles\n",
+    "        # buildings_path = f'../data/clean_data/solar/{osmid}/{osmid}_buildings.gpkg'\n",
+    "        # buildings = gpd.read_file(buildings_path, mask=dsm_bbox_gdf)\n",
+    "        # if buildings.crs != dsm_crs:\n",
+    "        #     buildings = buildings.to_crs(dsm_crs)\n",
+    "\n",
+    "        # # Buffer to combat artefacts.\n",
+    "        # buildings.geometry = buildings.buffer(1.5)\n",
+    "\n",
+    "        # # Rasterize building polygons (same size as dsm so it works with UMEP)\n",
+    "        # # TODO: THIS STILL NEEDS A TRY/EXCEPT function. \n",
+    "        \n",
+    "        # osm_bldg_mask = rasterize(\n",
+    "        #     ((mapping(geom), 1) for geom in buildings.geometry),\n",
+    "        #     out_shape=dsm_data.shape,\n",
+    "        #     transform=dsm_meta['transform'],\n",
+    "        #     fill=0,\n",
+    "        #     dtype='uint8'\n",
+    "        # )\n",
+    "\n",
+    "        # combined_building_mask = np.logical_or(bldg_mask, osm_bldg_mask).astype(np.uint8)\n",
+    "        # combined_bldg_tree_mask = np.logical_or(combined_chm_mask, combined_building_mask).astype(np.uint8)\n",
+    "\n",
+    "\n",
+    "        # Load corresponding AHN subtiles\n",
+    "        buildings_path = f'../data/clean_data/solar/{osmid}/{osmid}_buildings.gpkg'\n",
+    "        buildings = gpd.read_file(buildings_path, mask=dsm_bbox_gdf)\n",
+    "\n",
+    "        # Check if buildings GeoDataFrame is empty\n",
+    "        if buildings.empty:\n",
+    "            print(\"No buildings found in the mask area.\")\n",
+    "            osm_bldg_mask = np.zeros(dsm_data.shape, dtype='uint8')  # Create an empty mask\n",
+    "        else:\n",
+    "            if buildings.crs != dsm_crs:\n",
+    "                buildings = buildings.to_crs(dsm_crs)\n",
+    "\n",
+    "            # Buffer to combat artefacts.\n",
+    "            buildings.geometry = buildings.buffer(1.5)\n",
+    "\n",
+    "            # Rasterize building polygons (same size as dsm so it works with UMEP)\n",
+    "            try:\n",
+    "                osm_bldg_mask = rasterize(\n",
+    "                    ((mapping(geom), 1) for geom in buildings.geometry),\n",
+    "                    out_shape=dsm_data.shape,\n",
+    "                    transform=dsm_meta['transform'],\n",
+    "                    fill=0,\n",
+    "                    dtype='uint8'\n",
+    "                )\n",
+    "            except Exception as e:\n",
+    "                print(f\"Error during rasterization: {e}\")\n",
+    "                osm_bldg_mask = np.zeros(dsm_data.shape, dtype='uint8')  # Create an empty mask in case of failure\n",
+    "\n",
+    "        combined_building_mask = np.logical_or(bldg_mask, osm_bldg_mask).astype(np.uint8)\n",
+    "        combined_bldg_tree_mask = np.logical_or(combined_chm_mask, combined_building_mask).astype(np.uint8)\n",
+    "\n",
+    "        dtm_raw = np.where(combined_bldg_tree_mask == 0, dsm_data, np.nan)\n",
+    "\n",
+    "        ### Filter the raw data\n",
+    "        ## Apply minimum filter\n",
+    "        filtered_data = apply_minimum_filter(dtm_raw, np.nan, size=50)\n",
+    "        # filtered_data = apply_minimum_filter(filtered_data, np.nan, size=50)\n",
+    "        filtered_data = apply_minimum_filter(filtered_data, np.nan, size=30)\n",
+    "        filtered_data = apply_minimum_filter(filtered_data, np.nan, size=10)\n",
+    "\n",
+    "        ### Interpolate: \n",
+    "\n",
+    "        t = dsm_transform\n",
+    "        pts = []\n",
+    "        coords = []\n",
+    "        for i in range(filtered_data.shape[0]):\n",
+    "            for j in range(filtered_data.shape[1]):\n",
+    "                x = t[2] + (j * t[0]) + (t[0] / 2)\n",
+    "                y = t[5] + (i * t[4]) + (t[4] / 2)\n",
+    "                z = filtered_data[i][j]\n",
+    "                # Add all point coordinates. Laplace interpolation keeps existing values. \n",
+    "                coords.append([x,y])\n",
+    "                if not np.isnan(z):\n",
+    "                    pts.append([x, y, z])\n",
+    "                    # print('data found')\n",
+    "        dt = startinpy.DT()\n",
+    "        dt.insert(pts, insertionstrategy=\"BBox\")\n",
+    "\n",
+    "        interpolated = dt.interpolate({\"method\": \"Laplace\"}, coords)\n",
+    "\n",
+    "        # Calculate the number of rows and columns\n",
+    "        ncols = int((xmax - xmin) / resolution_x)\n",
+    "        nrows = int((ymax - ymin) / resolution_y)\n",
+    "\n",
+    "        # Create an empty raster array\n",
+    "        raster_array = np.full((nrows, ncols), np.nan, dtype=np.float32)\n",
+    "\n",
+    "        # Ensure the points are in the correct structure (startinpy returns a flattened 1D array containing only the interpolated values for some reason)\n",
+    "\n",
+    "        # Combine the coordinates and values into a 2D array with shape (n, 3)\n",
+    "        points = np.array([(x, y, val) for (x, y), val in zip(coords, interpolated)])\n",
+    "        points\n",
+    "\n",
+    "\n",
+    "        # Check if the array length is a multiple of 3\n",
+    "        if points.size % 3 != 0:\n",
+    "            raise ValueError(f\"Array size {points.size} is not a multiple of 3, cannot reshape.\")\n",
+    "        # Reshape the points array if it's flattened\n",
+    "        if points.ndim == 1:\n",
+    "            points = points.reshape(-1, 3)\n",
+    "\n",
+    "        # In this example, points should be a 2D array with shape (n, 3)\n",
+    "        print(f\"Points shape: {points.shape}\")\n",
+    "\n",
+    "        # Map the points to the raster grid\n",
+    "        for point in points:\n",
+    "            if len(point) != 3:\n",
+    "                raise ValueError(f\"Expected point to have 3 elements (x, y, value), but got {len(point)} elements.\")\n",
+    "            x, y, value = point\n",
+    "            # Skip points with NaN values\n",
+    "            if np.isnan(value):\n",
+    "                continue\n",
+    "            \n",
+    "            col = int((x - xmin) / resolution_x)\n",
+    "            row = int((ymax - y) / resolution_y)\n",
+    "            \n",
+    "            # Ensure the indices are within bounds\n",
+    "            if 0 <= col < ncols and 0 <= row < nrows:\n",
+    "                raster_array[row, col] = value\n",
+    "\n",
+    "        # Define the transform (mapping from pixel coordinates to spatial coordinates)\n",
+    "        transform = from_origin(xmin, ymax, resolution_x, resolution_y)\n",
+    "\n",
+    "        # print(transform)\n",
+    "\n",
+    "        # Define the metadata for the new raster\n",
+    "        meta = {\n",
+    "            'driver': 'GTiff',\n",
+    "            'dtype': dtype,\n",
+    "            'nodata': nodata_value,\n",
+    "            'width': width,\n",
+    "            'height': height,\n",
+    "            'count': 1,\n",
+    "            'crs': dsm_crs,\n",
+    "            'transform': transform\n",
+    "        }\n",
+    "\n",
+    "        post_interpol_filter = apply_minimum_filter(raster_array, np.nan, size=40)\n",
+    "        post_interpol_filter = apply_minimum_filter(post_interpol_filter, np.nan, size=20)\n",
+    "\n",
+    "        dsm_buildings = np.where(combined_building_mask == 0, post_interpol_filter, dsm_data)\n",
+    "\n",
+    "        # Save building dsm and canopy dsm\n",
+    "\n",
+    "        # Find the index of the last '/' character\n",
+    "        last_slash_index = path.rfind('/')\n",
+    "        # Extract the part after the last '/' (excluding '/')\n",
+    "        file_name = path[last_slash_index + 1:]\n",
+    "        file_name_building = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + \"building_dsm.tif\"\n",
+    "        file_name_trees = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + \"canopy_dsm.tif\"\n",
+    "\n",
+    "\n",
+    "        # Replace nan values with 0 for canopy raster: \n",
+    "        canopy_dsm = np.nan_to_num(canopy_dsm, nan=0)\n",
+    "\n",
+    "        n = 50\n",
+    "\n",
+    "        crop_and_save_raster(canopy_dsm, dsm_transform, dsm_meta, nodata_value, n,file_name_trees)\n",
+    "        crop_and_save_raster(dsm_buildings, dsm_transform, dsm_meta, nodata_value, n,file_name_building)\n",
+    "\n",
+    "    \n",
+    "\n",
+    "    ## Turn back into raster\n",
+    "    # \n",
+    "    # # For testing, only process the first DSM file\n",
+    "\n",
+    "\n",
+    "# Directory containing the raster files\n",
+    "processing_dir = f'../data/clean_data/solar/{osmid}/rdy_for_processing/'\n",
+    "\n",
+    "# Get a list of all raster files in the directory so we can load them incrementally\n",
+    "building_files = glob.glob(os.path.join(processing_dir, '*building_dsm.tif'))\n",
+    "\n",
+    "canopy_files = glob.glob(os.path.join(processing_dir, '*canopy_dsm.tif'))\n",
+    "\n",
+    "\n",
+    "print(len(building_files))\n",
+    "\n",
+    "\n",
+    "# Iterate over building_files and find matching paths in canopy_files\n",
+    "# TODO: Instead of append to list, why don't I just create a chm string within the for loop?\n",
+    "# DON'T FORGET TO CHANGE BACK TO USING COMPLETE LIST.\n",
+    "for bldg_path in building_files[0:2]:\n",
+    "    identifier = extract_identifier(bldg_path)\n",
+    "    matched_chm_path = []\n",
+    "    for chm_path in canopy_files:\n",
+    "        if identifier in chm_path:\n",
+    "            matched_chm_path.append(chm_path)\n",
+    "\n",
+    "        # Check if the file exists\n",
+    "    if os.path.isfile(matched_chm_path[0]):\n",
+    "        print(f\"The file {matched_chm_path[0]} exists.\")\n",
+    "    else:\n",
+    "        print(f\"The file {matched_chm_path[0]} does not exist.\")\n",
+    "    # print(str(matched_chm_path[0]))\n",
+    "    \n",
+    "    # TODO: What is this? Not used, right?\n",
+    "    directory_list = ['building_shade','bldg_tree_shade']\n",
+    "\n",
+    "    # subdirectory for each tile:\n",
+    "    folder_no = identifier.split('_')[-1]\n",
+    "    folder_no = '/' + folder_no\n",
+    "    tile_no = '/' + identifier\n",
+    "    \n",
+    "    building_directory = f'../results/output/{osmid}/building_shade{folder_no}/'\n",
+    "\n",
+    "    tree_directory = f'../results/output/{osmid}/tree_shade{folder_no}/'\n",
+    "\n",
+    "    building_shadow_files_exist = directory_check(building_directory)\n",
+    "    tree_shadow_files_exist = directory_check(tree_directory)\n",
+    "\n",
+    "    if not building_shadow_files_exist:\n",
+    "    \n",
+    "        shade_bldg = shade.shadecalculation_setup(filepath_dsm = bldg_path, filepath_veg = str(matched_chm_path[0]), tile_no=tile_no, date = dt.datetime.now(), intervalTime = 30, onetime =0, filepath_save=building_directory, UTC=2, dst=1, useveg=0, trunkheight=25, transmissivity=20)\n",
+    "\n",
+    "    if not tree_shadow_files_exist:\n",
+    "        shade_veg = shade.shadecalculation_setup(filepath_dsm = bldg_path, filepath_veg = matched_chm_path[0], tile_no=tile_no, date = dt.datetime.now(), intervalTime = 30, onetime =0, filepath_save=tree_directory, UTC=2, dst=1, useveg=1, trunkheight=25, transmissivity=20)\n",
+    "\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "throwing_shade",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
