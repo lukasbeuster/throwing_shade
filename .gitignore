@@ -1,4 +1,5 @@
-.DS_Store
+/results
+/data
+/code/cache
+/code/temp.DS_Store
 .shade_env/
-data/
-results/
