@@ -1,0 +1,3 @@
+nohup: ignoring input
+usage: process_area_gilfoyle_parallel.py [-h] number
+process_area_gilfoyle_parallel.py: error: the following arguments are required: number
