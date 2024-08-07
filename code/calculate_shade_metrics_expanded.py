@@ -10,8 +10,6 @@ import datetime as dt
 
 ### THIS CODE CAN BE USED FOR PRETTY MUCH ANY ANALYSIS AT ANY SCALE. COULD ALSO DO THE NEIGHBOURHOOD ANALYSIS HERE (just replace verhardingen with neighbourhoods)
 
-### THIS DIDN"T WORK, SUSPECT THAT LOCAL VARIABLE POLYGONS IS CHANGED, NOT GLOBAL. 
-
 def main(osmid, date):
     print(f'working on OSMID:{osmid}; Date: {date}')
     timestr = date.strftime("%Y%m%d")
@@ -96,23 +94,6 @@ def merge_rasters_with_mask(raster_files):
         src.close()
     
     return mosaic, out_trans, out_meta
-
-# def merge_rasters_with_mask(raster_files):
-#     src_files_to_mosaic = []
-#     for raster in raster_files:
-#         with rasterio.open(raster) as src:
-#             data = src.read(1)
-#             mask = data != src.nodata
-#             src_files_to_mosaic.append({'data': data, 'mask': mask, 'meta': src.meta})
-    
-#     # Merge data and masks
-#     merged_data, out_trans = merge([{'data': src['data'], 'transform': src['meta']['transform']} for src in src_files_to_mosaic])
-#     merged_mask, _ = merge([{'data': src['mask'], 'transform': src['meta']['transform']} for src in src_files_to_mosaic])
-    
-#     # Apply mask to merged data
-#     merged_data = np.ma.masked_array(merged_data, mask=~merged_mask)
-    
-#     return merged_data, out_trans, src_files_to_mosaic[0]['meta']
 
 def compute_zonal_stats(polygons, raster_data, affine, nodata_value=None):
     stats = zonal_stats(polygons, raster_data, affine=affine, stats=['mean', 'std', 'min', 'max'], nodata=nodata_value)
