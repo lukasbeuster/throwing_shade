@@ -92,7 +92,7 @@ def main(date):
 
     print(f'Found {len(building_files)} building files')
 
-    dates = ['6, 20', '12, 21', '09, 22', '03, 20']
+    dates = ['1, 15', '2, 15', '4, 15', '5, 15', '7, 15', '8, 15', '10, 15', '11, 15']
 
     # Create a loop to iterate over the date strings
     for date_str in dates:
