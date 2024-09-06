@@ -67,7 +67,7 @@ def process_shade_metrics(osmid,timestr,timestr_extension,poly):
             poly[f'{timestr}_{bldg_tree}_{stat_type}'] = [s[stat_type] for s in stats]
         
         # Hourly statistics
-        for time in ['1200', '1500', '1600']:
+        for time in ['0900', '0930', '1000', '1030', '1100', '1130', '1200', '1230', '1300', '1330', '1400', '1430', '1500', '1530', '1600', '1630', '1700', '1730', '1800', '1830', '1900']:
             timestamp = timestr + '_' + time + '_LST.tif'
 
             print('Done with daily stats, working on hourly stats now:')
