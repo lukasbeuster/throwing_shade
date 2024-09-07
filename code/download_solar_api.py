@@ -27,16 +27,20 @@ def main(date):
 
     points_gdf = sapi.get_query_points(gdf, spacing=900,contains=False, solar_coverage=True, solar_coverage_path='../data/clean_data/solar/solar-api-coverage-032024/SolarAPIHighArea.shp', osm_id=osm_id)
 
+    print(points_gdf)
+
     points_path = f'../data/clean_data/solar/{osm_id}/{osm_id}_query_points.gpkg'
 
 
     points_gdf.to_file(points_path, driver='GPKG')
 
+    os.environ["GOOGLE_API_KEY"] = "xxx"
+
 
     save_dir = '../data/clean_data/solar/{OSMID}'
     sample_point = points_gdf.sample(1)
     radiusMeters = 500
-    view = "FULL_LAYERS" #instead of "FULL_LAYERS"
+    view = "IMAGERY_AND_ANNUAL_FLUX_LAYERS" #instead of "FULL_LAYERS"
     requiredQuality = "HIGH" # instead of "HIGH"
     pixelSizeMeters  = 0.5 # instead of 0.25
     req = sapi.request_data(sample_point, radiusMeters, view, requiredQuality, pixelSizeMeters, save_dir, osm_id=osm_id)

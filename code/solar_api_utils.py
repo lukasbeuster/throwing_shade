@@ -6,10 +6,13 @@ import osmnx as ox
 import geopandas as gpd
 import numpy as np
 from shapely.geometry import Point, Polygon, MultiPolygon
+from typing import Union, List, Dict, Optional, Tuple
 import matplotlib.pyplot as plt
 from pyproj import CRS
 from pyproj.aoi import AreaOfInterest
 from pyproj.database import query_utm_crs_info
+
+from tqdm import tqdm
 
 
 def get_admin_area(place):
@@ -189,7 +192,8 @@ def get_query_points(gdf, spacing=900, contains=False, solar_coverage=False, sol
 
         # Step 3: Perform a spatial join to find points within the buffered geometries
         intersecting_points = gpd.sjoin(points_gdf, buffered_gdf, how="inner", predicate="within")
-        intersecting_points = intersecting_points.drop('index_right', axis=1)
+        intersecting_points = intersecting_points.drop(['index_right', 'osm_id_right'], axis=1)
+        intersecting_points = intersecting_points.rename(columns={'osm_id_left':'osm_id'})
 
         # Step 4: Read the solar coverage shapefile
         solar_coverage_high = gpd.read_file(solar_coverage_path)
