@@ -43,7 +43,7 @@ def main(date):
     view = "IMAGERY_AND_ANNUAL_FLUX_LAYERS" #instead of "FULL_LAYERS"
     requiredQuality = "HIGH" # instead of "HIGH"
     pixelSizeMeters  = 0.5 # instead of 0.25
-    req = sapi.request_data(sample_point, radiusMeters, view, requiredQuality, pixelSizeMeters, save_dir, osm_id=osm_id)
+    req = sapi.request_data(points_gdf, radiusMeters, view, requiredQuality, pixelSizeMeters, save_dir, osm_id=osm_id)
 
 
 current_date = dt.datetime.now()
