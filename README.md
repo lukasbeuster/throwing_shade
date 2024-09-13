@@ -44,6 +44,8 @@ Steps:
 
 - Use CHM generated via AHN as raster mask (data/clean_data/chm) -> Canopy DSM
 
+(See 230921_Tree_Segmentation_multiple_tiles.R for AHN processing script (uses LidR package, thus written in R))
+
 ![alt text](DSM_to_BuildingDSM.png)
 
 Fill in missing ground values.
