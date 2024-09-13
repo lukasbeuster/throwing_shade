@@ -60,11 +60,16 @@ Fill in missing ground values.
 
 UMEP Shadow Pattern as standalone implementation.
 
+NOTE: For my research I'm running the shade simulation twice. 1st run with buildings only, 2nd run with buildings and trees. One of the things I'm working on is the difference between building and tree shade, so I require both. 
+
 Execution in parallel, for multiple days.
 
 Results (see results folder): 
 - shade raster per timestep
 - shade raster for daily shading. 
+for both buildings only (passing only the building DSM to the function) and buildings and trees (including both buildings and trees)
+
+You'll have to untangle this. 
 
 
 Relevant code:
