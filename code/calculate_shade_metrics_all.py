@@ -20,7 +20,6 @@ def main(osmid, date):
     timestr = date.strftime("%Y%m%d")
     timestr_extension = timestr + '.tif'
 
-
     # Load polygon dataset
     polygons = gpd.read_file('../data/raw_data/AMS/Q1_20230126_ingekort.gpkg')
 
