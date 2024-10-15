@@ -21,8 +21,6 @@ from shapely.geometry import mapping
 
 import matplotlib.pyplot as plt
 
-
-
 from scipy.ndimage import median_filter
 from scipy.ndimage import uniform_filter
 from scipy.ndimage import gaussian_filter
@@ -142,31 +140,6 @@ def main(date):
                 bldg_transform = src.transform
                 bldg_crs = src.crs
                 bldg_dtype = src.dtypes[0]
-
-            # Read osm_buildings (commented out is the old function, that wasn't able to handle the edge cases where no buildings in osm)
-
-            # # Load corresponding AHN subtiles
-            # buildings_path = f'../data/clean_data/solar/{osmid}/{osmid}_buildings.gpkg'
-            # buildings = gpd.read_file(buildings_path, mask=dsm_bbox_gdf)
-            # if buildings.crs != dsm_crs:
-            #     buildings = buildings.to_crs(dsm_crs)
-
-            # # Buffer to combat artefacts.
-            # buildings.geometry = buildings.buffer(1.5)
-
-            # # Rasterize building polygons (same size as dsm so it works with UMEP)
-            # # TODO: THIS STILL NEEDS A TRY/EXCEPT function. 
-            
-            # osm_bldg_mask = rasterize(
-            #     ((mapping(geom), 1) for geom in buildings.geometry),
-            #     out_shape=dsm_data.shape,
-            #     transform=dsm_meta['transform'],
-            #     fill=0,
-            #     dtype='uint8'
-            # )
-
-            # combined_building_mask = np.logical_or(bldg_mask, osm_bldg_mask).astype(np.uint8)
-            # combined_bldg_tree_mask = np.logical_or(combined_chm_mask, combined_building_mask).astype(np.uint8)
 
 
             # Load corresponding AHN subtiles
