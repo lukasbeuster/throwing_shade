@@ -1,6 +1,8 @@
 /results
 /data
 /code/cache
+/code/__pycache__
+/code/lightning_logs
 /code/temp.DS_Store
 .shade_env/
 .DS_Store
