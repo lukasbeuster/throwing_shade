@@ -6,7 +6,9 @@ import matplotlib.ticker as mticker
 import matplotlib.lines as mlines  # To add the mean line to the legend
 from datetime import datetime as dt
 import numpy as np
+import contextily as ctx
 import os
+
 
 
 ####### LOADING DATA ###########
@@ -193,6 +195,30 @@ def calculate_daily_average_shade(filtered_gdf, time_increments, date, avg_colum
     # Calculate the average across the specified columns
     filtered_gdf[avg_column_name] = filtered_gdf[columns_to_average].mean(axis=1)
     
+    return filtered_gdf
+
+
+def calculate_shade_score(filtered_gdf, time_increments, date, score_column_name, threshold=30):
+    """
+    Calculate the score of time increments meeting or exceeding a shade percentage threshold 
+    for a given date and add it as a new column in the GeoDataFrame.
+
+    Parameters:
+    filtered_gdf (GeoDataFrame): The GeoDataFrame containing shade percentage data.
+    time_increments (list): A list of time increments as strings (e.g., ['1130', '1200', '1230']).
+    date (str): The date in 'YYYYMMDD' format (e.g., '20240620').
+    score_column_name (str): The name for the new column to store the shade score.
+    threshold (float): The shade percentage threshold (e.g., 30 for 30%).
+
+    Returns:
+    filtered_gdf (GeoDataFrame): The GeoDataFrame with the new column containing the shade score.
+    """
+    # Create a list of columns based on the date and time increments
+    columns_to_check = [f'{date}_tree_shade_percent_at_{time}' for time in time_increments]
+
+    # Calculate the score as the fraction of times the shade percentage is above the threshold
+    filtered_gdf[score_column_name] = (filtered_gdf[columns_to_check] >= threshold).sum(axis=1) / len(time_increments)
+
     return filtered_gdf
 
 ########### PLOTTING #######
@@ -594,6 +620,203 @@ def plot_shade_comparison_rows(datasets, dataset_names, dates, times, osmid, tit
         print(f"Plot saved to {full_save_path}")
 
     plt.show()
+
+
+def plot_shade_distribution(gdf, column_name, cmap='viridis', 
+                            theme='dark', zoom=15, save_path=None):
+    """
+    Visualizes a GeoDataFrame's polygon data on a map with a dark or light background and 
+    displays the distribution of the values in a column with the median highlighted.
+    
+    Parameters:
+    - gdf: GeoDataFrame containing polygon data
+    - column_name: The name of the column to visualize (must contain numeric data)
+    - cmap: Colormap for the map visualization (default 'viridis')
+    - theme: 'dark' for dark background (CartoDB DarkMatter) or 'light' for light background (CartoDB Positron)
+    - zoom: Zoom level for the basemap (default 15)
+    - save_path: If provided, the plot will be saved to the specified file path
+    """
+    # Choose basemap and styling based on theme
+    if theme == 'dark':
+        basemap = ctx.providers.CartoDB.DarkMatter
+        bg_color = '#333333'
+        text_color = 'white'
+        spine_color = 'white'
+    else:
+        basemap = ctx.providers.CartoDB.Positron
+        bg_color = 'white'
+        text_color = 'black'
+        spine_color = 'black'
+
+    # Reproject to Web Mercator (EPSG:3857) for basemap alignment
+    gdf = gdf.to_crs(epsg=3857)
+
+    # Plotting
+    fig, ax = plt.subplots(2, 1, figsize=(10, 12), gridspec_kw={'height_ratios': [4, 1]})
+
+    # 1. Map Visualization with Chosen Background
+    gdf.plot(
+        column=column_name, 
+        cmap=cmap, 
+        legend=False,  # Removed the legend
+        ax=ax[0],
+        edgecolor='face',
+    )
+
+    # Add basemap (from contextily)
+    ctx.add_basemap(
+        ax[0], 
+        source=basemap, 
+        zoom=zoom
+    )
+
+    # Remove axis for the map
+    ax[0].axis('off')
+    ax[0].set_title(f'{column_name.replace("_", " ").capitalize()} Map', fontsize=14, color=text_color)
+
+    # 2. Distribution Graph with Highlighted Median
+    sns.kdeplot(
+        gdf[column_name], 
+        color='lightgreen', 
+        ax=ax[1]
+    )  # Show a smooth line for the distribution
+
+    # Highlight median
+    median_val = gdf[column_name].median()
+    ax[1].axvline(median_val, color='red', linestyle='--', label=f'Median: {median_val:.2f}%')
+
+    # Formatting the distribution plot
+    ax[1].set_xlabel(f'{column_name.replace("_", " ").capitalize()} (%)', fontsize=12, color=text_color)
+    ax[1].set_ylabel('')
+    ax[1].set_yticks([])  # Remove y-axis labels
+    ax[1].legend()
+
+    # Set background and text color for the distribution plot
+    ax[1].set_facecolor(bg_color)
+    fig.patch.set_facecolor(bg_color)
+    ax[1].spines['left'].set_color(bg_color)
+    ax[1].spines['right'].set_color(bg_color)
+    ax[1].spines['top'].set_color(bg_color)
+    ax[1].spines['bottom'].set_color(spine_color)
+
+    # Update tick and label colors for readability
+    ax[1].tick_params(colors=text_color)
+    ax[1].xaxis.label.set_color(text_color)
+    ax[1].legend(facecolor=bg_color, edgecolor=spine_color)
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Save the plot if save_path is provided
+    if save_path:
+        plt.savefig(save_path, dpi=300, facecolor=fig.get_facecolor(), edgecolor='none')
+
+    # Display the plot
+    plt.show()
+    
+# Usage example:
+# plot_shade_distribution(gdf, 'tree_shade_percent_day_average', theme='light', save_path='shade_plot.png')
+
+def plot_hexmap_shade_distribution(gdf, column_name, cmap='viridis', 
+                                   theme='dark', zoom=15, save_path=None):
+    """
+    Visualizes a hexmap of a GeoDataFrame's polygon data on a map with a dark or light background and 
+    displays the distribution of the values in a column with the median highlighted.
+    
+    Parameters:
+    - gdf: GeoDataFrame containing polygon data
+    - column_name: The name of the column to visualize (must contain numeric data)
+    - cmap: Colormap for the hexmap visualization (default 'viridis')
+    - theme: 'dark' for dark background (CartoDB DarkMatter) or 'light' for light background (CartoDB Positron)
+    - zoom: Zoom level for the basemap (default 15)
+    - save_path: If provided, the plot will be saved to the specified file path
+    """
+    # Choose basemap and styling based on theme
+    if theme == 'dark':
+        basemap = ctx.providers.CartoDB.DarkMatter
+        bg_color = '#333333'
+        text_color = 'white'
+        spine_color = 'white'
+    else:
+        basemap = ctx.providers.CartoDB.Positron
+        bg_color = 'white'
+        text_color = 'black'
+        spine_color = 'black'
+
+    # Reproject to Web Mercator (EPSG:3857) for basemap alignment
+    gdf = gdf.to_crs(epsg=3857)
+
+    # Calculate centroids of each polygon for hexbin plotting
+    gdf['centroid'] = gdf.centroid
+
+    # Extract x and y coordinates of the centroids
+    x = gdf['centroid'].x
+    y = gdf['centroid'].y
+    values = gdf[column_name]
+
+    # Plotting
+    fig, ax = plt.subplots(2, 1, figsize=(10, 12), gridspec_kw={'height_ratios': [4, 1]})
+
+    # 1. Hexmap Visualization with Chosen Background
+    hb = ax[0].hexbin(x, y, C=values, gridsize=50, cmap=cmap, reduce_C_function=np.mean)
+
+    # Add basemap (from contextily)
+    ctx.add_basemap(
+        ax[0], 
+        source=basemap, 
+        zoom=zoom
+    )
+
+    # Remove axis for the map
+    ax[0].axis('off')
+    ax[0].set_title(f'{column_name.replace("_", " ").capitalize()} Hexmap', fontsize=14, color=text_color)
+
+    # Add color bar to show scale of values
+    cb = plt.colorbar(hb, ax=ax[0])
+    cb.set_label(f'{column_name.replace("_", " ").capitalize()} (%)')
+
+    # 2. Distribution Graph with Highlighted Median
+    sns.kdeplot(
+        gdf[column_name], 
+        color='lightgreen', 
+        ax=ax[1]
+    )  # Show a smooth line for the distribution
+
+    # Highlight median
+    median_val = gdf[column_name].median()
+    ax[1].axvline(median_val, color='red', linestyle='--', label=f'Median: {median_val:.2f}%')
+
+    # Formatting the distribution plot
+    ax[1].set_xlabel(f'{column_name.replace("_", " ").capitalize()} (%)', fontsize=12, color=text_color)
+    ax[1].set_ylabel('')
+    ax[1].set_yticks([])  # Remove y-axis labels
+    ax[1].legend()
+
+    # Set background and text color for the distribution plot
+    ax[1].set_facecolor(bg_color)
+    fig.patch.set_facecolor(bg_color)
+    ax[1].spines['left'].set_color(bg_color)
+    ax[1].spines['right'].set_color(bg_color)
+    ax[1].spines['top'].set_color(bg_color)
+    ax[1].spines['bottom'].set_color(spine_color)
+
+    # Update tick and label colors for readability
+    ax[1].tick_params(colors=text_color)
+    ax[1].xaxis.label.set_color(text_color)
+    ax[1].legend(facecolor=bg_color, edgecolor=spine_color)
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Save the plot if save_path is provided
+    if save_path:
+        plt.savefig(save_path, dpi=300, facecolor=fig.get_facecolor(), edgecolor='none')
+
+    # Display the plot
+    plt.show()
+
+# Usage example:
+# plot_hexmap_shade_distribution(gdf, 'tree_shade_percent_day_average', theme='light', save_path='hexmap_shade_plot.png')
 
 
 
