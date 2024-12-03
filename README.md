@@ -84,6 +84,21 @@ links to
 - sun_position.py
 
 
+### Sidewalk download
+
+needs osm2streets_python from this fork, or from the main project as soon as my pull request was accepted: https://github.com/lukasbeuster/osm2streets
+
+to download lane polygons for any area in the world use the `sidewalk_generator.py`
+
+```bash
+python3 sidewalk_generator.py "West, Amsterdam"
+```
+
+This will:
+- find the corresponding location
+- create tiles and download raw osm xml files
+- process these tiles sequentially using osm2streets, saving geojson files of lanes and intersections
+
 ### Other noteworthy code:
 
 - shade_metrics_on_graph.ipynb: notebook with the code to calculate shade_weights per edge in a network graph. 
@@ -105,26 +120,27 @@ IGNORE ARCHIVE AND ANALYSIS FOLDERS
 
 ### folder structure:
 
-- code: All scripts etc.
-
-- data
-    - clean_data
-        - solar
-            - {OSMID}: Contains solarAPI downloads - DSM + RGB (+ annual flux, if requested) 
-        - chm
-            {SUBTILE}.tif / .gpkg. Use tif rather than gpkg, polygonise creates random artefacts
-
-
-- results
-    - figures
-    - output
-        - {OSMID}
-            - building_shade
-            - tree_shade
-                - {point_id}
-                    - {OSMID}_{point_id}_Shadow_{DATE}_{TIME}_LST.tif
-                    - {OSMID}_{point_id}_shadow_fraction_on_{DATE}.tif
-
+```
+code/
+    (All scripts etc.)
+data/
+└── clean_data/
+    ├── solar/
+    │   └── {OSMID}/
+    │       └── (Contains solarAPI downloads - DSM + RGB (+ annual flux, if requested))
+    └── chm/
+        ├── {SUBTILE}.tif
+        └── {SUBTILE}.gpkg (Use .tif rather than .gpkg, polygonise creates random artefacts)
+results/
+└── figures/
+└── output/
+    └── {OSMID}/
+        ├── building_shade/
+        └── tree_shade/
+            └── {point_id}/
+                ├── {OSMID}_{point_id}_Shadow_{DATE}_{TIME}_LST.tif
+                └── {OSMID}_{point_id}_shadow_fraction_on_{DATE}.tif
+```
 
 ## Contributing
 
