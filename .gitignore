@@ -7,3 +7,4 @@
 .shade_env/
 .DS_Store
 code/archive/boston_sidewalks.ipynb
+.env
