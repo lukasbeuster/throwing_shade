@@ -10,6 +10,13 @@ from segment_anything import SamPredictor, sam_model_registry
 import torch
 import matplotlib.pyplot as plt
 
+# Limit threads to 32
+os.environ["OMP_NUM_THREADS"] = "32"
+os.environ["MKL_NUM_THREADS"] = "32"
+os.environ["NUMEXPR_NUM_THREADS"] = "32"
+torch.set_num_threads(32)
+cv2.setNumThreads(32)
+
 def process_raster_files(osmid, raster_dir, output_dir, sam_checkpoint):
     # Load the DeepForest model
     model = main.deepforest()
