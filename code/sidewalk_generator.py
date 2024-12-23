@@ -8,19 +8,7 @@ import geopandas as gpd
 import pandas as pd
 import argparse
 
-
-def initialize_geolocator(user_agent="osm2streets_python/0.1.0"):
-    """
-    Initialize the geolocator for querying location data.
-    
-    Args:
-        user_agent (str): User agent string for the Nominatim geolocator.
-
-    Returns:
-        geopy.geocoders.Nominatim: Initialized geolocator instance.
-    """
-    return Nominatim(user_agent=user_agent)
-
+GLOBAL_CACHE_FILE = "../data/raw_data/osm2streets/location_cache.json"
 
 def get_location_info(geolocator, location_name):
     """
@@ -36,9 +24,20 @@ def get_location_info(geolocator, location_name):
     Raises:
         ValueError: If the location or OSMID cannot be found.
     """
+    # Load the global cache
+    cache = load_location_cache()
+
+    # Check if location is already cached
+    if location_name in cache:
+        print(f"Using cached data for {location_name}")
+        osmid = cache[location_name]["osmid"]
+        bbox = tuple(cache[location_name]["boundingbox"])
+        return osmid, bbox
+
+    # Query Nominatim if not cached
+    print(f"Querying Nominatim for {location_name}...")
     location = geolocator.geocode(location_name)
     if location:
-        print(f"Location found: {location.address}")
         osmid = location.raw.get("osm_id", None)
         if not osmid:
             raise ValueError("OSMID not found for location.")
@@ -48,10 +47,60 @@ def get_location_info(geolocator, location_name):
             float(location.raw['boundingbox'][2]),
             float(location.raw['boundingbox'][3]),
         )
+
+        # Save to the global cache
+        cache[location_name] = {"osmid": osmid, "boundingbox": bbox}
+        save_location_cache(cache)
         return osmid, bbox
     else:
         raise ValueError(f"Location not found: {location_name}")
+    
+def load_location_cache():
+    """
+    Load the location cache from a global file.
 
+    Returns:
+        dict: A dictionary with cached location data.
+    """
+    if os.path.exists(GLOBAL_CACHE_FILE):
+        with open(GLOBAL_CACHE_FILE, "r") as file:
+            return json.load(file)
+    return {}
+
+def save_location_cache(cache):
+    """
+    Save the location cache to a global file.
+
+    Args:
+        cache (dict): The location cache dictionary to save.
+    """
+    with open(GLOBAL_CACHE_FILE, "w") as file:
+        json.dump(cache, file, indent=4)
+
+def initialize_geolocator(user_agent="osm2streets_python/0.1.0"):
+    """
+    Initialize the geolocator for querying location data.
+    
+    Args:
+        user_agent (str): User agent string for the Nominatim geolocator.
+
+    Returns:
+        geopy.geocoders.Nominatim: Initialized geolocator instance.
+    """
+    return Nominatim(user_agent=user_agent)
+
+    
+def list_non_hidden_files(directory):
+    """
+    List non-hidden files in a directory, excluding files ending with '_fixed.osm'.
+
+    Args:
+        directory (str): Path to the directory.
+
+    Returns:
+        list: List of non-hidden files excluding '_fixed.osm' files.
+    """
+    return [f for f in os.listdir(directory) if not f.startswith('.') and not f.endswith('_fixed.osm')]
 
 def download_tiles(osmid, bbox, tile_size, output_dir, overpass_url="https://lz4.overpass-api.de/api/interpreter"):
     """
@@ -77,7 +126,9 @@ def download_tiles(osmid, bbox, tile_size, output_dir, overpass_url="https://lz4
     lon_steps = int((max_lon - min_lon) / tile_size) + 1
     print(f"Creating {lat_steps * lon_steps} tiles...")
 
-    if len(os.listdir(output_dir)) != (lat_steps * lon_steps):
+    print(f"Found {len(list_non_hidden_files(output_dir))} files in output folder")
+
+    if len(list_non_hidden_files(output_dir)) != (lat_steps * lon_steps):
         tile_count = 0
         for i in range(lat_steps):
             for j in range(lon_steps):
@@ -112,49 +163,532 @@ def download_tiles(osmid, bbox, tile_size, output_dir, overpass_url="https://lz4
     else:
         print(f"Files for {osmid} are already tiled and downloaded. Skipping download for now")
 
+import xml.etree.ElementTree as ET
 
-def process_tiles(tile_dir, input_options, output_dir):
+def has_repeat_non_adjacent_points(coords):
     """
-    Process downloaded OSM tiles to generate combined GeoDataFrames.
+    Check if a sequence of coordinates contains repeat non-adjacent points.
 
     Args:
-        tile_dir (str): Directory containing OSM tiles.
-        input_options (dict): Input options for osm2streets.
-        output_dir (str): Directory to save the processed GeoDataFrames.
+        coords (list): List of (lat, lon) tuples.
+
+    Returns:
+        bool: True if repeat non-adjacent points are found, False otherwise.
+    """
+    seen = set()
+    for i, coord in enumerate(coords):
+        if coord in seen and coord != coords[i - 1]:  # Allow adjacent repeats
+            return True
+        seen.add(coord)
+    return False
+
+
+def find_problematic_ways(osm_file):
+    """
+    Identify ways with repeat non-adjacent points in an OSM file.
+
+    Args:
+        osm_file (str): Path to the OSM file.
+
+    Returns:
+        list: IDs of problematic ways.
+    """
+    tree = ET.parse(osm_file)
+    root = tree.getroot()
+    nodes = {}  # Dictionary to map node IDs to their coordinates
+
+    # Extract node coordinates
+    for node in root.findall("node"):
+        node_id = node.get("id")
+        lat = float(node.get("lat"))
+        lon = float(node.get("lon"))
+        nodes[node_id] = (lat, lon)
+
+    # Check ways for repeat non-adjacent points
+    problematic_ways = []
+    for way in root.findall("way"):
+        way_id = way.get("id")
+        coords = [nodes[nd.get("ref")] for nd in way.findall("nd") if nd.get("ref") in nodes]
+        if has_repeat_non_adjacent_points(coords):
+            print(f"Way {way_id} has repeat non-adjacent points.")
+            problematic_ways.append(way_id)
+
+    return problematic_ways
+
+def is_valid_osm_file(osm_input):
+    """
+    Validate if the .osm file contains essential OSM data elements.
+
+    Args:
+        osm_input (bytes): Raw .osm file content.
+
+    Returns:
+        bool: True if the file is valid, False otherwise.
+    """
+    try:
+        content = osm_input.decode("utf-8")
+        # Check for essential OSM elements (node, way, relation)
+        if any(tag in content for tag in ["<node", "<way", "<relation"]):
+            return True
+    except Exception as e:
+        print(f"Error validating .osm file: {e}")
+    return False
+
+import xml.etree.ElementTree as ET
+
+def fix_or_remove_invalid_ways(osm_file, output_file):
+    """
+    Fix or remove ways with repeat non-adjacent points in an OSM file.
+
+    Args:
+        osm_file (str): Path to the input OSM file.
+        output_file (str): Path to save the fixed OSM file.
+
+    Returns:
+        list: IDs of removed ways.
+    """
+    tree = ET.parse(osm_file)
+    root = tree.getroot()
+    nodes = {}  # Dictionary to map node IDs to their coordinates
+
+    # Extract node coordinates
+    for node in root.findall("node"):
+        node_id = node.get("id")
+        lat = float(node.get("lat"))
+        lon = float(node.get("lon"))
+        nodes[node_id] = (lat, lon)
+
+    # Check and fix ways
+    removed_ways = []
+    for way in root.findall("way"):
+        way_id = way.get("id")
+        coords = [nodes[nd.get("ref")] for nd in way.findall("nd") if nd.get("ref") in nodes]
+
+        # Check for repeat non-adjacent points
+        seen = set()
+        has_problem = False
+        fixed_coords = []
+        for i, coord in enumerate(coords):
+            if coord in seen and coord != coords[i - 1]:  # Allow adjacent repeats
+                has_problem = True
+            else:
+                fixed_coords.append(coord)
+            seen.add(coord)
+
+        if has_problem:
+            if len(fixed_coords) >= 2:  # Retain only if valid polyline remains
+                print(f"Fixing way {way_id} by removing problematic points.")
+                # Update the way with fixed coordinates
+                for nd, coord in zip(way.findall("nd"), fixed_coords):
+                    node_id = [key for key, value in nodes.items() if value == coord][0]
+                    nd.set("ref", node_id)
+            else:
+                print(f"Removing way {way_id} due to invalid geometry.")
+                root.remove(way)
+                removed_ways.append(way_id)
+
+    # Save the fixed OSM file
+    tree.write(output_file)
+    return removed_ways
+
+def filter_problematic_ways(osm_file, output_file, problematic_ways):
+    """
+    Filter out problematic ways from an OSM file and save the result.
+
+    Args:
+        osm_file (str): Path to the original OSM file.
+        output_file (str): Path to save the filtered OSM file.
+        problematic_ways (list): List of IDs of problematic ways.
 
     Returns:
         None
     """
+    tree = ET.parse(osm_file)
+    root = tree.getroot()
+
+    # Remove problematic ways
+    for way in root.findall("way"):
+        if way.get("id") in problematic_ways:
+            root.remove(way)
+
+    # Save the filtered file
+    tree.write(output_file)
+    print(f"Filtered OSM file saved to {output_file}")
+
+
+def add_xml_header_if_missing(osm_file_path):
+    with open(osm_file_path, 'r+') as file:
+        content = file.read()
+        if not content.startswith('<?xml version="1.0" encoding="UTF-8"?>'):
+            file.seek(0, 0)  # Move to the start of the file
+            file.write('<?xml version="1.0" encoding="UTF-8"?>\n' + content)
+
+def process_tiles(tile_dir, input_options, output_dir):
     os.makedirs(output_dir, exist_ok=True)
 
     combined_gdf = gpd.GeoDataFrame()
     combined_gdf_lanes = gpd.GeoDataFrame()
     combined_gdf_intersections = gpd.GeoDataFrame()
 
+    failed_tiles = []
+
     for tile_file in os.listdir(tile_dir):
         if tile_file.endswith(".osm"):
             tile_path = os.path.join(tile_dir, tile_file)
             print(f"Processing tile: {tile_file}")
-            with open(tile_path, "rb") as file:
-                osm_input = file.read()
 
+            # Detect and fix problematic ways
+            problematic_ways = find_problematic_ways(tile_path)
+            if problematic_ways:
+                print(f"Fixing problematic ways in {tile_file}: {problematic_ways}")
+                fixed_tile_path = tile_path.replace(".osm", "_fixed.osm")
+                removed_ways = fix_or_remove_invalid_ways(tile_path, fixed_tile_path)
+                add_xml_header_if_missing(fixed_tile_path)
+                print(f"Removed ways: {removed_ways}")
+                tile_path = fixed_tile_path
+
+
+
+            # Process the (potentially fixed) tile
             try:
+                with open(tile_path, "rb") as file:
+                    osm_input = file.read()
+
                 network = osm2streets_python.PyStreetNetwork(osm_input, "", json.dumps(input_options))
-                gdf = gpd.GeoDataFrame.from_features(json.loads(network.to_geojson_plain())["features"], crs=4326)
-                gdf_lanes = gpd.GeoDataFrame.from_features(json.loads(network.to_lane_polygons_geojson())["features"], crs=4326)
-                gdf_intersections = gpd.GeoDataFrame.from_features(json.loads(network.to_intersection_markings_geojson())["features"], crs=4326)
 
-                combined_gdf = gpd.GeoDataFrame(pd.concat([combined_gdf, gdf], ignore_index=True))
-                combined_gdf_lanes = gpd.GeoDataFrame(pd.concat([combined_gdf_lanes, gdf_lanes], ignore_index=True))
-                combined_gdf_intersections = gpd.GeoDataFrame(pd.concat([combined_gdf_intersections, gdf_intersections], ignore_index=True))
+                gdf = validate_geometry(network.to_geojson_plain)
+                gdf_lanes = validate_geometry(network.to_lane_polygons_geojson)
+                gdf_intersections = validate_geometry(network.to_intersection_markings_geojson)
+
+                if not gdf.empty:
+                    combined_gdf = gpd.GeoDataFrame(pd.concat([combined_gdf, gdf], ignore_index=True))
+                if not gdf_lanes.empty:
+                    combined_gdf_lanes = gpd.GeoDataFrame(pd.concat([combined_gdf_lanes, gdf_lanes], ignore_index=True))
+                if not gdf_intersections.empty:
+                    combined_gdf_intersections = gpd.GeoDataFrame(pd.concat([combined_gdf_intersections, gdf_intersections], ignore_index=True))
+
             except Exception as e:
-                print(f"Error processing tile {tile_file}: {e}")
+                print(f"Unhandled error processing tile {tile_file}: {e}")
+                failed_tiles.append(tile_file)
+                continue
 
+    # Save combined GeoDataFrames
     combined_gdf.to_file(os.path.join(output_dir, "combined_network.geojson"), driver="GeoJSON")
     combined_gdf_lanes.to_file(os.path.join(output_dir, "combined_lanes.geojson"), driver="GeoJSON")
     combined_gdf_intersections.to_file(os.path.join(output_dir, "combined_intersections.geojson"), driver="GeoJSON")
-    print(f"Processed data saved to {output_dir}.")
 
+    # Log failed tiles
+    if failed_tiles:
+        print(f"Failed tiles: {failed_tiles}")
+        with open(os.path.join(output_dir, "failed_tiles.txt"), "w") as log_file:
+            log_file.write("\n".join(failed_tiles))
+
+
+# def process_tiles(tile_dir, input_options, output_dir):
+#     """
+#     Process downloaded OSM tiles to generate combined GeoDataFrames.
+    
+#     Args:
+#         tile_dir (str): Directory containing OSM tiles.
+#         input_options (dict): Input options for osm2streets.
+#         output_dir (str): Directory to save the processed GeoDataFrames.
+    
+#     Returns:
+#         None
+#     """
+#     os.makedirs(output_dir, exist_ok=True)
+
+#     combined_gdf = gpd.GeoDataFrame()
+#     combined_gdf_lanes = gpd.GeoDataFrame()
+#     combined_gdf_intersections = gpd.GeoDataFrame()
+
+#     failed_tiles = []
+
+#     for tile_file in os.listdir(tile_dir):
+#         if tile_file.endswith(".osm"):
+#             tile_path = os.path.join(tile_dir, tile_file)
+#             print(f"Processing tile: {tile_file}")
+#             problematic_ways = find_problematic_ways(tile_path)
+#             if problematic_ways:
+#                 print(f"Problematic ways in {tile_file}: {problematic_ways}")
+#                 # print(f"Skipping {tile_file} due to problematic ways: {problematic_ways}")
+#                 # failed_tiles.append(tile_file)  # Log the tile as failed
+#                 # continue  # Skip processing this tile
+#                 filtered_tile_path = tile_path.replace(".osm", "_filtered.osm")
+#                 filter_problematic_ways(tile_path, filtered_tile_path, problematic_ways)
+#                 tile_path = filtered_tile_path  # Use the filtered file for further processing
+#             with open(tile_path, "rb") as file:
+#                 osm_input = file.read()
+
+#             # Pre-validate the .osm file
+#             if not is_valid_osm_file(osm_input):
+#                 print(f"Skipping invalid .osm file: {tile_file}")
+#                 failed_tiles.append(tile_file)
+#                 continue
+
+
+#             try:
+#                 # Initialize the PyStreetNetwork
+#                 try:
+#                     network = osm2streets_python.PyStreetNetwork(osm_input, "", json.dumps(input_options))
+#                 except Exception as e:
+#                     print(f"Failed to initialize PyStreetNetwork for tile {tile_file}: {e}")
+#                     failed_tiles.append(tile_file)
+#                     continue
+
+#                 # Safely generate GeoJSON outputs
+#                 def safe_geojson_to_gdf(func, description):
+#                     """
+#                     Safely execute a GeoJSON function and convert to GeoDataFrame.
+                    
+#                     Args:
+#                         func (callable): Function to generate GeoJSON.
+#                         description (str): Description for logging.
+                    
+#                     Returns:
+#                         gpd.GeoDataFrame: GeoDataFrame or empty if it fails.
+#                     """
+#                     try:
+#                         return validate_geometry(func)
+#                     except Exception as e:
+#                         print(f"Error in `{description}` for tile {tile_file}: {e}")
+#                         failed_tiles.append(tile_file)
+#                         return gpd.GeoDataFrame()
+
+#                 gdf = safe_geojson_to_gdf(network.to_geojson_plain, "to_geojson_plain")
+#                 gdf_lanes = safe_geojson_to_gdf(network.to_lane_polygons_geojson, "to_lane_polygons_geojson")
+#                 gdf_intersections = safe_geojson_to_gdf(network.to_intersection_markings_geojson, "to_intersection_markings_geojson")
+
+#                 # Append non-empty GeoDataFrames
+#                 if not gdf.empty:
+#                     combined_gdf = gpd.GeoDataFrame(pd.concat([combined_gdf, gdf], ignore_index=True))
+#                 if not gdf_lanes.empty:
+#                     combined_gdf_lanes = gpd.GeoDataFrame(pd.concat([combined_gdf_lanes, gdf_lanes], ignore_index=True))
+#                 if not gdf_intersections.empty:
+#                     combined_gdf_intersections = gpd.GeoDataFrame(pd.concat([combined_gdf_intersections, gdf_intersections], ignore_index=True))
+
+#             except Exception as e:
+#                 print(f"Unhandled error processing tile {tile_file}: {e}")
+#                 failed_tiles.append(tile_file)
+
+#     # Save combined GeoDataFrames to files
+#     combined_gdf.to_file(os.path.join(output_dir, "combined_network.geojson"), driver="GeoJSON")
+#     combined_gdf_lanes.to_file(os.path.join(output_dir, "combined_lanes.geojson"), driver="GeoJSON")
+#     combined_gdf_intersections.to_file(os.path.join(output_dir, "combined_intersections.geojson"), driver="GeoJSON")
+
+#     # Log failed tiles
+#     if failed_tiles:
+#         print(f"The following tiles could not be processed and were skipped: {failed_tiles}")
+#         with open(os.path.join(output_dir, "failed_tiles.txt"), "w") as log_file:
+#             log_file.write("\n".join(failed_tiles))
+
+#     print(f"Processed data saved to {output_dir}.")
+
+
+# def process_tiles(tile_dir, input_options, output_dir):
+#     """
+#     Process downloaded OSM tiles to generate combined GeoDataFrames.
+    
+#     Args:
+#         tile_dir (str): Directory containing OSM tiles.
+#         input_options (dict): Input options for osm2streets.
+#         output_dir (str): Directory to save the processed GeoDataFrames.
+    
+#     Returns:
+#         None
+#     """
+#     os.makedirs(output_dir, exist_ok=True)
+
+#     combined_gdf = gpd.GeoDataFrame()
+#     combined_gdf_lanes = gpd.GeoDataFrame()
+#     combined_gdf_intersections = gpd.GeoDataFrame()
+
+#     failed_tiles = []
+
+#     for tile_file in os.listdir(tile_dir):
+#         if tile_file.endswith(".osm"):
+#             tile_path = os.path.join(tile_dir, tile_file)
+#             print(f"Processing tile: {tile_file}")
+#             with open(tile_path, "rb") as file:
+#                 osm_input = file.read()
+
+#             # Pre-validate the .osm file
+#             if not is_valid_osm_file(osm_input):
+#                 print(f"Skipping invalid .osm file: {tile_file}")
+#                 failed_tiles.append(tile_file)
+#                 continue
+
+#             try:
+#                 # Initialize the PyStreetNetwork
+#                 try:
+#                     network = osm2streets_python.PyStreetNetwork(osm_input, "", json.dumps(input_options))
+#                 except Exception as e:
+#                     print(f"Failed to initialize PyStreetNetwork for tile {tile_file}: {e}")
+#                     failed_tiles.append(tile_file)
+#                     continue
+
+#                 # Safely generate GeoJSON outputs
+#                 try:
+#                     gdf = validate_geometry(network.to_geojson_plain)
+#                 except Exception as e:
+#                     print(f"Error in `to_geojson_plain` for tile {tile_file}: {e}")
+#                     gdf = gpd.GeoDataFrame()
+
+#                 try:
+#                     gdf_lanes = validate_geometry(network.to_lane_polygons_geojson)
+#                 except Exception as e:
+#                     print(f"Error in `to_lane_polygons_geojson` for tile {tile_file}: {e}")
+#                     gdf_lanes = gpd.GeoDataFrame()
+
+#                 try:
+#                     gdf_intersections = validate_geometry(network.to_intersection_markings_geojson)
+#                 except Exception as e:
+#                     print(f"Error in `to_intersection_markings_geojson` for tile {tile_file}: {e}")
+#                     gdf_intersections = gpd.GeoDataFrame()
+
+#                 # Append non-empty GeoDataFrames
+#                 if not gdf.empty:
+#                     combined_gdf = gpd.GeoDataFrame(pd.concat([combined_gdf, gdf], ignore_index=True))
+#                 if not gdf_lanes.empty:
+#                     combined_gdf_lanes = gpd.GeoDataFrame(pd.concat([combined_gdf_lanes, gdf_lanes], ignore_index=True))
+#                 if not gdf_intersections.empty:
+#                     combined_gdf_intersections = gpd.GeoDataFrame(pd.concat([combined_gdf_intersections, gdf_intersections], ignore_index=True))
+
+#             except Exception as e:
+#                 print(f"Unhandled error processing tile {tile_file}: {e}")
+#                 failed_tiles.append(tile_file)
+
+#     # Save combined GeoDataFrames to files
+#     combined_gdf.to_file(os.path.join(output_dir, "combined_network.geojson"), driver="GeoJSON")
+#     combined_gdf_lanes.to_file(os.path.join(output_dir, "combined_lanes.geojson"), driver="GeoJSON")
+#     combined_gdf_intersections.to_file(os.path.join(output_dir, "combined_intersections.geojson"), driver="GeoJSON")
+
+#     # Log failed tiles
+#     if failed_tiles:
+#         print(f"The following tiles could not be processed and were skipped: {failed_tiles}")
+#         with open(os.path.join(output_dir, "failed_tiles.txt"), "w") as log_file:
+#             log_file.write("\n".join(failed_tiles))
+
+#     print(f"Processed data saved to {output_dir}.")
+# def process_tiles(tile_dir, input_options, output_dir):
+#     """
+#     Process downloaded OSM tiles to generate combined GeoDataFrames.
+    
+#     Args:
+#         tile_dir (str): Directory containing OSM tiles.
+#         input_options (dict): Input options for osm2streets.
+#         output_dir (str): Directory to save the processed GeoDataFrames.
+    
+#     Returns:
+#         None
+#     """
+#     os.makedirs(output_dir, exist_ok=True)
+
+#     combined_gdf = gpd.GeoDataFrame()
+#     combined_gdf_lanes = gpd.GeoDataFrame()
+#     combined_gdf_intersections = gpd.GeoDataFrame()
+
+#     failed_tiles = []
+
+#     for tile_file in os.listdir(tile_dir):
+#         if tile_file.endswith(".osm"):
+#             tile_path = os.path.join(tile_dir, tile_file)
+#             print(f"Processing tile: {tile_file}")
+#             with open(tile_path, "rb") as file:
+#                 osm_input = file.read()
+
+#             # Pre-validate the .osm file
+#             if not is_valid_osm_file(osm_input):
+#                 print(f"Skipping invalid .osm file: {tile_file}")
+#                 failed_tiles.append(tile_file)
+#                 continue
+
+#             try:
+#                 # Initialize the PyStreetNetwork
+#                 try:
+#                     network = osm2streets_python.PyStreetNetwork(osm_input, "", json.dumps(input_options))
+#                 except Exception as e:
+#                     print(f"Failed to initialize PyStreetNetwork for tile {tile_file}: {e}")
+#                     failed_tiles.append(tile_file)
+#                     continue
+
+#                 # Safely generate GeoJSON outputs
+#                 try:
+#                     gdf = validate_geometry(network.to_geojson_plain)
+#                 except Exception as e:
+#                     print(f"Error in `to_geojson_plain` for tile {tile_file}: {e}")
+#                     gdf = gpd.GeoDataFrame()
+
+#                 try:
+#                     gdf_lanes = validate_geometry(network.to_lane_polygons_geojson)
+#                 except Exception as e:
+#                     print(f"Error in `to_lane_polygons_geojson` for tile {tile_file}: {e}")
+#                     gdf_lanes = gpd.GeoDataFrame()
+
+#                 try:
+#                     gdf_intersections = validate_geometry(network.to_intersection_markings_geojson)
+#                 except Exception as e:
+#                     print(f"Error in `to_intersection_markings_geojson` for tile {tile_file}: {e}")
+#                     gdf_intersections = gpd.GeoDataFrame()
+
+#                 # Append non-empty GeoDataFrames
+#                 if not gdf.empty:
+#                     combined_gdf = gpd.GeoDataFrame(pd.concat([combined_gdf, gdf], ignore_index=True))
+#                 if not gdf_lanes.empty:
+#                     combined_gdf_lanes = gpd.GeoDataFrame(pd.concat([combined_gdf_lanes, gdf_lanes], ignore_index=True))
+#                 if not gdf_intersections.empty:
+#                     combined_gdf_intersections = gpd.GeoDataFrame(pd.concat([combined_gdf_intersections, gdf_intersections], ignore_index=True))
+
+#             except Exception as e:
+#                 print(f"Unhandled error processing tile {tile_file}: {e}")
+#                 failed_tiles.append(tile_file)
+
+#     # Save combined GeoDataFrames to files
+#     combined_gdf.to_file(os.path.join(output_dir, "combined_network.geojson"), driver="GeoJSON")
+#     combined_gdf_lanes.to_file(os.path.join(output_dir, "combined_lanes.geojson"), driver="GeoJSON")
+#     combined_gdf_intersections.to_file(os.path.join(output_dir, "combined_intersections.geojson"), driver="GeoJSON")
+
+#     # Log failed tiles
+#     if failed_tiles:
+#         print(f"The following tiles could not be processed and were skipped: {failed_tiles}")
+#         with open(os.path.join(output_dir, "failed_tiles.txt"), "w") as log_file:
+#             log_file.write("\n".join(failed_tiles))
+
+#     print(f"Processed data saved to {output_dir}.")
+
+def validate_geometry(geojson_func):
+    """
+    Safely execute a function that generates GeoJSON and validate the resulting geometry.
+
+    Args:
+        geojson_func (callable): Function to generate GeoJSON.
+
+    Returns:
+        geopandas.GeoDataFrame: Validated GeoDataFrame, or an empty GeoDataFrame on failure.
+    """
+    try:
+        geojson_data = geojson_func()
+        gdf = gpd.GeoDataFrame.from_features(json.loads(geojson_data)["features"])
+        # Ensure GeoDataFrame contains valid geometries
+        if not gdf.empty and "geometry" in gdf.columns:
+            gdf = gdf[gdf.is_valid]  # Drop invalid geometries
+            gdf.set_crs(epsg=4326, inplace=True)
+        return gdf
+    except Exception as e:
+        print(f"Geometry validation failed: {e}")
+        return gpd.GeoDataFrame()
+
+
+# # Generate GeoJSON outputs and ensure they contain valid data
+# def safe_geojson_to_gdf(geojson_func):
+#     try:
+#         geojson_data = geojson_func()
+#         gdf = gpd.GeoDataFrame.from_features(json.loads(geojson_data)["features"])
+#         if not gdf.empty and "geometry" in gdf.columns:
+#             gdf.set_crs(epsg=4326, inplace=True)
+#         return gdf
+#     except Exception:
+#         return gpd.GeoDataFrame()
 
 def main(location_name, tile_size, driving_side):
     """
@@ -169,6 +703,7 @@ def main(location_name, tile_size, driving_side):
         None
     """
     os.environ["RUST_LOG"] = "off"
+    os.environ["RUST_BACKTRACE"] = "full"
     geolocator = initialize_geolocator()
 
     try:
