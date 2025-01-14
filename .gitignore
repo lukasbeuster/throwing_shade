@@ -5,6 +5,8 @@
 /code/lightning_logs
 /code/temp.DS_Store
 .shade_env/
+.samgeo_env/
 .DS_Store
 code/archive/boston_sidewalks.ipynb
 .env
+.log

@@ -94,38 +94,92 @@ def convert_lists_to_strings(column):
     else:
         return column
 
+
 def download_building_footprints(gdf, osm_id, save_path):
     """
     Download building footprints for the geometries in the GeoDataFrame if not already saved.
     """
-    # Check if the file already exists
-    if os.path.exists(save_path):
-        print(f"Buildings already downloaded and saved at: {save_path}")
-        return
+    try:
+        # Check if file already exists
+        if os.path.exists(save_path):
+            print(f"Buildings already downloaded and saved at: {save_path}")
+            return
 
-    all_buildings = gpd.GeoDataFrame()  # Initialize an empty GeoDataFrame to hold all building footprints
-    tags = {"building": True}
+        all_buildings = gpd.GeoDataFrame()  # Initialize an empty GeoDataFrame
+        tags = {"building": True}
 
-    # Iterate over each polygon in the GeoDataFrame
-    for polygon in gdf.geometry:
-        if polygon.is_valid and isinstance(polygon, (Polygon, MultiPolygon)):
-            try:
-                # Download building footprints for the current polygon
-                buildings = ox.features_from_polygon(polygon, tags)
-                # Convert lists in the GeoDataFrame to strings for saving
-                buildings = buildings.apply(convert_lists_to_strings, axis=0)
-                all_buildings = gpd.GeoDataFrame(pd.concat([all_buildings, buildings], ignore_index=True))
-            except Exception as e:
-                print(f"Error processing polygon: {e}")
+        for polygon in gdf.geometry:
+            if polygon.is_valid and not polygon.is_empty:
+                try:
+                    # Query OSM buildings
+                    buildings = ox.features_from_polygon(polygon, tags)
+                    if buildings.empty:
+                        print("No buildings found for the given polygon.")
+                        continue
 
-    # Save the combined building footprints if any buildings were found
-    if not all_buildings.empty:
-        if not os.path.exists(os.path.dirname(save_path)):
-            os.makedirs(os.path.dirname(save_path))
-        all_buildings.to_file(save_path, driver='GPKG')
-        print(f"Success: Downloaded and saved {all_buildings.shape[0]} buildings.")
-    else:
-        print("No buildings found for the specified area.")
+                    # Convert lists to strings for saving
+                    buildings = buildings.apply(convert_lists_to_strings, axis=0)
+                    all_buildings = gpd.GeoDataFrame(pd.concat([all_buildings, buildings], ignore_index=True))
+                except Exception as e:
+                    print(f"Error querying buildings for polygon: {e}")
+
+        # Remove duplicate columns
+        duplicate_columns = all_buildings.columns[all_buildings.columns.duplicated()]
+        if not duplicate_columns.empty:
+            print(f"Duplicate columns found: {duplicate_columns}")
+            all_buildings = all_buildings.rename(columns=lambda x: f"{x}_dup" if x in duplicate_columns else x)
+
+        # Keep only essential columns
+        columns_to_keep = ['geometry', 'name', 'building']
+        all_buildings = all_buildings[columns_to_keep]
+
+        # Save the GeoPackage if any buildings were found
+        if not all_buildings.empty:
+            if not os.path.exists(os.path.dirname(save_path)):
+                os.makedirs(os.path.dirname(save_path))
+            all_buildings.to_file(save_path, driver="GPKG")
+            print(f"Success: Downloaded and saved {all_buildings.shape[0]} buildings.")
+        else:
+            print("No buildings found for the specified region.")
+
+    except Exception as e:
+        print(f"Error in download_building_footprints: {e}")
+
+# def download_building_footprints(gdf, osm_id, save_path):
+#     """
+#     Download building footprints for the geometries in the GeoDataFrame if not already saved.
+#     """
+#     # Check if the file already exists
+#     if os.path.exists(save_path):
+#         print(f"Buildings already downloaded and saved at: {save_path}")
+#         return
+
+#     all_buildings = gpd.GeoDataFrame()  # Initialize an empty GeoDataFrame to hold all building footprints
+#     tags = {"building": True}
+
+#     print(len(gdf))
+
+#     # Iterate over each polygon in the GeoDataFrame
+#     for polygon in gdf.geometry:
+#         if polygon.is_valid and isinstance(polygon, (Polygon, MultiPolygon)):
+#             try:
+#                 # Download building footprints for the current polygon
+#                 buildings = ox.features_from_polygon(polygon, tags)
+#                 print(buildings)
+#                 # Convert lists in the GeoDataFrame to strings for saving
+#                 buildings = buildings.apply(convert_lists_to_strings, axis=0)
+#                 all_buildings = gpd.GeoDataFrame(pd.concat([all_buildings, buildings], ignore_index=True))
+#             except Exception as e:
+#                 print(f"Error processing polygon: {e}")
+
+#     # Save the combined building footprints if any buildings were found
+#     if not all_buildings.empty:
+#         if not os.path.exists(os.path.dirname(save_path)):
+#             os.makedirs(os.path.dirname(save_path))
+#         all_buildings.to_file(save_path, driver='GPKG')
+#         print(f"Success: Downloaded and saved {all_buildings.shape[0]} buildings.")
+#     else:
+#         print("No buildings found for the specified area.")
 
 def main(place, spacing):
     try:
@@ -140,6 +194,22 @@ def main(place, spacing):
         # Ensure CRS is defined
         if gdf.crs is None:
             raise ValueError("Input GeoDataFrame does not have a CRS defined.")
+
+        # Define save path for building footprints
+        save_path = f'../data/clean_data/solar/{osm_id}/{osm_id}_buildings.gpkg'
+
+        # Reproject back to geographic CRS if needed
+        if not gdf.crs.is_geographic:
+            gdf = gdf.to_crs(4326)
+
+        # Validating the input geometry
+        if not gdf.is_valid.all():
+            gdf = gdf.buffer(0)  # Fix invalid geometries
+        if gdf.geometry.is_empty.any():
+            print("The geometry for the region is empty or invalid.")
+
+        # Download building footprints
+        download_building_footprints(gdf, osm_id, save_path)
 
         # Reproject to UTM if in geographic CRS
         if gdf.crs.is_geographic:
@@ -159,8 +229,9 @@ def main(place, spacing):
 
         # Generate the medium and high boundaries
         medium_boundary = solar_coverage_medium.geometry.unary_union
+        print("Medium Union")
         high_boundary = solar_coverage_high.geometry.unary_union
-
+        print("High Union")
         # Attempt to generate points using the medium boundary first
         points_gdf = create_points_geodataframe(gdf, spacing, boundary=medium_boundary)
 
@@ -175,21 +246,6 @@ def main(place, spacing):
 
         # Save the points GeoDataFrame
         save_points(points_gdf, osm_id)
-
-        # Define save path for building footprints
-        save_path = f'../data/clean_data/solar/{osm_id}/{osm_id}_buildings.gpkg'
-
-
-        # Reproject back to geographic CRS if needed
-        if not gdf.crs.is_geographic:
-            gdf = gdf.to_crs(4326)
-
-        # Download building footprints
-        download_building_footprints(gdf, osm_id, save_path)
-
-        # Reproject back to geographic CRS if needed
-        if gdf.crs.is_geographic:
-            gdf = gdf.to_crs(points_gdf.crs)
 
         if not points_gdf.crs.is_geographic:
             points_gdf = points_gdf.to_crs(4326)
@@ -228,7 +284,7 @@ def download_google_api_data(points_gdf, osm_id):
         sample_point = points_gdf.sample(1)  # Random sample point
         radiusMeters = 500
         view = "IMAGERY_AND_ANNUAL_FLUX_LAYERS"
-        requiredQuality = "MEDIUM"
+        requiredQuality = "HIGH"
         pixelSizeMeters = 0.5
 
         # Assuming `sapi` is already imported and configured
