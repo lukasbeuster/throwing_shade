@@ -70,7 +70,7 @@ def load_sidewalk_data(osmid):
     return sidewalks
 
 
-def process_shade_metrics(osmid, timestr, timestr_extension, polygons):
+def process_shade_metrics(osmid, timestr, timestr_extension, poly):
     """
     Process shade metrics for a given date and update the polygon dataset.
 
@@ -78,7 +78,7 @@ def process_shade_metrics(osmid, timestr, timestr_extension, polygons):
         osmid (int): OSMID of the area to process.
         timestr (str): Date in YYYYMMDD format.
         timestr_extension (str): Date with extension (e.g., YYYYMMDD.tif).
-        polygons (GeoDataFrame): GeoDataFrame containing sidewalk polygons.
+        poly (GeoDataFrame): GeoDataFrame containing sidewalk polygons.
 
     Returns:
         GeoDataFrame: Updated polygons with shade metrics.
@@ -88,39 +88,81 @@ def process_shade_metrics(osmid, timestr, timestr_extension, polygons):
         raster_files = find_raster_files(root_directory, timestr_extension)
 
         print(f'Found {len(raster_files)} {bldg_tree} shade files to process...')
-        
+
         if not raster_files:
             print(f"No raster files found for {bldg_tree} on {timestr}")
             continue
-        
+
         mosaic, out_trans, out_meta, out_bounds, out_nodata = merge_rasters_with_mask(raster_files)
 
         # Ensure polygons are in the same CRS as the raster
         raster_crs = out_meta['crs']
-        if polygons.crs != raster_crs:
-            polygons = polygons.to_crs(raster_crs)
-
-        stats = compute_zonal_stats(polygons, mosaic[0], affine=out_trans, nodata_value=out_nodata)
+        if poly.crs != raster_crs:
+            poly = poly.to_crs(raster_crs)
+            # print('Changed polygon crs to raster crs')
+        stats = compute_zonal_stats(poly, mosaic[0], affine=out_trans, nodata_value=out_nodata)
         print('Stats computed, adding to polygons')
 
+        # Add daily statistics
         for stat_type in ['mean', 'std', 'min', 'max']:
-            polygons[f'{timestr}_{bldg_tree}_{stat_type}'] = [s[stat_type] for s in stats]
-        
-        # Get the list of available times dynamically for hourly statistics
-        available_times = find_available_times(root_directory, timestr)
+            poly[f'{timestr}_{bldg_tree}_{stat_type}'] = [s[stat_type] for s in stats]
 
-        # Process hourly statistics
-        for time in available_times:
-            timestamp = timestr + '_' + time + '_LST.tif'
+        debug_log_polygons(poly, 'after daily')
 
-            print(f'Processing hourly stats at {time} for {bldg_tree}')
-            hour_files = find_raster_files(root_directory, timestamp)
+        # Process hourly statistics in a dedicated function
+        polygons_all = process_hourly_statistics(poly, root_directory, bldg_tree, timestr)
 
-            if len(hour_files) > 0:
-                mosaic, out_trans, out_meta, out_bounds, out_nodata = merge_rasters_with_mask(hour_files)
-                polygons = calculate_percentage_covered(mosaic, out_meta, out_bounds, out_nodata, polygons, time, bldg_tree, timestr)
+        debug_log_polygons(polygons_all, 'after hourly')
 
-    return polygons
+    return polygons_all
+
+def debug_log_polygons(polygons, step):
+    print(f"[DEBUG] {step}:")
+    print(f"  Number of polygons: {len(polygons)}")
+    print(f"  CRS: {polygons.crs}")
+    print(f"  Columns: {polygons.columns}")
+    print(polygons.head(3))
+
+
+def process_hourly_statistics(polygons_hours, root_directory, bldg_tree, timestr):
+    """
+    Process hourly statistics for a given date and update the polygon dataset.
+
+    Parameters:
+        polygons (GeoDataFrame): GeoDataFrame containing sidewalk polygons.
+        root_directory (str): Directory containing raster files.
+        bldg_tree (str): Type of shade ('building' or 'tree').
+        timestr (str): Date in YYYYMMDD format.
+
+    Returns:
+        GeoDataFrame: Updated polygons with hourly statistics.
+    """
+    available_times = find_available_times(root_directory, timestr)
+    print(f"Available times for {bldg_tree} on {timestr}: {available_times}")
+
+    for time in available_times:
+        timestamp = f"{timestr}_{time}_LST.tif"
+        print(f"Processing hourly stats at {time} for {bldg_tree}")
+
+        hour_files = find_raster_files(root_directory, timestamp)
+        # print(f"[DEBUG] Raster files found for {time}: {hour_files}")
+        if not hour_files:
+            print(f"No hourly files found for {time} on {timestr}")
+            continue
+
+        mosaic, out_trans, out_meta, out_bounds, out_nodata = merge_rasters_with_mask(hour_files)
+        polygons_perc = calculate_percentage_covered(
+            mosaic,
+            out_meta,
+            out_bounds,
+            out_nodata,
+            polygons_hours,
+            time,
+            bldg_tree,
+            timestr,
+        )
+
+    return polygons_perc
 
 
 def find_raster_files(root_dir, file_extension):
@@ -137,6 +179,9 @@ def find_raster_files(root_dir, file_extension):
     raster_files = []
     for root, _, files in os.walk(root_dir):
         raster_files.extend(os.path.join(root, file) for file in files if file.endswith(file_extension))
+
+    # print(f"[DEBUG] Found raster files for {file_extension}: {raster_files}")
+
     return raster_files
 
 def find_available_times(root_dir, timestr):
@@ -175,7 +220,17 @@ def merge_rasters_with_mask(raster_files):
         tuple: Mosaic array, affine transform, metadata, bounding box, nodata value.
     """
     src_files_to_mosaic = [rasterio.open(raster) for raster in raster_files]
+    # print(f"[DEBUG] Merging {len(src_files_to_mosaic)} raster files")
     mosaic, out_trans = merge(src_files_to_mosaic)
+
+    # Calculate full bounds from the mosaic transform
+    mosaic_height, mosaic_width = mosaic.shape[1], mosaic.shape[2]
+    full_bounds = (
+        out_trans.c,
+        out_trans.f + mosaic_height * out_trans.e,
+        out_trans.c + mosaic_width * out_trans.a,
+        out_trans.f,
+    )
 
     nodata = src_files_to_mosaic[0].nodata
     out_meta = src_files_to_mosaic[0].meta.copy()
@@ -188,10 +243,12 @@ def merge_rasters_with_mask(raster_files):
         "nodata": nodata,
     })
 
+    # print(f'[DEBUG] raster shape: {mosaic.shape[1]} ; {mosaic.shape[2]}')
+
     for src in src_files_to_mosaic:
         src.close()
 
-    return mosaic, out_trans, out_meta, src_files_to_mosaic[0].bounds, nodata
+    return mosaic, out_trans, out_meta, full_bounds, nodata
 
 
 def compute_zonal_stats(polygons, raster_data, affine, nodata_value=None):
@@ -210,7 +267,23 @@ def compute_zonal_stats(polygons, raster_data, affine, nodata_value=None):
     return zonal_stats(polygons, raster_data, affine=affine, stats=['mean', 'std', 'min', 'max'], nodata=nodata_value)
 
 def calculate_percentage_covered(raster_data, raster_meta, raster_bounds, nodata, polygon_file, time, building_tree, timestr):
+    # print(f"[DEBUG] Raster bounds: {raster_bounds}")
+    # print(f"[DEBUG] Polygon bounds: {polygon_file.total_bounds}")
+
+    
+    if polygon_file.crs != raster_meta["crs"]:
+        polygon_file = polygon_file.to_crs(raster_meta["crs"])
+
     gdf = polygon_file.copy()
+    gdf = gdf.reset_index(drop=True)
+
+    # Validate polygons
+    # validation_summary = validate_polygons(gdf, raster_bounds)
+    # print(f"[DEBUG] Validation summary: {validation_summary}")
+
+    
+    # print(f"[DEBUG] Polygon length: {len(gdf)}")
+
     coverage_dict = {}
     raster_data[raster_data < 1.0] = 0
     inverted_raster_data = np.where(raster_data == 0, 1, 0)
@@ -236,13 +309,51 @@ def calculate_percentage_covered(raster_data, raster_meta, raster_bounds, nodata
                     masked_data = out_image[0].flatten()
                     masked_data = masked_data[masked_data != nodata]
                     total_pixels = len(masked_data)
-                    percentage_ones = np.sum(masked_data == 1) / total_pixels * 100 if total_pixels > 0 else 0
+                    if total_pixels > 0:
+                        percentage_ones = np.sum(masked_data == 1) / total_pixels * 100
+                    else:
+                        percentage_ones = 0
+                    # percentage_ones = np.sum(masked_data == 1) / total_pixels * 100 if total_pixels > 0 else 0
                     coverage_dict[idx] = percentage_ones
 
     for idx, percentage in coverage_dict.items():
         gdf.at[idx, f'{timestr}_{building_tree}_shade_percent_at_{time}'] = percentage
 
     return gdf
+
+def validate_polygons(gdf, raster_bounds):
+    """
+    Checks how many polygons have valid geometries and intersect with raster bounds.
+
+    Parameters:
+        gdf (GeoDataFrame): GeoDataFrame containing polygons to validate.
+        raster_bounds (tuple): Bounds of the raster (minx, miny, maxx, maxy).
+
+    Returns:
+        dict: A summary containing counts of valid, invalid, and intersecting polygons.
+    """
+    # Check validity of geometries
+    valid_geometries = gdf.geometry.is_valid
+    num_valid = valid_geometries.sum()
+    num_invalid = (~valid_geometries).sum()
+
+    # Check intersections with raster bounds
+    raster_box = box(*raster_bounds)
+    intersecting_polygons = gdf.geometry.apply(lambda geom: geom.is_valid and geom.intersects(raster_box))
+    num_intersecting = intersecting_polygons.sum()
+
+    # # Debugging output
+    # print(f"[DEBUG] Total polygons: {len(gdf)}")
+    # print(f"[DEBUG] Valid polygons: {num_valid}")
+    # print(f"[DEBUG] Invalid polygons: {num_invalid}")
+    # print(f"[DEBUG] Polygons intersecting raster bounds: {num_intersecting}")
+
+    return {
+        "total_polygons": len(gdf),
+        "valid_polygons": num_valid,
+        "invalid_polygons": num_invalid,
+        "intersecting_polygons": num_intersecting
+    }
 
 
 if __name__ == "__main__":
