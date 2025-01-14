@@ -7,6 +7,7 @@ import osm2streets_python
 import geopandas as gpd
 import pandas as pd
 import argparse
+import math
 
 GLOBAL_CACHE_FILE = "../data/raw_data/osm2streets/location_cache.json"
 
@@ -89,7 +90,7 @@ def initialize_geolocator(user_agent="osm2streets_python/0.1.0"):
     """
     return Nominatim(user_agent=user_agent)
 
-    
+
 def list_non_hidden_files(directory):
     """
     List non-hidden files in a directory, excluding files ending with '_fixed.osm'.
@@ -183,12 +184,13 @@ def has_repeat_non_adjacent_points(coords):
     return False
 
 
-def find_problematic_ways(osm_file):
+def find_problematic_ways(osm_file, epsilon_dist=1e-5):
     """
     Identify ways with repeat non-adjacent points in an OSM file.
 
     Args:
         osm_file (str): Path to the OSM file.
+        epsilon_dist (float): Minimum allowed length for a line segment.
 
     Returns:
         list: IDs of problematic ways.
@@ -196,7 +198,8 @@ def find_problematic_ways(osm_file):
     tree = ET.parse(osm_file)
     root = tree.getroot()
     nodes = {}  # Dictionary to map node IDs to their coordinates
-
+    
+    
     # Extract node coordinates
     for node in root.findall("node"):
         node_id = node.get("id")
@@ -212,6 +215,15 @@ def find_problematic_ways(osm_file):
         if has_repeat_non_adjacent_points(coords):
             print(f"Way {way_id} has repeat non-adjacent points.")
             problematic_ways.append(way_id)
+        
+        # Check for degenerate lines (length < epsilon_dist)
+        for i in range(len(coords) - 1):
+            pt1, pt2 = coords[i], coords[i + 1]
+            dist = math.sqrt((pt1[0] - pt2[0]) ** 2 + (pt1[1] - pt2[1]) ** 2)
+            if dist < epsilon_dist:
+                print(f"Problematic way {way_id}: Degenerate segment from {pt1} to {pt2}")
+                problematic_ways.append(way_id)
+                break
 
     return problematic_ways
 
@@ -358,14 +370,14 @@ def process_tiles(tile_dir, input_options, output_dir):
 
                 gdf = validate_geometry(network.to_geojson_plain)
                 gdf_lanes = validate_geometry(network.to_lane_polygons_geojson)
-                gdf_intersections = validate_geometry(network.to_intersection_markings_geojson)
+                # gdf_intersections = validate_geometry(network.to_intersection_markings_geojson)
 
                 if not gdf.empty:
                     combined_gdf = gpd.GeoDataFrame(pd.concat([combined_gdf, gdf], ignore_index=True))
                 if not gdf_lanes.empty:
                     combined_gdf_lanes = gpd.GeoDataFrame(pd.concat([combined_gdf_lanes, gdf_lanes], ignore_index=True))
-                if not gdf_intersections.empty:
-                    combined_gdf_intersections = gpd.GeoDataFrame(pd.concat([combined_gdf_intersections, gdf_intersections], ignore_index=True))
+                # if not gdf_intersections.empty:
+                #     combined_gdf_intersections = gpd.GeoDataFrame(pd.concat([combined_gdf_intersections, gdf_intersections], ignore_index=True))
 
             except Exception as e:
                 print(f"Unhandled error processing tile {tile_file}: {e}")
@@ -373,9 +385,12 @@ def process_tiles(tile_dir, input_options, output_dir):
                 continue
 
     # Save combined GeoDataFrames
-    combined_gdf.to_file(os.path.join(output_dir, "combined_network.geojson"), driver="GeoJSON")
-    combined_gdf_lanes.to_file(os.path.join(output_dir, "combined_lanes.geojson"), driver="GeoJSON")
-    combined_gdf_intersections.to_file(os.path.join(output_dir, "combined_intersections.geojson"), driver="GeoJSON")
+    if not combined_gdf.empty:
+        combined_gdf.to_file(os.path.join(output_dir, "combined_network.geojson"), driver="GeoJSON")
+    if not combined_gdf_lanes.empty:
+        combined_gdf_lanes.to_file(os.path.join(output_dir, "combined_lanes.geojson"), driver="GeoJSON")
+    # if not combined_gdf_intersections.empty:
+    #     combined_gdf_intersections.to_file(os.path.join(output_dir, "combined_intersections.geojson"), driver="GeoJSON")
 
     # Log failed tiles
     if failed_tiles:
