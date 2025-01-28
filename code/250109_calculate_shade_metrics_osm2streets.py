@@ -143,7 +143,7 @@ def process_hourly_statistics(polygons_hours, root_directory, bldg_tree, timestr
     available_times = find_available_times(root_directory, timestr)
     print(f"Available times for {bldg_tree} on {timestr}: {available_times}")
 
-    for time in available_times[12:14]:
+    for time in available_times:
         timestamp = f"{timestr}_{time}_LST.tif"
         print(f"Processing hourly stats at {time} for {bldg_tree}")
 
