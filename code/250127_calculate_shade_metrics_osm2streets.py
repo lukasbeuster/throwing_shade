@@ -44,13 +44,13 @@ def main(osmid, dates):
 
 def load_sidewalk_data(osmid):
     """
-    Load and filter osm2streets lane data for sidewalks.
+    Load and filter osm2streets lane data for sidewalks, fixing invalid geometries if needed.
 
     Parameters:
         osmid (int): OSMID of the area to process.
 
     Returns:
-        GeoDataFrame: GeoDataFrame containing sidewalk polygons.
+        GeoDataFrame: GeoDataFrame containing valid sidewalk polygons.
     """
     input_dir = f"../data/raw_data/osm2streets/{osmid}/processed/"
     if not os.path.exists(input_dir):
@@ -62,13 +62,24 @@ def load_sidewalk_data(osmid):
 
     filepath = os.path.join(input_dir, files[0])
     lanes = gpd.read_file(filepath, engine="pyogrio")  # Specify pyogrio as the engine
-    # lanes = gpd.read_file(filepath)
 
     # Filter for sidewalks and footpaths
     valid_types = ['Sidewalk', 'Footway']
     sidewalks = lanes[lanes['type'].isin(valid_types)]
 
     print(f"Loaded {len(sidewalks)} sidewalk features from {filepath}")
+
+    # Validate and fix geometries
+    invalid_count = sidewalks[~sidewalks.geometry.is_valid].shape[0]
+    if invalid_count > 0:
+        print(f"[WARNING] Found {invalid_count} invalid geometries. Attempting to fix...")
+        sidewalks["geometry"] = sidewalks.geometry.buffer(0)
+        fixed_count = sidewalks[~sidewalks.geometry.is_valid].shape[0]
+        if fixed_count > 0:
+            print(f"[ERROR] {fixed_count} geometries could not be fixed. Please inspect the data.")
+        else:
+            print(f"[INFO] All invalid geometries were successfully fixed.")
+
     return sidewalks
 
 def process_shade_metrics(osmid, timestr, polygons):
