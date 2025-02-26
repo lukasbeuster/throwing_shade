@@ -1,7 +1,0 @@
-num_classes: 1
-label_dict:
-  Tree: 0
-transforms: null
-config_file: deepforest_config.yml
-config_args: null
-model: null

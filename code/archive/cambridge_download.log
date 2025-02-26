@@ -1,1662 +1,0 @@
-nohup: ignoring input
-Success: Downloaded and saved 14585 buildings.
-Reprojected to EPSG:32619
-Projected CRS: EPSG:32619
-Generated 63 points for Polygon with osm_id 1933745
-Number of intersecting points: 38
-Reprojected points back to original CRS: epsg:4326
-                      geometry  ... index_right
-3   POINT (-71.16003 42.37568)  ...           0
-4   POINT (-71.16030 42.38378)  ...           0
-5   POINT (-71.16058 42.39188)  ...           0
-9   POINT (-71.14883 42.36779)  ...           0
-10  POINT (-71.14910 42.37589)  ...           0
-11  POINT (-71.14938 42.38399)  ...           0
-12  POINT (-71.14966 42.39209)  ...           0
-13  POINT (-71.14993 42.40019)  ...           0
-16  POINT (-71.13790 42.36799)  ...           0
-17  POINT (-71.13818 42.37609)  ...           0
-18  POINT (-71.13845 42.38419)  ...           0
-19  POINT (-71.13873 42.39229)  ...           0
-20  POINT (-71.13900 42.40039)  ...           0
-23  POINT (-71.12698 42.36819)  ...           0
-24  POINT (-71.12725 42.37629)  ...           0
-25  POINT (-71.12753 42.38439)  ...           0
-26  POINT (-71.12780 42.39249)  ...           0
-27  POINT (-71.12807 42.40059)  ...           0
-28  POINT (-71.11551 42.35220)  ...           0
-29  POINT (-71.11579 42.36030)  ...           0
-30  POINT (-71.11606 42.36840)  ...           0
-31  POINT (-71.11633 42.37650)  ...           0
-32  POINT (-71.11660 42.38460)  ...           0
-33  POINT (-71.11687 42.39270)  ...           0
-35  POINT (-71.10459 42.35240)  ...           0
-36  POINT (-71.10486 42.36050)  ...           0
-37  POINT (-71.10513 42.36860)  ...           0
-38  POINT (-71.10540 42.37670)  ...           0
-42  POINT (-71.09367 42.35260)  ...           0
-43  POINT (-71.09394 42.36070)  ...           0
-44  POINT (-71.09421 42.36880)  ...           0
-45  POINT (-71.09448 42.37690)  ...           0
-49  POINT (-71.08275 42.35280)  ...           0
-50  POINT (-71.08302 42.36090)  ...           0
-51  POINT (-71.08329 42.36900)  ...           0
-52  POINT (-71.08356 42.37710)  ...           0
-57  POINT (-71.07210 42.36109)  ...           0
-58  POINT (-71.07236 42.36919)  ...           0
-
-[38 rows x 19 columns]
-  0%|          | 0/1 [00:00<?, ?it/s]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YmQwZDAwOGQwOTc3NTlmZmYxZWUwYzA5MDYwODcyN2QtNTMzNDBjZjZhYzVjY2E3OTE5NjkxNTliZmU2ZDk5Zjg6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_45_2022_07_01_dsm.tif
-1933745
-p_45
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.36879758793082, 'location.longitude': -71.0942111161808, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YmQwZDAwOGQwOTc3NTlmZmYxZWUwYzA5MDYwODcyN2QtNTMzNDBjZjZhYzVjY2E3OTE5NjkxNTliZmU2ZDk5Zjg6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YzFjZjVhYzY3NmM0MzI3MTBkY2QyNTVlNWQ5MTUwMDQtNGIwYjQ1MmI0YTYwZWY1NGMxMGQ1ODU2YTc4YjhjNzU6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NmUzYzMxY2RjN2JjMGM4NTlkMzNjNTIxYmNmZjNmODQtODUwODM4ZDE4NTc3NGZlNzE3OTdlMGY4MzRiODU1MjQ6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NTU5NDUzMWI4YTcyNjE0OWJjYzgwOGE0YWQ0MGJhOTQtZTQ1ODJmY2VhMGY4NjBjM2ZjMzgxNzBmOWI1N2Y1MTg6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/14.3M [00:00<?, ?B/s][A
-  4%|▎         | 524k/14.3M [00:00<00:14, 965kB/s][A
-  7%|▋         | 1.05M/14.3M [00:00<00:07, 1.75MB/s][A
- 15%|█▍        | 2.10M/14.3M [00:00<00:03, 3.51MB/s][A
- 29%|██▉       | 4.19M/14.3M [00:00<00:01, 7.33MB/s][A
- 55%|█████▌    | 7.86M/14.3M [00:01<00:00, 14.4MB/s][A
- 81%|████████  | 11.5M/14.3M [00:01<00:00, 20.1MB/s][A100%|██████████| 14.3M/14.3M [00:01<00:00, 12.0MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YzFjZjVhYzY3NmM0MzI3MTBkY2QyNTVlNWQ5MTUwMDQtNGIwYjQ1MmI0YTYwZWY1NGMxMGQ1ODU2YTc4YjhjNzU6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_45_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.7M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.7M [00:00<00:11, 916kB/s][A
- 10%|▉         | 1.05M/10.7M [00:00<00:05, 1.66MB/s][A
- 20%|█▉        | 2.10M/10.7M [00:00<00:02, 3.32MB/s][A
- 39%|███▉      | 4.19M/10.7M [00:00<00:00, 6.94MB/s][A
- 74%|███████▍  | 7.86M/10.7M [00:01<00:00, 13.7MB/s][A100%|██████████| 10.7M/10.7M [00:01<00:00, 9.29MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NmUzYzMxY2RjN2JjMGM4NTlkMzNjNTIxYmNmZjNmODQtODUwODM4ZDE4NTc3NGZlNzE3OTdlMGY4MzRiODU1MjQ6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_45_2022_07_01_mask.tif
-
-  0%|          | 0.00/108k [00:00<?, ?B/s][A
-100%|██████████| 108k/108k [00:00<00:00, 413kB/s][A100%|██████████| 108k/108k [00:00<00:00, 412kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NTU5NDUzMWI4YTcyNjE0OWJjYzgwOGE0YWQ0MGJhOTQtZTQ1ODJmY2VhMGY4NjBjM2ZjMzgxNzBmOWI1N2Y1MTg6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_45_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/13.0M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.0M [00:00<00:12, 980kB/s][A
-  8%|▊         | 1.05M/13.0M [00:00<00:06, 1.79MB/s][A
- 16%|█▌        | 2.10M/13.0M [00:00<00:03, 3.57MB/s][A
- 32%|███▏      | 4.19M/13.0M [00:00<00:01, 7.42MB/s][A
- 61%|██████    | 7.86M/13.0M [00:01<00:00, 14.3MB/s][A
- 89%|████████▉ | 11.5M/13.0M [00:01<00:00, 19.7MB/s][A100%|██████████| 13.0M/13.0M [00:01<00:00, 11.2MB/s]
-100%|██████████| 1/1 [00:36<00:00, 36.87s/it]100%|██████████| 1/1 [00:36<00:00, 36.87s/it]
-t]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MjBiYTY5MzJlOWQ1MGYwMDdjNzAwYWFlNzFjMmZlYmQtYjE2YjA2ZDNmMjVmMGNiMDQ4YTM4ZmYwZGUwYmI3ZTA6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_5_2022_07_01_dsm.tif
-1933745
-p_5
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.38378062285081, 'location.longitude': -71.16030417921455, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MjBiYTY5MzJlOWQ1MGYwMDdjNzAwYWFlNzFjMmZlYmQtYjE2YjA2ZDNmMjVmMGNiMDQ4YTM4ZmYwZGUwYmI3ZTA6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MDhlMmVmYzFkNmU4YzJiY2M2NGRlOTMyM2MzZDIxMjAtNTFmZTBhM2Q4ZmVjMDMxYTc0YzllYjQxMTcxN2VlNmY6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MzVlOTkxZWNkNTVmNzQwNGZiMDk4Y2NjMjg3NTI2YTYtNGIyMzc1Nzg3ZmI5NjVmYTgyZDY1NmE5OGEzZWUyYjg6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NDlmNGQ1NjhhZGM0NjU0ZDY1ZDIyMzhmZWM0Zjg5NDItYjEzZmYyZmE5NWQ2ZDg3N2EwMGQxMTM4MGYzYmQ5MDk6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.3M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.3M [00:00<00:13, 936kB/s][A
-  8%|▊         | 1.05M/13.3M [00:00<00:07, 1.70MB/s][A
- 16%|█▌        | 2.10M/13.3M [00:00<00:03, 3.41MB/s][A
- 31%|███▏      | 4.19M/13.3M [00:00<00:01, 7.10MB/s][A
- 59%|█████▉    | 7.86M/13.3M [00:01<00:00, 14.0MB/s][A
- 87%|████████▋ | 11.5M/13.3M [00:01<00:00, 19.0MB/s][A100%|██████████| 13.3M/13.3M [00:01<00:00, 11.1MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MDhlMmVmYzFkNmU4YzJiY2M2NGRlOTMyM2MzZDIxMjAtNTFmZTBhM2Q4ZmVjMDMxYTc0YzllYjQxMTcxN2VlNmY6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_5_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.5M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.5M [00:00<00:10, 958kB/s][A
- 10%|▉         | 1.05M/10.5M [00:00<00:05, 1.73MB/s][A
- 20%|█▉        | 2.10M/10.5M [00:00<00:02, 3.47MB/s][A
- 40%|███▉      | 4.19M/10.5M [00:00<00:00, 7.25MB/s][A
- 75%|███████▍  | 7.86M/10.5M [00:01<00:00, 14.3MB/s][A100%|██████████| 10.5M/10.5M [00:01<00:00, 9.62MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MzVlOTkxZWNkNTVmNzQwNGZiMDk4Y2NjMjg3NTI2YTYtNGIyMzc1Nzg3ZmI5NjVmYTgyZDY1NmE5OGEzZWUyYjg6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_5_2022_07_01_mask.tif
-
-  0%|          | 0.00/44.9k [00:00<?, ?B/s][A100%|██████████| 44.9k/44.9k [00:00<00:00, 2.04MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NDlmNGQ1NjhhZGM0NjU0ZDY1ZDIyMzhmZWM0Zjg5NDItYjEzZmYyZmE5NWQ2ZDg3N2EwMGQxMTM4MGYzYmQ5MDk6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_5_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.6M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.6M [00:00<00:12, 949kB/s][A
-  8%|▊         | 1.05M/12.6M [00:00<00:06, 1.72MB/s][A
- 17%|█▋        | 2.10M/12.6M [00:00<00:03, 3.46MB/s][A
- 29%|██▉       | 3.67M/12.6M [00:01<00:01, 5.11MB/s][A
- 58%|█████▊    | 7.34M/12.6M [00:01<00:00, 11.7MB/s][A
- 79%|███████▉  | 9.96M/12.6M [00:01<00:00, 14.6MB/s][A100%|██████████| 12.6M/12.6M [00:01<00:00, 9.60MB/s]
-  5%|▌         | 2/38 [01:10<21:14, 35.40s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=Y2RmMmRhNTA3MDM0MTA1ZTg3MzdjZmViYmM2MzMyODQtOTY0ZjU4YzJlOGRhOWY3YmQ0MDc1YTFhMDk1NTA3NTc6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_6_2022_07_01_dsm.tif
-1933745
-p_6
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.39188030079021, 'location.longitude': -71.16058205231685, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=Y2RmMmRhNTA3MDM0MTA1ZTg3MzdjZmViYmM2MzMyODQtOTY0ZjU4YzJlOGRhOWY3YmQ0MDc1YTFhMDk1NTA3NTc6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YjZhZGEzMmQzNDllMDIzOTUyNzY5YWRkNWUzY2ZjYTgtOTE0ZTgzNDY4ZDkwZjdiZjYzZTE5MmQ1OGJmNDNiOGI6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YzY1ZTgwMGZjM2ExZmE2MmRhMDc4YzVhN2MxOWFhY2YtMzRkZWZmNWE4OGE0MTM0YmYzYjgwOWYxMTdhODA5MDI6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=OTAzZjU1MDdhYzMxMmRkZTA4MDI0YjUzNmI0M2JlZjQtMTcyYjAxNmIwOWY2NDZiYmZjYTViOGNlNjRjZDZkYzk6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.3M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.3M [00:00<00:13, 940kB/s][A
-  8%|▊         | 1.05M/13.3M [00:00<00:07, 1.73MB/s][A
- 16%|█▌        | 2.10M/13.3M [00:00<00:03, 3.48MB/s][A
- 32%|███▏      | 4.19M/13.3M [00:00<00:01, 7.24MB/s][A
- 59%|█████▉    | 7.86M/13.3M [00:01<00:00, 13.7MB/s][A
- 75%|███████▍  | 9.96M/13.3M [00:01<00:00, 14.2MB/s][A
- 91%|█████████ | 12.1M/13.3M [00:01<00:00, 13.8MB/s][A100%|██████████| 13.3M/13.3M [00:01<00:00, 9.89MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YjZhZGEzMmQzNDllMDIzOTUyNzY5YWRkNWUzY2ZjYTgtOTE0ZTgzNDY4ZDkwZjdiZjYzZTE5MmQ1OGJmNDNiOGI6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_6_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.2M [00:00<?, ?B/s][A
-  5%|▌         | 524k/10.2M [00:00<00:09, 989kB/s][A
- 10%|█         | 1.05M/10.2M [00:00<00:05, 1.81MB/s][A
- 20%|██        | 2.10M/10.2M [00:00<00:02, 3.63MB/s][A
- 41%|████      | 4.19M/10.2M [00:00<00:00, 7.56MB/s][A
- 82%|████████▏ | 8.39M/10.2M [00:00<00:00, 15.4MB/s][A100%|██████████| 10.2M/10.2M [00:01<00:00, 9.70MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YzY1ZTgwMGZjM2ExZmE2MmRhMDc4YzVhN2MxOWFhY2YtMzRkZWZmNWE4OGE0MTM0YmYzYjgwOWYxMTdhODA5MDI6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_6_2022_07_01_mask.tif
-
-  0%|          | 0.00/47.9k [00:00<?, ?B/s][A100%|██████████| 47.9k/47.9k [00:00<00:00, 1.66MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=OTAzZjU1MDdhYzMxMmRkZTA4MDI0YjUzNmI0M2JlZjQtMTcyYjAxNmIwOWY2NDZiYmZjYTViOGNlNjRjZDZkYzk6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_6_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.6M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.6M [00:00<00:12, 957kB/s][A
-  8%|▊         | 1.05M/12.6M [00:00<00:06, 1.72MB/s][A
- 17%|█▋        | 2.10M/12.6M [00:00<00:03, 3.47MB/s][A
- 33%|███▎      | 4.19M/12.6M [00:00<00:01, 7.25MB/s][A
- 62%|██████▏   | 7.86M/12.6M [00:01<00:00, 14.3MB/s][A
- 91%|█████████▏| 11.5M/12.6M [00:01<00:00, 19.9MB/s][A100%|██████████| 12.6M/12.6M [00:01<00:00, 11.0MB/s]
-  8%|▊         | 3/38 [01:45<20:21, 34.91s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZWUyYTBlNDdkNWRmNzhlNGZlYTRmNzg1YWZlM2JjZGEtZDY3N2U1MzcyNjBkOTM1YTc3ZDIwYmFkNWVlOGI1MTQ6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_10_2022_07_01_dsm.tif
-1933745
-p_10
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.367786554255495, 'location.longitude': -71.14882611546469, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZWUyYTBlNDdkNWRmNzhlNGZlYTRmNzg1YWZlM2JjZGEtZDY3N2U1MzcyNjBkOTM1YTc3ZDIwYmFkNWVlOGI1MTQ6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MmJmODBhOWRmNjY2ZWY2NjU4N2UwMTQxYTY0NzI3ZDYtMWRjMTNiNjU1M2RhNDMxN2Q4MTFkZDM1Y2RjMmI1YWI6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YmRmMTkxMDI5ZjViNTc5MThhMjA4ODE0MmExMWEyMmYtYTc1NDNiMjA1NjRiZTZmNWYyOTRjMWMwZTZmMDA4ODk6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MDJiZGZiOGVmNjE5MWU5ODlhYzRjZmZlNGYwNDM1NTItOGQwMTI3NWNiMTRhOTNmNWMxN2FiNzYyZTE0M2Q4MWY6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.3M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.3M [00:00<00:13, 973kB/s][A
-  8%|▊         | 1.05M/13.3M [00:00<00:06, 1.76MB/s][A
- 16%|█▌        | 2.10M/13.3M [00:00<00:03, 3.50MB/s][A
- 31%|███▏      | 4.19M/13.3M [00:00<00:01, 7.15MB/s][A
- 63%|██████▎   | 8.39M/13.3M [00:01<00:00, 14.9MB/s][A
- 91%|█████████ | 12.1M/13.3M [00:01<00:00, 20.2MB/s][A100%|██████████| 13.3M/13.3M [00:01<00:00, 11.4MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MmJmODBhOWRmNjY2ZWY2NjU4N2UwMTQxYTY0NzI3ZDYtMWRjMTNiNjU1M2RhNDMxN2Q4MTFkZDM1Y2RjMmI1YWI6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_10_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.3M [00:00<?, ?B/s][A
-  5%|▌         | 524k/10.3M [00:00<00:10, 934kB/s][A
- 10%|█         | 1.05M/10.3M [00:00<00:05, 1.71MB/s][A
- 20%|██        | 2.10M/10.3M [00:00<00:02, 3.45MB/s][A
- 41%|████      | 4.19M/10.3M [00:00<00:00, 7.19MB/s][A
- 76%|███████▌  | 7.86M/10.3M [00:01<00:00, 14.1MB/s][A100%|██████████| 10.3M/10.3M [00:01<00:00, 9.31MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YmRmMTkxMDI5ZjViNTc5MThhMjA4ODE0MmExMWEyMmYtYTc1NDNiMjA1NjRiZTZmNWYyOTRjMWMwZTZmMDA4ODk6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_10_2022_07_01_mask.tif
-
-  0%|          | 0.00/28.0k [00:00<?, ?B/s][A100%|██████████| 28.0k/28.0k [00:00<00:00, 3.89MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MDJiZGZiOGVmNjE5MWU5ODlhYzRjZmZlNGYwNDM1NTItOGQwMTI3NWNiMTRhOTNmNWMxN2FiNzYyZTE0M2Q4MWY6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_10_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.8M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.8M [00:00<00:12, 965kB/s][A
-  8%|▊         | 1.05M/12.8M [00:00<00:06, 1.76MB/s][A
- 16%|█▋        | 2.10M/12.8M [00:00<00:03, 3.54MB/s][A
- 33%|███▎      | 4.19M/12.8M [00:00<00:01, 7.39MB/s][A
- 65%|██████▌   | 8.39M/12.8M [00:01<00:00, 15.3MB/s][A
- 94%|█████████▍| 12.1M/12.8M [00:01<00:00, 20.1MB/s][A100%|██████████| 12.8M/12.8M [00:01<00:00, 11.2MB/s]
- 11%|█         | 4/38 [02:17<19:10, 33.85s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=OWY0MDUwYmYxMTM3ODEyZTFjYTcyMDk3YjI4YzNhNGMtZTRiZWQzMzE2ODIxMWIxZjMwMjU1NmRhODVmZWY1NGU6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_11_2022_07_01_dsm.tif
-1933745
-p_11
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.37588631603838, 'location.longitude': -71.1491023582022, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=OWY0MDUwYmYxMTM3ODEyZTFjYTcyMDk3YjI4YzNhNGMtZTRiZWQzMzE2ODIxMWIxZjMwMjU1NmRhODVmZWY1NGU6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MWNkZmE4ZTVmM2ExNTY0ZDg1MTE3MGNmZGU4MTRmOTgtMGM5MzdhYjZmYjY2ZDgyYzY5MjNlMTkwOWMxYTAxNjY6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=N2U2NmRkNWM4MzM3MjgxZGJlOTNhMDRlNjI5NzhmZjItYTQzNDkxZjE2OGVjOTEzMmZlOGQwZGQ4ODA5YjViYzg6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZGU5MjNiYTRmOTU5YjA4MGQxNDUxZmVkY2ZlOWE5NmEtMGZlZmZiMGU3OWY1MDhiNzEzZTc3OWEzYzgxMGY1NGQ6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.6M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.6M [00:00<00:13, 982kB/s][A
-  8%|▊         | 1.05M/13.6M [00:00<00:07, 1.78MB/s][A
- 15%|█▌        | 2.10M/13.6M [00:00<00:03, 3.55MB/s][A
- 31%|███       | 4.19M/13.6M [00:00<00:01, 7.39MB/s][A
- 58%|█████▊    | 7.86M/13.6M [00:00<00:00, 14.5MB/s][A
- 85%|████████▌ | 11.5M/13.6M [00:01<00:00, 20.1MB/s][A100%|██████████| 13.6M/13.6M [00:01<00:00, 11.7MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MWNkZmE4ZTVmM2ExNTY0ZDg1MTE3MGNmZGU4MTRmOTgtMGM5MzdhYjZmYjY2ZDgyYzY5MjNlMTkwOWMxYTAxNjY6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_11_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.7M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.7M [00:00<00:10, 950kB/s][A
- 10%|▉         | 1.05M/10.7M [00:00<00:05, 1.72MB/s][A
- 20%|█▉        | 2.10M/10.7M [00:00<00:02, 3.46MB/s][A
- 39%|███▉      | 4.19M/10.7M [00:00<00:00, 7.26MB/s][A
- 73%|███████▎  | 7.86M/10.7M [00:01<00:00, 14.2MB/s][A100%|██████████| 10.7M/10.7M [00:01<00:00, 9.73MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=N2U2NmRkNWM4MzM3MjgxZGJlOTNhMDRlNjI5NzhmZjItYTQzNDkxZjE2OGVjOTEzMmZlOGQwZGQ4ODA5YjViYzg6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_11_2022_07_01_mask.tif
-
-  0%|          | 0.00/56.3k [00:00<?, ?B/s][A100%|██████████| 56.3k/56.3k [00:00<00:00, 1.54MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZGU5MjNiYTRmOTU5YjA4MGQxNDUxZmVkY2ZlOWE5NmEtMGZlZmZiMGU3OWY1MDhiNzEzZTc3OWEzYzgxMGY1NGQ6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_11_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/13.0M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.0M [00:00<00:12, 985kB/s][A
-  8%|▊         | 1.05M/13.0M [00:00<00:06, 1.78MB/s][A
- 16%|█▌        | 2.10M/13.0M [00:00<00:03, 3.56MB/s][A
- 32%|███▏      | 4.19M/13.0M [00:00<00:01, 7.39MB/s][A
- 61%|██████    | 7.86M/13.0M [00:00<00:00, 14.5MB/s][A
- 89%|████████▉ | 11.5M/13.0M [00:01<00:00, 20.0MB/s][A100%|██████████| 13.0M/13.0M [00:01<00:00, 11.3MB/s]
- 13%|█▎        | 5/38 [02:53<19:01, 34.59s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NTEyMzU3MGJlNWM1ZGQxNTZkOWM0NmRiZWY1NWM5MjctNzc5NWVjNTA3NmM2ZTE3OWQxNzJlODlhNjEzN2ZmZmU6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_12_2022_07_01_dsm.tif
-1933745
-p_12
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.3839860648737, 'location.longitude': -71.14937871476326, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NTEyMzU3MGJlNWM1ZGQxNTZkOWM0NmRiZWY1NWM5MjctNzc5NWVjNTA3NmM2ZTE3OWQxNzJlODlhNjEzN2ZmZmU6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YWE2OTVkYTlhNDI1MDE4ZDBjMGRjYjljYjg5NDY5NDctNjIzYTA4ZWQyODE0M2RkMDIxZjFhYjVlODcwM2I2N2I6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MDZhZWMwMzA1YWI5N2M1YmMwYjY1YjY0OTgxZDM0YjQtZDUxNGQ3MGI2ZTAxNTg2MmUwNDMyNGEyMzBhNWI2ODI6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=N2YxOTA0NmU5MWVkNzcwODM0YWMzZGM3ZTY5OThkNDktNDQxNDEwODdjODBlY2EzMGMyOTUwNTg1OGIwOTkzZDQ6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/6.69M [00:00<?, ?B/s][A
-  8%|▊         | 524k/6.69M [00:00<00:06, 958kB/s][A
- 16%|█▌        | 1.05M/6.69M [00:00<00:03, 1.73MB/s][A
- 31%|███▏      | 2.10M/6.69M [00:00<00:01, 3.48MB/s][A
- 63%|██████▎   | 4.19M/6.69M [00:00<00:00, 7.29MB/s][A100%|██████████| 6.69M/6.69M [00:00<00:00, 6.79MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YWE2OTVkYTlhNDI1MDE4ZDBjMGRjYjljYjg5NDY5NDctNjIzYTA4ZWQyODE0M2RkMDIxZjFhYjVlODcwM2I2N2I6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_12_2022_07_01_rgb.tif
-
-  0%|          | 0.00/6.89M [00:00<?, ?B/s][A
-  8%|▊         | 524k/6.89M [00:00<00:06, 952kB/s][A
- 15%|█▌        | 1.05M/6.89M [00:00<00:03, 1.72MB/s][A
- 30%|███       | 2.10M/6.89M [00:00<00:01, 3.46MB/s][A
- 61%|██████    | 4.19M/6.89M [00:00<00:00, 7.26MB/s][A100%|██████████| 6.89M/6.89M [00:00<00:00, 6.93MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MDZhZWMwMzA1YWI5N2M1YmMwYjY1YjY0OTgxZDM0YjQtZDUxNGQ3MGI2ZTAxNTg2MmUwNDMyNGEyMzBhNWI2ODI6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_12_2022_07_01_mask.tif
-
-  0%|          | 0.00/13.1k [00:00<?, ?B/s][A100%|██████████| 13.1k/13.1k [00:00<00:00, 25.3MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=N2YxOTA0NmU5MWVkNzcwODM0YWMzZGM3ZTY5OThkNDktNDQxNDEwODdjODBlY2EzMGMyOTUwNTg1OGIwOTkzZDQ6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_12_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/7.88M [00:00<?, ?B/s][A
-  7%|▋         | 524k/7.88M [00:00<00:08, 908kB/s][A
- 13%|█▎        | 1.05M/7.88M [00:00<00:04, 1.64MB/s][A
- 27%|██▋       | 2.10M/7.88M [00:00<00:01, 3.29MB/s][A
- 53%|█████▎    | 4.19M/7.88M [00:00<00:00, 6.91MB/s][A
-100%|█████████▉| 7.86M/7.88M [00:01<00:00, 13.4MB/s][A100%|██████████| 7.88M/7.88M [00:01<00:00, 7.33MB/s]
- 16%|█▌        | 6/38 [03:29<18:44, 35.15s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YjRkMTQ2ZGFhNjU3NzNhOGUxZTBmZGJkNTY5NmI3NTUtNDc4ZWU3ODcyZjQ1MDgwNWMxZjljNjFkMjdhYjM5ZTg6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_13_2022_07_01_dsm.tif
-1933745
-p_13
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.39208580076043, 'location.longitude': -71.14965518520268, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YjRkMTQ2ZGFhNjU3NzNhOGUxZTBmZGJkNTY5NmI3NTUtNDc4ZWU3ODcyZjQ1MDgwNWMxZjljNjFkMjdhYjM5ZTg6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MzM5OTIwNDI2MzEyYzZhYmNkMTIzYmUyN2VjN2E3YjMtNTY2NzAzM2NiNTVjMzNlMzBhNzhkNDYwNmI3OWI5NjM6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=Mjk1MDIxYjFlZTM2NzcxNTU3YjdiMzI3NzUzMjZhOTYtOTE4YzA1NjI1YWQwYmE0MWI1NWUzOTBjOWI2NWViMjA6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MzEwZmZkNjQ5ODVhMDcwNWQxNzQ0NTRmYTFiYmNkNWMtMDU0MGM2YmNjMWY4OWU2MDM1N2RmNGE0MTE5NWNlZWY6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/14.0M [00:00<?, ?B/s][A
-  4%|▎         | 524k/14.0M [00:00<00:13, 964kB/s][A
-  7%|▋         | 1.05M/14.0M [00:00<00:07, 1.75MB/s][A
- 15%|█▍        | 2.10M/14.0M [00:00<00:03, 3.54MB/s][A
- 30%|██▉       | 4.19M/14.0M [00:00<00:01, 7.41MB/s][A
- 56%|█████▌    | 7.86M/14.0M [00:01<00:00, 14.2MB/s][A
- 86%|████████▌ | 12.1M/14.0M [00:01<00:00, 20.6MB/s][A100%|██████████| 14.0M/14.0M [00:01<00:00, 11.8MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MzM5OTIwNDI2MzEyYzZhYmNkMTIzYmUyN2VjN2E3YjMtNTY2NzAzM2NiNTVjMzNlMzBhNzhkNDYwNmI3OWI5NjM6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_13_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.1M [00:00<?, ?B/s][A
-  5%|▌         | 524k/10.1M [00:00<00:10, 943kB/s][A
- 10%|█         | 1.05M/10.1M [00:00<00:05, 1.72MB/s][A
- 21%|██        | 2.10M/10.1M [00:00<00:02, 3.48MB/s][A
- 42%|████▏     | 4.19M/10.1M [00:00<00:00, 7.13MB/s][A
- 57%|█████▋    | 5.77M/10.1M [00:01<00:00, 8.91MB/s][A
- 78%|███████▊  | 7.86M/10.1M [00:01<00:00, 11.4MB/s][A100%|██████████| 10.1M/10.1M [00:01<00:00, 8.18MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=Mjk1MDIxYjFlZTM2NzcxNTU3YjdiMzI3NzUzMjZhOTYtOTE4YzA1NjI1YWQwYmE0MWI1NWUzOTBjOWI2NWViMjA6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_13_2022_07_01_mask.tif
-
-  0%|          | 0.00/32.7k [00:00<?, ?B/s][A100%|██████████| 32.7k/32.7k [00:00<00:00, 2.26MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MzEwZmZkNjQ5ODVhMDcwNWQxNzQ0NTRmYTFiYmNkNWMtMDU0MGM2YmNjMWY4OWU2MDM1N2RmNGE0MTE5NWNlZWY6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_13_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.7M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.7M [00:00<00:12, 960kB/s][A
-  8%|▊         | 1.05M/12.7M [00:00<00:06, 1.73MB/s][A
- 17%|█▋        | 2.10M/12.7M [00:00<00:03, 3.48MB/s][A
- 33%|███▎      | 4.19M/12.7M [00:00<00:01, 7.29MB/s][A
- 62%|██████▏   | 7.86M/12.7M [00:01<00:00, 14.1MB/s][A
- 91%|█████████ | 11.5M/12.7M [00:01<00:00, 19.7MB/s][A100%|██████████| 12.7M/12.7M [00:01<00:00, 10.8MB/s]
- 18%|█▊        | 7/38 [04:04<18:08, 35.13s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YjQwNDllODU3YTMxNDQ0YTg1ZmQ4Njk4MGM4ZDEyOWMtNjY5YmMzYmViMDI5YzJlMTk4OGEyMDAxMzFiMjI0YTE6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_14_2022_07_01_dsm.tif
-1933745
-p_14
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.40018552369746, 'location.longitude': -71.14993176957528, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YjQwNDllODU3YTMxNDQ0YTg1ZmQ4Njk4MGM4ZDEyOWMtNjY5YmMzYmViMDI5YzJlMTk4OGEyMDAxMzFiMjI0YTE6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MWY5NjY4MmE3N2U3M2IwMTc2YTE1Mzk3NTNkY2YxM2YtYjk3ZmYwMzJkYzk5MWM1MTRjNDNjN2NmZmUyOTI2ZGY6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NTRiOWNiYjBhMmJjMmY3NzEzMGMzZmVhNGY5MjVkZTYtOGVhNjk0MGUzNjg2ZWU5NzI1ZGE1ZmFlMGZkNjI1ZjI6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ODc0N2ZkYjViMjBmNDRlNDcxMzExOTdmMWVmMzc5NmUtMWUxNjA3NmVhMWEzZDAyNGM2ZGFlMmE1MjNiMTJkYmU6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/14.4M [00:00<?, ?B/s][A
-  4%|▎         | 524k/14.4M [00:00<00:14, 986kB/s][A
-  7%|▋         | 1.05M/14.4M [00:00<00:07, 1.81MB/s][A
- 15%|█▍        | 2.10M/14.4M [00:00<00:03, 3.63MB/s][A
- 29%|██▉       | 4.19M/14.4M [00:00<00:01, 7.58MB/s][A
- 55%|█████▍    | 7.86M/14.4M [00:00<00:00, 14.8MB/s][A
- 80%|████████  | 11.5M/14.4M [00:01<00:00, 20.3MB/s][A100%|██████████| 14.4M/14.4M [00:01<00:00, 12.4MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MWY5NjY4MmE3N2U3M2IwMTc2YTE1Mzk3NTNkY2YxM2YtYjk3ZmYwMzJkYzk5MWM1MTRjNDNjN2NmZmUyOTI2ZGY6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_14_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.4M [00:00<?, ?B/s][A
-  5%|▌         | 524k/10.4M [00:00<00:10, 987kB/s][A
- 10%|█         | 1.05M/10.4M [00:00<00:05, 1.79MB/s][A
- 20%|██        | 2.10M/10.4M [00:00<00:02, 3.56MB/s][A
- 40%|████      | 4.19M/10.4M [00:00<00:00, 7.41MB/s][A
- 76%|███████▌  | 7.86M/10.4M [00:00<00:00, 14.3MB/s][A100%|██████████| 10.4M/10.4M [00:01<00:00, 9.75MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NTRiOWNiYjBhMmJjMmY3NzEzMGMzZmVhNGY5MjVkZTYtOGVhNjk0MGUzNjg2ZWU5NzI1ZGE1ZmFlMGZkNjI1ZjI6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_14_2022_07_01_mask.tif
-
-  0%|          | 0.00/41.2k [00:00<?, ?B/s][A100%|██████████| 41.2k/41.2k [00:00<00:00, 1.96MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ODc0N2ZkYjViMjBmNDRlNDcxMzExOTdmMWVmMzc5NmUtMWUxNjA3NmVhMWEzZDAyNGM2ZGFlMmE1MjNiMTJkYmU6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_14_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.9M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.9M [00:00<00:12, 994kB/s][A
-  8%|▊         | 1.05M/12.9M [00:00<00:06, 1.81MB/s][A
- 16%|█▌        | 2.10M/12.9M [00:00<00:02, 3.62MB/s][A
- 32%|███▏      | 4.19M/12.9M [00:00<00:01, 7.53MB/s][A
- 65%|██████▍   | 8.39M/12.9M [00:00<00:00, 15.3MB/s][A
- 97%|█████████▋| 12.6M/12.9M [00:01<00:00, 21.2MB/s][A100%|██████████| 12.9M/12.9M [00:01<00:00, 11.5MB/s]
- 21%|██        | 8/38 [04:39<17:32, 35.09s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YzNlNWEyMjQ4MjhlZjA5NDZjZDhjODRmM2UxMWMyMDAtMTc5MWY2NGUzM2ExYzIxMzgzMDg4NDkxYmM2YWM5ODM6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_17_2022_07_01_dsm.tif
-1933745
-p_17
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.36799084065572, 'location.longitude': -71.13790334084048, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YzNlNWEyMjQ4MjhlZjA5NDZjZDhjODRmM2UxMWMyMDAtMTc5MWY2NGUzM2ExYzIxMzgzMDg4NDkxYmM2YWM5ODM6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZGE5OTVkZDJhY2ZkMjMzMDE2OTEyZWIzYWIyZmI3NzktYTY3Yjk3Y2Q3NDM3ODhjYjUwZTAwMjZiN2Q0Y2E2NDA6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NjM2YzZkYTllNjQ2OGZkNTU0YWVkZTAyN2JkNDJjYWMtZTZiZWUxOWI2ZWUwMTM4N2UyYTQwZjg5OGM2YWMwN2M6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MmQ5YTY1MjBkMGMzNTg1N2JhNTEyNWRkNzQyZTg3NDItNjYwNTE3ZTQ2YTczYmYxMWQ0MzJmOTY1ZWQxZjQ5NWY6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/12.7M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.7M [00:00<00:06, 1.97MB/s][A
- 12%|█▏        | 1.57M/12.7M [00:00<00:02, 4.48MB/s][A
- 25%|██▍       | 3.15M/12.7M [00:00<00:01, 7.93MB/s][A
- 45%|████▌     | 5.77M/12.7M [00:00<00:00, 13.4MB/s][A
- 74%|███████▍  | 9.44M/12.7M [00:00<00:00, 19.9MB/s][A100%|██████████| 12.7M/12.7M [00:00<00:00, 15.9MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZGE5OTVkZDJhY2ZkMjMzMDE2OTEyZWIzYWIyZmI3NzktYTY3Yjk3Y2Q3NDM3ODhjYjUwZTAwMjZiN2Q0Y2E2NDA6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_17_2022_07_01_rgb.tif
-
-  0%|          | 0.00/9.89M [00:00<?, ?B/s][A
-  5%|▌         | 524k/9.89M [00:00<00:09, 967kB/s][A
- 11%|█         | 1.05M/9.89M [00:00<00:04, 1.77MB/s][A
- 21%|██        | 2.10M/9.89M [00:00<00:02, 3.56MB/s][A
- 42%|████▏     | 4.19M/9.89M [00:00<00:00, 7.44MB/s][A
- 85%|████████▍ | 8.39M/9.89M [00:01<00:00, 15.4MB/s][A100%|██████████| 9.89M/9.89M [00:01<00:00, 9.34MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NjM2YzZkYTllNjQ2OGZkNTU0YWVkZTAyN2JkNDJjYWMtZTZiZWUxOWI2ZWUwMTM4N2UyYTQwZjg5OGM2YWMwN2M6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_17_2022_07_01_mask.tif
-
-  0%|          | 0.00/15.8k [00:00<?, ?B/s][A100%|██████████| 15.8k/15.8k [00:00<00:00, 33.2MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MmQ5YTY1MjBkMGMzNTg1N2JhNTEyNWRkNzQyZTg3NDItNjYwNTE3ZTQ2YTczYmYxMWQ0MzJmOTY1ZWQxZjQ5NWY6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_17_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.5M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.5M [00:00<00:12, 965kB/s][A
-  8%|▊         | 1.05M/12.5M [00:00<00:06, 1.74MB/s][A
- 17%|█▋        | 2.10M/12.5M [00:00<00:03, 3.47MB/s][A
- 33%|███▎      | 4.19M/12.5M [00:00<00:01, 7.26MB/s][A
- 63%|██████▎   | 7.86M/12.5M [00:01<00:00, 14.0MB/s][A
- 92%|█████████▏| 11.5M/12.5M [00:01<00:00, 19.6MB/s][A100%|██████████| 12.5M/12.5M [00:01<00:00, 10.7MB/s]
- 24%|██▎       | 9/38 [05:14<16:56, 35.06s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZDE3MTVhMTNhNDllNmRkZDVhZWYzZTI3NjA0OGU3MDUtOWU4MTUxMzRmMzIyODFiYTdkZDg5ZTliNWIzYjYzODY6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_18_2022_07_01_dsm.tif
-1933745
-p_18
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.37609066006353, 'location.longitude': -71.13817818201353, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZDE3MTVhMTNhNDllNmRkZDVhZWYzZTI3NjA0OGU3MDUtOWU4MTUxMzRmMzIyODFiYTdkZDg5ZTliNWIzYjYzODY6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MGE2YzZjZjBkMzIzZDk3MjdmM2NjM2E5YmYwOGFmNDUtM2MzNjdkOWU2MmNkNWEyYTEzMTcxYWRmYTZhNTg4YmU6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZDVhNDI5ZjQ5ZjU2ZjEyMDNmOGE5M2Q3ZjVhYThjNTYtNTA4YjllZmY4ZDE2NTU4ZWE4Y2Q0YTMwYWE0YzdiOGM6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZGQ5ZjQxMjRiNGNjMzIwMGMzZjY0YTAzMWU4YmFmMjctZGY3MTYzMWIyNmVlNWUyYWMxNmJmNjY5MWY5ZTkyNGU6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.6M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.6M [00:00<00:13, 979kB/s][A
-  8%|▊         | 1.05M/13.6M [00:00<00:07, 1.78MB/s][A
- 15%|█▌        | 2.10M/13.6M [00:00<00:03, 3.56MB/s][A
- 31%|███       | 4.19M/13.6M [00:00<00:01, 7.41MB/s][A
- 62%|██████▏   | 8.39M/13.6M [00:01<00:00, 15.4MB/s][A
- 88%|████████▊ | 12.1M/13.6M [00:01<00:00, 20.6MB/s][A100%|██████████| 13.6M/13.6M [00:01<00:00, 11.7MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MGE2YzZjZjBkMzIzZDk3MjdmM2NjM2E5YmYwOGFmNDUtM2MzNjdkOWU2MmNkNWEyYTEzMTcxYWRmYTZhNTg4YmU6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_18_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.6M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.6M [00:00<00:04, 2.15MB/s][A
- 15%|█▍        | 1.57M/10.6M [00:00<00:01, 5.21MB/s][A
- 34%|███▍      | 3.67M/10.6M [00:00<00:00, 10.1MB/s][A
- 64%|██████▍   | 6.82M/10.6M [00:00<00:00, 16.8MB/s][A
- 99%|█████████▊| 10.5M/10.6M [00:00<00:00, 22.8MB/s][A100%|██████████| 10.6M/10.6M [00:00<00:00, 15.9MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZDVhNDI5ZjQ5ZjU2ZjEyMDNmOGE5M2Q3ZjVhYThjNTYtNTA4YjllZmY4ZDE2NTU4ZWE4Y2Q0YTMwYWE0YzdiOGM6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_18_2022_07_01_mask.tif
-
-  0%|          | 0.00/50.3k [00:00<?, ?B/s][A100%|██████████| 50.3k/50.3k [00:00<00:00, 1.69MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZGQ5ZjQxMjRiNGNjMzIwMGMzZjY0YTAzMWU4YmFmMjctZGY3MTYzMWIyNmVlNWUyYWMxNmJmNjY5MWY5ZTkyNGU6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_18_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/13.0M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.0M [00:00<00:12, 977kB/s][A
-  8%|▊         | 1.05M/13.0M [00:00<00:06, 1.78MB/s][A
- 16%|█▌        | 2.10M/13.0M [00:00<00:03, 3.58MB/s][A
- 32%|███▏      | 4.19M/13.0M [00:00<00:01, 7.16MB/s][A
- 57%|█████▋    | 7.34M/13.0M [00:01<00:00, 12.7MB/s][A
- 85%|████████▍ | 11.0M/13.0M [00:01<00:00, 18.6MB/s][A100%|██████████| 13.0M/13.0M [00:01<00:00, 11.1MB/s]
- 26%|██▋       | 10/38 [05:46<15:56, 34.17s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZjI3ZGI5NDc1ZTU4ZmE0MDBjYTE2ZjJlM2MwYjljOGQtNDRmZTYxMjk1Y2E1NDZiODFmYmQ0NmFmZDU1ZTgxZDA6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_19_2022_07_01_dsm.tif
-1933745
-p_19
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.38419046653845, 'location.longitude': -71.13845313643364, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZjI3ZGI5NDc1ZTU4ZmE0MDBjYTE2ZjJlM2MwYjljOGQtNDRmZTYxMjk1Y2E1NDZiODFmYmQ0NmFmZDU1ZTgxZDA6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NjJlY2M3OTAyNjJkMTYzOTQxMGY1YTNlZmNkOTM5OTktNDhlZGRlM2Y4NjFjMjU1NTlkNGE5MzQ0YzYyNjUzYjE6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NjViNDliMmY1MWFjYTcxMTFhZDMxYjIxM2ZkYmUwMDQtMGMyOTNiZDk2MjQxYzUwZDIwOWIxZWY3ZWZmYTgzZDU6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MDJjMzMwOTFlNTVhYmFlMmVjNjI5OWIwYWI3OGM2Y2MtMjJiYmFjM2MxNzI2YWJkYzYyYmM1NTM0MDgyYjQ5NjU6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.3M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.3M [00:00<00:13, 969kB/s][A
-  8%|▊         | 1.05M/13.3M [00:00<00:06, 1.76MB/s][A
- 16%|█▌        | 2.10M/13.3M [00:00<00:03, 3.51MB/s][A
- 32%|███▏      | 4.19M/13.3M [00:00<00:01, 7.33MB/s][A
- 59%|█████▉    | 7.86M/13.3M [00:01<00:00, 14.1MB/s][A
- 87%|████████▋ | 11.5M/13.3M [00:01<00:00, 19.6MB/s][A100%|██████████| 13.3M/13.3M [00:01<00:00, 11.3MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NjJlY2M3OTAyNjJkMTYzOTQxMGY1YTNlZmNkOTM5OTktNDhlZGRlM2Y4NjFjMjU1NTlkNGE5MzQ0YzYyNjUzYjE6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_19_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.3M [00:00<?, ?B/s][A
-  5%|▌         | 524k/10.3M [00:00<00:10, 974kB/s][A
- 10%|█         | 1.05M/10.3M [00:00<00:05, 1.77MB/s][A
- 20%|██        | 2.10M/10.3M [00:00<00:02, 3.58MB/s][A
- 41%|████      | 4.19M/10.3M [00:00<00:00, 7.47MB/s][A
- 81%|████████  | 8.39M/10.3M [00:01<00:00, 15.3MB/s][A100%|██████████| 10.3M/10.3M [00:01<00:00, 9.68MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NjViNDliMmY1MWFjYTcxMTFhZDMxYjIxM2ZkYmUwMDQtMGMyOTNiZDk2MjQxYzUwZDIwOWIxZWY3ZWZmYTgzZDU6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_19_2022_07_01_mask.tif
-
-  0%|          | 0.00/70.8k [00:00<?, ?B/s][A
-100%|██████████| 70.8k/70.8k [00:00<00:00, 502kB/s][A100%|██████████| 70.8k/70.8k [00:00<00:00, 502kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MDJjMzMwOTFlNTVhYmFlMmVjNjI5OWIwYWI3OGM2Y2MtMjJiYmFjM2MxNzI2YWJkYzYyYmM1NTM0MDgyYjQ5NjU6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_19_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.5M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.5M [00:00<00:12, 984kB/s][A
-  8%|▊         | 1.05M/12.5M [00:00<00:06, 1.79MB/s][A
- 17%|█▋        | 2.10M/12.5M [00:00<00:02, 3.56MB/s][A
- 33%|███▎      | 4.19M/12.5M [00:00<00:01, 7.39MB/s][A
- 67%|██████▋   | 8.39M/12.5M [00:01<00:00, 15.2MB/s][A
- 96%|█████████▌| 12.1M/12.5M [00:01<00:00, 20.5MB/s][A100%|██████████| 12.5M/12.5M [00:01<00:00, 11.1MB/s]
- 29%|██▉       | 11/38 [06:23<15:42, 34.92s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YjZhZWNjNjRjMWZjMzM4NjIwMGIxNzFlM2M2NWY3ZTItZDYyZjBhZjYxMGM4ZjBlOTEyZWI4ZmExY2EyY2FhZTY6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_20_2022_07_01_dsm.tif
-1933745
-p_20
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.39229026007939, 'location.longitude': -71.13872820415531, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YjZhZWNjNjRjMWZjMzM4NjIwMGIxNzFlM2M2NWY3ZTItZDYyZjBhZjYxMGM4ZjBlOTEyZWI4ZmExY2EyY2FhZTY6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZDNmN2UwYjMzMGUxODYwY2ExYzg2YTZlMWM0YjY3MGQtOWE1ZmNiNWY0MTg0Mjk4NmNjNmRmN2YzMmQ3ZjZlYWM6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NGEwZDgxYWNjMWJlYzFhY2E3YTYyZDZkYzUyZTQwMDctZDJmMTRmZDc0ODdmZjIxZDIwYTg1ZjYyMmNkOTg5ZGY6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YTg3MDllYTcwMTdlOGMwNzdhNWFlZmMwNzAwOWU2OGUtYTcyMjQxNjcxODI1ZjQwOWZlZWY0ZGJlN2M2MTdjZDI6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/14.0M [00:00<?, ?B/s][A
-  4%|▎         | 524k/14.0M [00:00<00:14, 952kB/s][A
-  7%|▋         | 1.05M/14.0M [00:00<00:07, 1.73MB/s][A
- 15%|█▍        | 2.10M/14.0M [00:00<00:03, 3.01MB/s][A
- 19%|█▊        | 2.62M/14.0M [00:01<00:03, 2.97MB/s][A
- 30%|██▉       | 4.19M/14.0M [00:01<00:01, 5.32MB/s][A
- 49%|████▊     | 6.82M/14.0M [00:01<00:00, 9.76MB/s][A
- 79%|███████▊  | 11.0M/14.0M [00:01<00:00, 16.9MB/s][A100%|██████████| 14.0M/14.0M [00:01<00:00, 9.51MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZDNmN2UwYjMzMGUxODYwY2ExYzg2YTZlMWM0YjY3MGQtOWE1ZmNiNWY0MTg0Mjk4NmNjNmRmN2YzMmQ3ZjZlYWM6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_20_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.4M [00:00<?, ?B/s][A
-  5%|▌         | 524k/10.4M [00:00<00:10, 909kB/s][A
- 10%|█         | 1.05M/10.4M [00:00<00:05, 1.64MB/s][A
- 20%|██        | 2.10M/10.4M [00:00<00:02, 3.29MB/s][A
- 40%|████      | 4.19M/10.4M [00:00<00:00, 6.91MB/s][A
- 76%|███████▌  | 7.86M/10.4M [00:01<00:00, 13.4MB/s][A100%|██████████| 10.4M/10.4M [00:01<00:00, 9.05MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NGEwZDgxYWNjMWJlYzFhY2E3YTYyZDZkYzUyZTQwMDctZDJmMTRmZDc0ODdmZjIxZDIwYTg1ZjYyMmNkOTg5ZGY6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_20_2022_07_01_mask.tif
-
-  0%|          | 0.00/31.1k [00:00<?, ?B/s][A100%|██████████| 31.1k/31.1k [00:00<00:00, 4.87MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YTg3MDllYTcwMTdlOGMwNzdhNWFlZmMwNzAwOWU2OGUtYTcyMjQxNjcxODI1ZjQwOWZlZWY0ZGJlN2M2MTdjZDI6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_20_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.8M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.8M [00:00<00:12, 967kB/s][A
-  8%|▊         | 1.05M/12.8M [00:00<00:06, 1.77MB/s][A
- 16%|█▋        | 2.10M/12.8M [00:00<00:03, 3.55MB/s][A
- 33%|███▎      | 4.19M/12.8M [00:00<00:01, 7.42MB/s][A
- 57%|█████▋    | 7.34M/12.8M [00:00<00:00, 13.3MB/s][A
- 90%|█████████ | 11.5M/12.8M [00:01<00:00, 20.4MB/s][A100%|██████████| 12.8M/12.8M [00:01<00:00, 11.2MB/s]
- 32%|███▏      | 12/38 [07:00<15:24, 35.57s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YTM4YWFiNzViMjdiZDJiNTg1ZmExMzIzMDFjNTQxZTktMGU1MGQ3MmJiM2E5YWVhMmU2ZDMzYmM2YWMyYWZiZmQ6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_21_2022_07_01_dsm.tif
-1933745
-p_21
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.40039004068533, 'location.longitude': -71.13900338523314, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YTM4YWFiNzViMjdiZDJiNTg1ZmExMzIzMDFjNTQxZTktMGU1MGQ3MmJiM2E5YWVhMmU2ZDMzYmM2YWMyYWZiZmQ6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZGY3MmYxN2MzYjFhM2I4Y2NlMDZhY2MxYjI2MTZlNzgtMzYwN2E5MTI5OTAwMzFhYjMwNjgwYWFjOGEwNWNkZGU6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YjllZmE4YjBhYTgxNDU2NGNjZmQwZjM0N2QxNDBhMWYtNDk3MGUzZjczODc2MTM0NzNkMmU2Nzk0YzYxYzVkZDQ6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NmM3MmViNzgxNTQzOTgwMjgzMmExMDFkOGI5OTgyODUtMGM1ZDc0OGIwYzQyM2Y0ZTljM2I2NTA2NTFhYjFlZDQ6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/14.3M [00:00<?, ?B/s][A
-  4%|▎         | 524k/14.3M [00:00<00:14, 973kB/s][A
-  7%|▋         | 1.05M/14.3M [00:00<00:07, 1.77MB/s][A
- 15%|█▍        | 2.10M/14.3M [00:00<00:03, 3.57MB/s][A
- 29%|██▉       | 4.19M/14.3M [00:00<00:01, 7.45MB/s][A
- 55%|█████▍    | 7.86M/14.3M [00:00<00:00, 14.6MB/s][A
- 80%|████████  | 11.5M/14.3M [00:01<00:00, 20.3MB/s][A100%|██████████| 14.3M/14.3M [00:01<00:00, 12.2MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZGY3MmYxN2MzYjFhM2I4Y2NlMDZhY2MxYjI2MTZlNzgtMzYwN2E5MTI5OTAwMzFhYjMwNjgwYWFjOGEwNWNkZGU6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_21_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.8M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.8M [00:00<00:10, 964kB/s][A
- 10%|▉         | 1.05M/10.8M [00:00<00:05, 1.75MB/s][A
- 19%|█▉        | 2.10M/10.8M [00:00<00:02, 3.52MB/s][A
- 39%|███▉      | 4.19M/10.8M [00:00<00:00, 7.36MB/s][A
- 78%|███████▊  | 8.39M/10.8M [00:01<00:00, 15.2MB/s][A100%|██████████| 10.8M/10.8M [00:01<00:00, 9.90MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YjllZmE4YjBhYTgxNDU2NGNjZmQwZjM0N2QxNDBhMWYtNDk3MGUzZjczODc2MTM0NzNkMmU2Nzk0YzYxYzVkZDQ6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_21_2022_07_01_mask.tif
-
-  0%|          | 0.00/78.1k [00:00<?, ?B/s][A
-100%|██████████| 78.1k/78.1k [00:00<00:00, 543kB/s][A100%|██████████| 78.1k/78.1k [00:00<00:00, 542kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NmM3MmViNzgxNTQzOTgwMjgzMmExMDFkOGI5OTgyODUtMGM1ZDc0OGIwYzQyM2Y0ZTljM2I2NTA2NTFhYjFlZDQ6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_21_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.9M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.9M [00:00<00:12, 987kB/s][A
-  8%|▊         | 1.05M/12.9M [00:00<00:06, 1.79MB/s][A
- 16%|█▌        | 2.10M/12.9M [00:00<00:03, 3.60MB/s][A
- 32%|███▏      | 4.19M/12.9M [00:00<00:01, 7.54MB/s][A
- 65%|██████▍   | 8.39M/12.9M [00:00<00:00, 15.5MB/s][A
- 93%|█████████▎| 12.1M/12.9M [00:01<00:00, 20.8MB/s][A100%|██████████| 12.9M/12.9M [00:01<00:00, 11.4MB/s]
- 34%|███▍      | 13/38 [07:33<14:32, 34.90s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MTNjNGYwMGZjZTBhYTE1YWFiNjkzZTY4NjA1Yzk0ZWMtMTM1NDM5ZjFiYzBiMjRkYWQ4ZWQ5YWI5OWZlYmMwMmU6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_24_2022_07_01_dsm.tif
-1933745
-p_24
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.36819408725342, 'location.longitude': -71.12698045302372, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MTNjNGYwMGZjZTBhYTE1YWFiNjkzZTY4NjA1Yzk0ZWMtMTM1NDM5ZjFiYzBiMjRkYWQ4ZWQ5YWI5OWZlYmMwMmU6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=OTVhZTExMGM3ZWNkY2E5NjNjYTNiOTM2NDFmNTgyYzEtNjk2Y2ZjYWFmMjg2MDdmYTcwOTdkYWFhZGI1NDVlY2Y6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MTA3ZGQ1YWFkMjE3OTk5N2RiOTdmNDk0ZjFhZmIwNTYtZmExNTc5NDJlY2UyNDQ2MTBmNTZlNjliOTQ0MmNiMzg6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MjlhN2YzNjFkNjlmODBmNmJkZDJlZWFlYTQxNGJiOGUtMTBkODNkYjYxZDQxNDFlMzZjNzM2MDMzNjM5YWQzZTU6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/12.7M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.7M [00:00<00:12, 976kB/s][A
-  8%|▊         | 1.05M/12.7M [00:00<00:06, 1.78MB/s][A
- 16%|█▋        | 2.10M/12.7M [00:00<00:02, 3.59MB/s][A
- 33%|███▎      | 4.19M/12.7M [00:00<00:01, 7.50MB/s][A
- 62%|██████▏   | 7.86M/12.7M [00:00<00:00, 14.3MB/s][A
- 91%|█████████ | 11.5M/12.7M [00:01<00:00, 19.7MB/s][A100%|██████████| 12.7M/12.7M [00:01<00:00, 11.1MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=OTVhZTExMGM3ZWNkY2E5NjNjYTNiOTM2NDFmNTgyYzEtNjk2Y2ZjYWFmMjg2MDdmYTcwOTdkYWFhZGI1NDVlY2Y6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_24_2022_07_01_rgb.tif
-
-  0%|          | 0.00/9.68M [00:00<?, ?B/s][A
-  5%|▌         | 524k/9.68M [00:00<00:09, 990kB/s][A
- 11%|█         | 1.05M/9.68M [00:00<00:04, 1.79MB/s][A
- 22%|██▏       | 2.10M/9.68M [00:00<00:02, 3.59MB/s][A
- 43%|████▎     | 4.19M/9.68M [00:00<00:00, 7.50MB/s][A
- 81%|████████  | 7.86M/9.68M [00:00<00:00, 14.3MB/s][A100%|██████████| 9.68M/9.68M [00:01<00:00, 9.20MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MTA3ZGQ1YWFkMjE3OTk5N2RiOTdmNDk0ZjFhZmIwNTYtZmExNTc5NDJlY2UyNDQ2MTBmNTZlNjliOTQ0MmNiMzg6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_24_2022_07_01_mask.tif
-
-  0%|          | 0.00/28.9k [00:00<?, ?B/s][A100%|██████████| 28.9k/28.9k [00:00<00:00, 5.87MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MjlhN2YzNjFkNjlmODBmNmJkZDJlZWFlYTQxNGJiOGUtMTBkODNkYjYxZDQxNDFlMzZjNzM2MDMzNjM5YWQzZTU6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_24_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.2M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.2M [00:00<00:12, 935kB/s][A
-  9%|▊         | 1.05M/12.2M [00:00<00:06, 1.70MB/s][A
- 17%|█▋        | 2.10M/12.2M [00:00<00:02, 3.46MB/s][A
- 34%|███▍      | 4.19M/12.2M [00:00<00:01, 7.21MB/s][A
- 60%|██████    | 7.34M/12.2M [00:01<00:00, 12.6MB/s][A
- 90%|█████████ | 11.0M/12.2M [00:01<00:00, 18.4MB/s][A100%|██████████| 12.2M/12.2M [00:01<00:00, 10.3MB/s]
- 37%|███▋      | 14/38 [08:07<13:49, 34.57s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NjEyMTNmYTYxYTNmODg4ZmEzZTBiMmJkODI4ZWE0OWYtMmFiMDBjOGVjMDZiZmFmYjgxYTRlMzhjNWU4NWZmZjA6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_25_2022_07_01_dsm.tif
-1933745
-p_25
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.37629396399323, 'location.longitude': -71.12725389257781, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NjEyMTNmYTYxYTNmODg4ZmEzZTBiMmJkODI4ZWE0OWYtMmFiMDBjOGVjMDZiZmFmYjgxYTRlMzhjNWU4NWZmZjA6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NDRkYjhlZDcxYTQxYjA5MjU2NDFlZDIyZDIzYWZmYWItNjJmZjdjNjhhZjgyMmFmMTY2ZWY0M2FlN2NmNWIxN2E6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ODhlZTRkZTUwYWE3OTVjZDAxNjE2ZmIwNTc4NDIxMzYtYTg2NTk2NzEzMWZkZmMzMTE5MmM0MGQ1ZDBjZDkxMjg6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZDM3MmQzN2U4YjI5MTU4MDRhOWMxMGUzOGIyYWU0NTgtMGYwOGMyMWIyMDI5YWEwZDk0ZDhhYzMyNmI2MjZjMmI6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.4M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.4M [00:00<00:13, 958kB/s][A
-  8%|▊         | 1.05M/13.4M [00:00<00:06, 1.77MB/s][A
- 16%|█▌        | 2.10M/13.4M [00:00<00:03, 3.54MB/s][A
- 31%|███▏      | 4.19M/13.4M [00:00<00:01, 7.39MB/s][A
- 59%|█████▉    | 7.86M/13.4M [00:01<00:00, 14.2MB/s][A
- 86%|████████▋ | 11.5M/13.4M [00:01<00:00, 19.8MB/s][A100%|██████████| 13.4M/13.4M [00:01<00:00, 11.4MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NDRkYjhlZDcxYTQxYjA5MjU2NDFlZDIyZDIzYWZmYWItNjJmZjdjNjhhZjgyMmFmMTY2ZWY0M2FlN2NmNWIxN2E6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_25_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.4M [00:00<?, ?B/s][A
-  5%|▌         | 524k/10.4M [00:00<00:10, 957kB/s][A
- 10%|█         | 1.05M/10.4M [00:00<00:05, 1.73MB/s][A
- 20%|██        | 2.10M/10.4M [00:00<00:02, 3.50MB/s][A
- 40%|████      | 4.19M/10.4M [00:00<00:00, 7.32MB/s][A
- 80%|████████  | 8.39M/10.4M [00:01<00:00, 15.2MB/s][A100%|██████████| 10.4M/10.4M [00:01<00:00, 9.61MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ODhlZTRkZTUwYWE3OTVjZDAxNjE2ZmIwNTc4NDIxMzYtYTg2NTk2NzEzMWZkZmMzMTE5MmM0MGQ1ZDBjZDkxMjg6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_25_2022_07_01_mask.tif
-
-  0%|          | 0.00/71.3k [00:00<?, ?B/s][A
-100%|██████████| 71.3k/71.3k [00:00<00:00, 501kB/s][A100%|██████████| 71.3k/71.3k [00:00<00:00, 500kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZDM3MmQzN2U4YjI5MTU4MDRhOWMxMGUzOGIyYWU0NTgtMGYwOGMyMWIyMDI5YWEwZDk0ZDhhYzMyNmI2MjZjMmI6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_25_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.9M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.9M [00:00<00:12, 995kB/s][A
-  8%|▊         | 1.05M/12.9M [00:00<00:06, 1.80MB/s][A
- 16%|█▋        | 2.10M/12.9M [00:00<00:03, 3.59MB/s][A
- 33%|███▎      | 4.19M/12.9M [00:00<00:01, 7.44MB/s][A
- 65%|██████▌   | 8.39M/12.9M [00:01<00:00, 15.3MB/s][A
- 94%|█████████▍| 12.1M/12.9M [00:01<00:00, 20.6MB/s][A100%|██████████| 12.9M/12.9M [00:01<00:00, 11.4MB/s]
- 39%|███▉      | 15/38 [08:42<13:14, 34.55s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YzM1NzdjOGFlMzMyMDRhMjdhNGE4Mjg5NDU5NDdkMGUtNWVjNzVmNWQyMTVmMzI2YWViYmUxMjdkMTEwNzU1MTY6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_26_2022_07_01_dsm.tif
-1933745
-p_26
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.384393827814705, 'location.longitude': -71.12752744480242, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YzM1NzdjOGFlMzMyMDRhMjdhNGE4Mjg5NDU5NDdkMGUtNWVjNzVmNWQyMTVmMzI2YWViYmUxMjdkMTEwNzU1MTY6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YjE1NzZmMTNjNjg1OWMwMTkyNzg5MDNiNjE1MmVhZDEtZmUwOTg3NGI4NDk0YjczYzhmMjNmMmY3YjgwZDk1ZGY6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NTFmNGQ1MWQyOGFlZmU2NzE2YTA0ZDdkZmEyMDFjMmEtYmQ3YzQ5Y2Y4ODE5YTY4ZDAzMmQyNzRkZDBmMjAzZjQ6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NmM4NDBlOGMyZjdjZTNjYTc4NGM3NzMwZTI2NTkzMWItYmE2MmI1ODRkOWFlMjRjYjA1YjliNzJiMGNjODJmMDQ6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.8M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.8M [00:00<00:18, 716kB/s][A
-  8%|▊         | 1.05M/13.8M [00:00<00:09, 1.30MB/s][A
- 15%|█▌        | 2.10M/13.8M [00:01<00:04, 2.71MB/s][A
- 27%|██▋       | 3.67M/13.8M [00:01<00:01, 5.11MB/s][A
- 49%|████▉     | 6.82M/13.8M [00:01<00:00, 10.6MB/s][A
- 76%|███████▌  | 10.5M/13.8M [00:01<00:00, 16.5MB/s][A100%|██████████| 13.8M/13.8M [00:01<00:00, 9.55MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YjE1NzZmMTNjNjg1OWMwMTkyNzg5MDNiNjE1MmVhZDEtZmUwOTg3NGI4NDk0YjczYzhmMjNmMmY3YjgwZDk1ZGY6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_26_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.8M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.8M [00:00<00:10, 935kB/s][A
- 10%|▉         | 1.05M/10.8M [00:00<00:05, 1.72MB/s][A
- 19%|█▉        | 2.10M/10.8M [00:00<00:02, 3.44MB/s][A
- 39%|███▉      | 4.19M/10.8M [00:00<00:00, 7.15MB/s][A
- 73%|███████▎  | 7.86M/10.8M [00:01<00:00, 14.1MB/s][A
- 97%|█████████▋| 10.5M/10.8M [00:01<00:00, 17.1MB/s][A100%|██████████| 10.8M/10.8M [00:01<00:00, 9.52MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NTFmNGQ1MWQyOGFlZmU2NzE2YTA0ZDdkZmEyMDFjMmEtYmQ3YzQ5Y2Y4ODE5YTY4ZDAzMmQyNzRkZDBmMjAzZjQ6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_26_2022_07_01_mask.tif
-
-  0%|          | 0.00/97.2k [00:00<?, ?B/s][A
-100%|██████████| 97.2k/97.2k [00:00<00:00, 590kB/s][A100%|██████████| 97.2k/97.2k [00:00<00:00, 589kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NmM4NDBlOGMyZjdjZTNjYTc4NGM3NzMwZTI2NTkzMWItYmE2MmI1ODRkOWFlMjRjYjA1YjliNzJiMGNjODJmMDQ6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_26_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/13.0M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.0M [00:00<00:12, 986kB/s][A
-  8%|▊         | 1.05M/13.0M [00:00<00:06, 1.80MB/s][A
- 16%|█▌        | 2.10M/13.0M [00:00<00:03, 3.60MB/s][A
- 32%|███▏      | 4.19M/13.0M [00:00<00:01, 7.45MB/s][A
- 60%|██████    | 7.86M/13.0M [00:00<00:00, 14.3MB/s][A
- 89%|████████▊ | 11.5M/13.0M [00:01<00:00, 19.9MB/s][A100%|██████████| 13.0M/13.0M [00:01<00:00, 11.3MB/s]
- 42%|████▏     | 16/38 [09:16<12:41, 34.59s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZWY2OGZjOWUwZGZiZDE5YzBkOTkyNTVlZGVmMjBlNDAtOWFhNDIzZTBkOTIxNDUyN2U0MDNhN2JlMmJiZTljMWU6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_27_2022_07_01_dsm.tif
-1933745
-p_27
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.3924936787168, 'location.longitude': -71.12780110975181, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZWY2OGZjOWUwZGZiZDE5YzBkOTkyNTVlZGVmMjBlNDAtOWFhNDIzZTBkOTIxNDUyN2U0MDNhN2JlMmJiZTljMWU6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YTY2OTIwZDlhNDEzMTM2OTVjMGRlODEwMjZmZjk4YmQtOTJmZjAzOTI1MjkxNzI1MjU0MWYyZGIwZTNmNzA4MDc6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MDBhOTZlMWJhMDhlZGY0OTkzNDViMjIwOTA5YTYxMDEtMWNjZmJiNjg1Y2QyOWJmNGU3MWYyNzliNDExMzY1NWM6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YWZmMTVhMzQ2YmI3YTkxMDY3NjNlMmZkNGI5YWIyOWEtOGQyNDQ2MjUyODQ4ZTcxOWQ3MGMzOWZhODIyZjBiY2M6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/14.0M [00:00<?, ?B/s][A
-  4%|▍         | 524k/14.0M [00:00<00:13, 995kB/s][A
-  8%|▊         | 1.05M/14.0M [00:00<00:07, 1.82MB/s][A
- 15%|█▌        | 2.10M/14.0M [00:00<00:03, 3.66MB/s][A
- 30%|███       | 4.19M/14.0M [00:00<00:01, 7.62MB/s][A
- 60%|██████    | 8.39M/14.0M [00:00<00:00, 15.6MB/s][A
- 86%|████████▋ | 12.1M/14.0M [00:01<00:00, 20.9MB/s][A100%|██████████| 14.0M/14.0M [00:01<00:00, 12.2MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YTY2OTIwZDlhNDEzMTM2OTVjMGRlODEwMjZmZjk4YmQtOTJmZjAzOTI1MjkxNzI1MjU0MWYyZGIwZTNmNzA4MDc6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_27_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.8M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.8M [00:00<00:10, 952kB/s][A
- 10%|▉         | 1.05M/10.8M [00:00<00:05, 1.73MB/s][A
- 19%|█▉        | 2.10M/10.8M [00:00<00:02, 3.47MB/s][A
- 39%|███▉      | 4.19M/10.8M [00:00<00:00, 7.27MB/s][A
- 73%|███████▎  | 7.86M/10.8M [00:01<00:00, 14.0MB/s][A100%|██████████| 10.8M/10.8M [00:01<00:00, 9.80MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MDBhOTZlMWJhMDhlZGY0OTkzNDViMjIwOTA5YTYxMDEtMWNjZmJiNjg1Y2QyOWJmNGU3MWYyNzliNDExMzY1NWM6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_27_2022_07_01_mask.tif
-
-  0%|          | 0.00/89.9k [00:00<?, ?B/s][A
-100%|██████████| 89.9k/89.9k [00:00<00:00, 567kB/s][A100%|██████████| 89.9k/89.9k [00:00<00:00, 566kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YWZmMTVhMzQ2YmI3YTkxMDY3NjNlMmZkNGI5YWIyOWEtOGQyNDQ2MjUyODQ4ZTcxOWQ3MGMzOWZhODIyZjBiY2M6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_27_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/13.0M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.0M [00:00<00:17, 709kB/s][A
-  8%|▊         | 1.05M/13.0M [00:00<00:08, 1.37MB/s][A
- 16%|█▌        | 2.10M/13.0M [00:00<00:03, 2.91MB/s][A
- 32%|███▏      | 4.19M/13.0M [00:01<00:01, 6.36MB/s][A
- 61%|██████    | 7.86M/13.0M [00:01<00:00, 12.9MB/s][A
- 89%|████████▉ | 11.5M/13.0M [00:01<00:00, 18.5MB/s][A100%|██████████| 13.0M/13.0M [00:01<00:00, 9.59MB/s]
- 45%|████▍     | 17/38 [09:50<12:01, 34.36s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MDYyOGJmMzU4YjhjZjIyMDY2MDUzYWVjMDNkMmIzYWUtNGZiNDM1NDVlNDkwN2RkNzc0YWVjOWJjZGE5NDk5NjY6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_28_2022_07_01_dsm.tif
-1933745
-p_28
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.400593516698464, 'location.longitude': -71.12807488748025, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MDYyOGJmMzU4YjhjZjIyMDY2MDUzYWVjMDNkMmIzYWUtNGZiNDM1NDVlNDkwN2RkNzc0YWVjOWJjZGE5NDk5NjY6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NzQ1NmQyNWU4ZDVkODhjOWUyMGUyYWMwZDBkMzllODItMzNkNDAyZjU4ZDAyNjA3NjA3YzkzNTA3ZmY5OGY3NDI6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YjJhN2Q2M2I1MzlhMjllOWM0MTA5MjQzYTk0OWYxMjQtYTU1NzU0NTZkYjRjYmUyMTM1M2VlYzkzYmYzYWFiMjE6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NThiM2NiNzc2YTIyMzNlYThiNGIyNmMxNzI4ZmNlMjUtNzE0MGY5YTQ0OGVlYzdhMzhlN2JlZWE1MjRkNzQ4Yzc6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.9M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.9M [00:00<00:14, 952kB/s][A
-  8%|▊         | 1.05M/13.9M [00:00<00:07, 1.71MB/s][A
- 15%|█▌        | 2.10M/13.9M [00:00<00:03, 3.44MB/s][A
- 30%|███       | 4.19M/13.9M [00:00<00:01, 7.19MB/s][A
- 61%|██████    | 8.39M/13.9M [00:01<00:00, 14.9MB/s][A
- 76%|███████▌  | 10.5M/13.9M [00:01<00:00, 15.8MB/s][A
- 98%|█████████▊| 13.6M/13.9M [00:01<00:00, 19.6MB/s][A100%|██████████| 13.9M/13.9M [00:01<00:00, 11.0MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NzQ1NmQyNWU4ZDVkODhjOWUyMGUyYWMwZDBkMzllODItMzNkNDAyZjU4ZDAyNjA3NjA3YzkzNTA3ZmY5OGY3NDI6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_28_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.8M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.8M [00:00<00:15, 647kB/s][A
- 10%|▉         | 1.05M/10.8M [00:00<00:07, 1.25MB/s][A
- 19%|█▉        | 2.10M/10.8M [00:01<00:03, 2.68MB/s][A
- 39%|███▉      | 4.19M/10.8M [00:01<00:01, 5.89MB/s][A
- 73%|███████▎  | 7.86M/10.8M [00:01<00:00, 12.1MB/s][A100%|██████████| 10.8M/10.8M [00:01<00:00, 7.75MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YjJhN2Q2M2I1MzlhMjllOWM0MTA5MjQzYTk0OWYxMjQtYTU1NzU0NTZkYjRjYmUyMTM1M2VlYzkzYmYzYWFiMjE6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_28_2022_07_01_mask.tif
-
-  0%|          | 0.00/123k [00:00<?, ?B/s][A
-100%|██████████| 123k/123k [00:00<00:00, 429kB/s][A100%|██████████| 123k/123k [00:00<00:00, 428kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NThiM2NiNzc2YTIyMzNlYThiNGIyNmMxNzI4ZmNlMjUtNzE0MGY5YTQ0OGVlYzdhMzhlN2JlZWE1MjRkNzQ4Yzc6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_28_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/13.0M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.0M [00:00<00:13, 958kB/s][A
-  8%|▊         | 1.05M/13.0M [00:00<00:06, 1.74MB/s][A
- 16%|█▌        | 2.10M/13.0M [00:00<00:03, 3.51MB/s][A
- 32%|███▏      | 4.19M/13.0M [00:00<00:01, 7.32MB/s][A
- 65%|██████▍   | 8.39M/13.0M [00:01<00:00, 15.2MB/s][A
- 93%|█████████▎| 12.1M/13.0M [00:01<00:00, 20.4MB/s][A100%|██████████| 13.0M/13.0M [00:01<00:00, 11.2MB/s]
- 47%|████▋     | 18/38 [10:21<11:09, 33.48s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=M2VkMTk1YTY3MDM1ZGUzY2Y4MGJkNzczOWI2YjhhYjItYjRlZTdhMmZkMzJkZDc4ZGZlNDBjMmVmZjNlMmZiZTk6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_29_2022_07_01_dsm.tif
-1933745
-p_29
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.352196387753395, 'location.longitude': -71.11551371289497, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=M2VkMTk1YTY3MDM1ZGUzY2Y4MGJkNzczOWI2YjhhYjItYjRlZTdhMmZkMzJkZDc4ZGZlNDBjMmVmZjNlMmZiZTk6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MTY3ZThkZmMyNWM1OTZlNzdiMWE4ZmNlYjQxMTRmMDUtOTQzOTJiMzM1YmE2NzUyM2E1M2YwOTg0MjYyYzRiMjE6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MGUyODk3MWQ3MTIwMjIzNTI0YjM5MzJmODRlNThmMWEtZDkwZjRhNGFkZTM5MzkzYWEyMTgzNTU3N2VjZDNhNDE6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MDFiOWI0ZTU0NWE0OTJiOTM3MWU2Zjg3Zjc2ZmNhZTYtZmU5NWE2ZThhNmI1ZmUzMzZlYmFiZGFiYjg4N2UxZDI6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/12.2M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.2M [00:00<00:12, 939kB/s][A
-  9%|▊         | 1.05M/12.2M [00:00<00:06, 1.70MB/s][A
- 17%|█▋        | 2.10M/12.2M [00:00<00:02, 3.39MB/s][A
- 34%|███▍      | 4.19M/12.2M [00:00<00:01, 6.97MB/s][A
- 64%|██████▍   | 7.86M/12.2M [00:01<00:00, 13.7MB/s][A
- 95%|█████████▍| 11.5M/12.2M [00:01<00:00, 18.9MB/s][A100%|██████████| 12.2M/12.2M [00:01<00:00, 10.4MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MTY3ZThkZmMyNWM1OTZlNzdiMWE4ZmNlYjQxMTRmMDUtOTQzOTJiMzM1YmE2NzUyM2E1M2YwOTg0MjYyYzRiMjE6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_29_2022_07_01_rgb.tif
-
-  0%|          | 0.00/9.31M [00:00<?, ?B/s][A
-  6%|▌         | 524k/9.31M [00:00<00:09, 941kB/s][A
- 11%|█▏        | 1.05M/9.31M [00:00<00:04, 1.72MB/s][A
- 23%|██▎       | 2.10M/9.31M [00:00<00:02, 3.45MB/s][A
- 45%|████▌     | 4.19M/9.31M [00:00<00:00, 7.21MB/s][A
- 84%|████████▍ | 7.86M/9.31M [00:01<00:00, 13.7MB/s][A100%|██████████| 9.31M/9.31M [00:01<00:00, 8.53MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MGUyODk3MWQ3MTIwMjIzNTI0YjM5MzJmODRlNThmMWEtZDkwZjRhNGFkZTM5MzkzYWEyMTgzNTU3N2VjZDNhNDE6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_29_2022_07_01_mask.tif
-
-  0%|          | 0.00/39.2k [00:00<?, ?B/s][A100%|██████████| 39.2k/39.2k [00:00<00:00, 2.88MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MDFiOWI0ZTU0NWE0OTJiOTM3MWU2Zjg3Zjc2ZmNhZTYtZmU5NWE2ZThhNmI1ZmUzMzZlYmFiZGFiYjg4N2UxZDI6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_29_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.1M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.1M [00:00<00:12, 920kB/s][A
-  9%|▊         | 1.05M/12.1M [00:00<00:06, 1.67MB/s][A
- 17%|█▋        | 2.10M/12.1M [00:00<00:03, 3.33MB/s][A
- 35%|███▍      | 4.19M/12.1M [00:00<00:01, 6.97MB/s][A
- 65%|██████▍   | 7.86M/12.1M [00:01<00:00, 13.8MB/s][A
- 95%|█████████▌| 11.5M/12.1M [00:01<00:00, 18.9MB/s][A100%|██████████| 12.1M/12.1M [00:01<00:00, 10.2MB/s]
- 50%|█████     | 19/38 [10:50<10:07, 31.97s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NjVjMWVlYjdkZjA0NWJiZGQ1ZTk1MmZmNTY1OTNmYjYtZGRkZTk3ZGJhZTc3ZTMzMjM0NzQ2MjkwZDBjODg2YWQ6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_30_2022_07_01_dsm.tif
-1933745
-p_30
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.36029634733681, 'location.longitude': -71.11578552674976, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NjVjMWVlYjdkZjA0NWJiZGQ1ZTk1MmZmNTY1OTNmYjYtZGRkZTk3ZGJhZTc3ZTMzMjM0NzQ2MjkwZDBjODg2YWQ6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NWIyZjA4ZWZjNzA2OWEyZDY2YTU1ODY2ZGIwODQ4NDktNDAxNDU1ODVmYTAyNTc0Y2MyNTc5OWQ1OWU0ZjlmODk6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZjlmYzk3Mzc0MjY5OGZhMzZkYmZkZGQ3YTRlYWQ5NDEtMDAzNDNhY2ZiYWZmNGU0MGM3ODhiODJkYmQwYmRhYWY6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MmU1NTY5ZWM3MDJjMTExYTI1ZWZjZjhiYmY4NGI3OWUtNGE1NjJhMTQxMDlhMmVlOGRjMTA4M2U1Yzk2MzViZTY6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/12.8M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.8M [00:00<00:13, 919kB/s][A
-  8%|▊         | 1.05M/12.8M [00:00<00:07, 1.66MB/s][A
- 16%|█▋        | 2.10M/12.8M [00:00<00:03, 3.30MB/s][A
- 33%|███▎      | 4.19M/12.8M [00:00<00:01, 6.96MB/s][A
- 61%|██████    | 7.86M/12.8M [00:01<00:00, 13.8MB/s][A
- 90%|████████▉ | 11.5M/12.8M [00:01<00:00, 19.1MB/s][A100%|██████████| 12.8M/12.8M [00:01<00:00, 10.6MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NWIyZjA4ZWZjNzA2OWEyZDY2YTU1ODY2ZGIwODQ4NDktNDAxNDU1ODVmYTAyNTc0Y2MyNTc5OWQ1OWU0ZjlmODk6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_30_2022_07_01_rgb.tif
-
-  0%|          | 0.00/9.69M [00:00<?, ?B/s][A
-  5%|▌         | 524k/9.69M [00:00<00:09, 965kB/s][A
- 11%|█         | 1.05M/9.69M [00:00<00:04, 1.76MB/s][A
- 22%|██▏       | 2.10M/9.69M [00:00<00:02, 3.51MB/s][A
- 38%|███▊      | 3.67M/9.69M [00:00<00:01, 5.95MB/s][A
- 92%|█████████▏| 8.91M/9.69M [00:01<00:00, 15.3MB/s][A100%|██████████| 9.69M/9.69M [00:01<00:00, 8.98MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZjlmYzk3Mzc0MjY5OGZhMzZkYmZkZGQ3YTRlYWQ5NDEtMDAzNDNhY2ZiYWZmNGU0MGM3ODhiODJkYmQwYmRhYWY6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_30_2022_07_01_mask.tif
-
-  0%|          | 0.00/58.9k [00:00<?, ?B/s][A100%|██████████| 58.9k/58.9k [00:00<00:00, 1.69MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MmU1NTY5ZWM3MDJjMTExYTI1ZWZjZjhiYmY4NGI3OWUtNGE1NjJhMTQxMDlhMmVlOGRjMTA4M2U1Yzk2MzViZTY6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_30_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.3M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.3M [00:00<00:11, 985kB/s][A
-  9%|▊         | 1.05M/12.3M [00:00<00:06, 1.80MB/s][A
- 17%|█▋        | 2.10M/12.3M [00:00<00:02, 3.61MB/s][A
- 34%|███▍      | 4.19M/12.3M [00:00<00:01, 7.56MB/s][A
- 64%|██████▍   | 7.86M/12.3M [00:00<00:00, 14.8MB/s][A
- 94%|█████████▎| 11.5M/12.3M [00:01<00:00, 20.3MB/s][A100%|██████████| 12.3M/12.3M [00:01<00:00, 11.2MB/s]
- 53%|█████▎    | 20/38 [11:29<10:13, 34.06s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MDQwNTcxMWFhMjk0ODNjNDczMjVjOGE4MjIyN2ZhYTQtMGVmODRhZmJiMDJmZGYzOWU2NTU1ZWJjOGJiZWNiYTQ6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_31_2022_07_01_dsm.tif
-1933745
-p_31
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.36839629401846, 'location.longitude': -71.11605745259065, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MDQwNTcxMWFhMjk0ODNjNDczMjVjOGE4MjIyN2ZhYTQtMGVmODRhZmJiMDJmZGYzOWU2NTU1ZWJjOGJiZWNiYTQ6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=OTFmZmEwZjM0ZDQyMDNkYjBjMTI5OWQ3Y2MxYzNjMzYtMDEzOWJiZmJhYWIxZTdjNjVhNjFiZjAzZDgzYzA3YWI6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=OWI2OTllMzdkNzQwZTlhZmU3MmU4YzhjMDk1NDU5NjEtNmViZDViODA1Y2MwNmQ2YTY4Y2M1OTZmY2E4NDQxNGY6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=N2RkZjdiNjI5OThhYjlmMDM5M2UyNzExNTAwNjIxNzYtOGRmY2IxZWY1ZTI4NjA2NjFlM2NiY2M0OTA3OTU0ZTg6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/12.9M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.9M [00:00<00:18, 683kB/s][A
-  8%|▊         | 1.05M/12.9M [00:00<00:09, 1.32MB/s][A
- 16%|█▌        | 2.10M/12.9M [00:01<00:03, 2.79MB/s][A
- 28%|██▊       | 3.67M/12.9M [00:01<00:01, 5.28MB/s][A
- 53%|█████▎    | 6.82M/12.9M [00:01<00:00, 10.8MB/s][A
- 81%|████████  | 10.5M/12.9M [00:01<00:00, 16.7MB/s][A100%|██████████| 12.9M/12.9M [00:01<00:00, 9.10MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=OTFmZmEwZjM0ZDQyMDNkYjBjMTI5OWQ3Y2MxYzNjMzYtMDEzOWJiZmJhYWIxZTdjNjVhNjFiZjAzZDgzYzA3YWI6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_31_2022_07_01_rgb.tif
-
-  0%|          | 0.00/9.91M [00:00<?, ?B/s][A
-  5%|▌         | 524k/9.91M [00:00<00:09, 953kB/s][A
- 11%|█         | 1.05M/9.91M [00:00<00:05, 1.73MB/s][A
- 21%|██        | 2.10M/9.91M [00:00<00:02, 3.46MB/s][A
- 42%|████▏     | 4.19M/9.91M [00:00<00:00, 7.26MB/s][A
- 85%|████████▍ | 8.39M/9.91M [00:01<00:00, 15.1MB/s][A100%|██████████| 9.91M/9.91M [00:01<00:00, 9.16MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=OWI2OTllMzdkNzQwZTlhZmU3MmU4YzhjMDk1NDU5NjEtNmViZDViODA1Y2MwNmQ2YTY4Y2M1OTZmY2E4NDQxNGY6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_31_2022_07_01_mask.tif
-
-  0%|          | 0.00/74.6k [00:00<?, ?B/s][A
-100%|██████████| 74.6k/74.6k [00:00<00:00, 523kB/s][A100%|██████████| 74.6k/74.6k [00:00<00:00, 522kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=N2RkZjdiNjI5OThhYjlmMDM5M2UyNzExNTAwNjIxNzYtOGRmY2IxZWY1ZTI4NjA2NjFlM2NiY2M0OTA3OTU0ZTg6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_31_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.5M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.5M [00:00<00:12, 991kB/s][A
-  8%|▊         | 1.05M/12.5M [00:00<00:06, 1.82MB/s][A
- 17%|█▋        | 2.10M/12.5M [00:00<00:02, 3.62MB/s][A
- 34%|███▎      | 4.19M/12.5M [00:00<00:01, 7.57MB/s][A
- 67%|██████▋   | 8.39M/12.5M [00:00<00:00, 15.5MB/s][A
- 97%|█████████▋| 12.1M/12.5M [00:01<00:00, 20.3MB/s][A100%|██████████| 12.5M/12.5M [00:01<00:00, 11.3MB/s]
- 55%|█████▌    | 21/38 [12:02<09:34, 33.77s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=Y2I3MGE1YmRjNGViM2Y4YTE0ODhlMGExMjZiNzFkNWUtYjYyYjI1NDM2YWYwYzM0YzE4YmEwMjlkY2EzNWMzYjc6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_32_2022_07_01_dsm.tif
-1933745
-p_32
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.37649622779731, 'location.longitude': -71.11632949047159, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=Y2I3MGE1YmRjNGViM2Y4YTE0ODhlMGExMjZiNzFkNWUtYjYyYjI1NDM2YWYwYzM0YzE4YmEwMjlkY2EzNWMzYjc6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MmI5YjQ5YzRjOTBjYTdlMWY0YzEyNWUxZmM4MTViZmItZjUzOTlmMWQ2NGE0YjljOTJmZGVkZDNhMDNjN2YzMDM6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ODRkZmVhYzEyNDJhMTM2YjQ3M2JiMzQ0M2NmN2IyOWEtZGE3MTlkMTczOGRiMmVkMWVlZGU2YjU4MzAwMTU5Y2U6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YzE0MzAxNDVmZjBkNmIyYzIwNTc2N2FlZWRmNDQxOTItZGRhNjRhNzFhM2JjZWJkNjlkNzZlYmU1ZTBkODA4OWU6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.9M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.9M [00:00<00:13, 987kB/s][A
-  8%|▊         | 1.05M/13.9M [00:00<00:07, 1.79MB/s][A
- 11%|█▏        | 1.57M/13.9M [00:00<00:05, 2.35MB/s][A
- 15%|█▌        | 2.10M/13.9M [00:00<00:04, 2.51MB/s][A
- 23%|██▎       | 3.15M/13.9M [00:01<00:02, 4.12MB/s][A
- 38%|███▊      | 5.24M/13.9M [00:01<00:01, 7.86MB/s][A
- 61%|██████    | 8.39M/13.9M [00:01<00:00, 13.4MB/s][A
- 91%|█████████ | 12.6M/13.9M [00:01<00:00, 20.3MB/s][A100%|██████████| 13.9M/13.9M [00:01<00:00, 9.61MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MmI5YjQ5YzRjOTBjYTdlMWY0YzEyNWUxZmM4MTViZmItZjUzOTlmMWQ2NGE0YjljOTJmZGVkZDNhMDNjN2YzMDM6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_32_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.5M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.5M [00:00<00:10, 920kB/s][A
- 10%|▉         | 1.05M/10.5M [00:00<00:05, 1.67MB/s][A
- 20%|█▉        | 2.10M/10.5M [00:00<00:02, 3.35MB/s][A
- 40%|███▉      | 4.19M/10.5M [00:00<00:00, 7.02MB/s][A
- 75%|███████▍  | 7.86M/10.5M [00:01<00:00, 13.5MB/s][A100%|██████████| 10.5M/10.5M [00:01<00:00, 9.25MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ODRkZmVhYzEyNDJhMTM2YjQ3M2JiMzQ0M2NmN2IyOWEtZGE3MTlkMTczOGRiMmVkMWVlZGU2YjU4MzAwMTU5Y2U6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_32_2022_07_01_mask.tif
-
-  0%|          | 0.00/69.4k [00:00<?, ?B/s][A
-100%|██████████| 69.4k/69.4k [00:00<00:00, 520kB/s][A100%|██████████| 69.4k/69.4k [00:00<00:00, 519kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YzE0MzAxNDVmZjBkNmIyYzIwNTc2N2FlZWRmNDQxOTItZGRhNjRhNzFhM2JjZWJkNjlkNzZlYmU1ZTBkODA4OWU6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_32_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/13.0M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.0M [00:00<00:12, 986kB/s][A
-  8%|▊         | 1.05M/13.0M [00:00<00:06, 1.80MB/s][A
- 16%|█▌        | 2.10M/13.0M [00:00<00:03, 3.60MB/s][A
- 32%|███▏      | 4.19M/13.0M [00:00<00:01, 7.53MB/s][A
- 61%|██████    | 7.86M/13.0M [00:00<00:00, 14.3MB/s][A
- 89%|████████▉ | 11.5M/13.0M [00:01<00:00, 19.5MB/s][A100%|██████████| 13.0M/13.0M [00:01<00:00, 11.3MB/s]
- 58%|█████▊    | 22/38 [12:33<08:48, 33.04s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZDY2NTIxYmJiYjNmMGQzOWEzY2I0NTNiMjgxOTliZTctMmMwOTJkNWNmNjY3ZTVhZTM5YmIxMDEyZGI2OTdjZTc6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_33_2022_07_01_dsm.tif
-1933745
-p_33
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.38459614867233, 'location.longitude': -71.11660164044646, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZDY2NTIxYmJiYjNmMGQzOWEzY2I0NTNiMjgxOTliZTctMmMwOTJkNWNmNjY3ZTVhZTM5YmIxMDEyZGI2OTdjZTc6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NDMzMTYwN2Q1YmI4NGJkZDk0NGMwZWRmNzNhNDg0ZGEtMjU3YzRmZTg0MGZlYzA4YjVlYTdiNjc1NTNmNTYzYmQ6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ODE3NTY5NmVhMTY0NTE5MzU5NTgyZDlhMzAyODViNjAtZTMyNjEwMzAzNzQwODAxNWU1OTgyYjdmMzJlMDEzNTE6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MWM0ODBjMjVlYjhjNGY1ZWZjNGI4MmVlMzIyMmY4YmYtZTA0NWVhNGVhNmVjOWNhOTE5NzczZDAyNmNhNTIzNjc6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.9M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.9M [00:00<00:14, 929kB/s][A
-  8%|▊         | 1.05M/13.9M [00:00<00:07, 1.67MB/s][A
- 15%|█▌        | 2.10M/13.9M [00:00<00:03, 3.31MB/s][A
- 30%|███       | 4.19M/13.9M [00:00<00:01, 6.88MB/s][A
- 57%|█████▋    | 7.86M/13.9M [00:01<00:00, 13.5MB/s][A
- 83%|████████▎ | 11.5M/13.9M [00:01<00:00, 18.8MB/s][A100%|██████████| 13.9M/13.9M [00:01<00:00, 11.1MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NDMzMTYwN2Q1YmI4NGJkZDk0NGMwZWRmNzNhNDg0ZGEtMjU3YzRmZTg0MGZlYzA4YjVlYTdiNjc1NTNmNTYzYmQ6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_33_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.6M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.6M [00:00<00:10, 994kB/s][A
- 10%|▉         | 1.05M/10.6M [00:00<00:05, 1.80MB/s][A
- 20%|█▉        | 2.10M/10.6M [00:00<00:02, 3.58MB/s][A
- 39%|███▉      | 4.19M/10.6M [00:00<00:00, 7.45MB/s][A
- 79%|███████▉  | 8.39M/10.6M [00:01<00:00, 15.3MB/s][A100%|██████████| 10.6M/10.6M [00:01<00:00, 9.93MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ODE3NTY5NmVhMTY0NTE5MzU5NTgyZDlhMzAyODViNjAtZTMyNjEwMzAzNzQwODAxNWU1OTgyYjdmMzJlMDEzNTE6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_33_2022_07_01_mask.tif
-
-  0%|          | 0.00/95.8k [00:00<?, ?B/s][A
-100%|██████████| 95.8k/95.8k [00:00<00:00, 578kB/s][A100%|██████████| 95.8k/95.8k [00:00<00:00, 577kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MWM0ODBjMjVlYjhjNGY1ZWZjNGI4MmVlMzIyMmY4YmYtZTA0NWVhNGVhNmVjOWNhOTE5NzczZDAyNmNhNTIzNjc6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_33_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/13.0M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.0M [00:00<00:12, 981kB/s][A
-  8%|▊         | 1.05M/13.0M [00:00<00:06, 1.80MB/s][A
- 16%|█▌        | 2.10M/13.0M [00:00<00:03, 3.59MB/s][A
- 32%|███▏      | 4.19M/13.0M [00:00<00:01, 7.40MB/s][A
- 65%|██████▍   | 8.39M/13.0M [00:01<00:00, 15.4MB/s][A
- 93%|█████████▎| 12.1M/13.0M [00:01<00:00, 20.6MB/s][A100%|██████████| 13.0M/13.0M [00:01<00:00, 11.4MB/s]
- 61%|██████    | 23/38 [13:10<08:31, 34.08s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NGEyNWU2ZTg2N2NjZTIzODhiZDY2YjcxMWI2M2EzNDItYWNhYmY4NjBjNmQ5N2JhZWQ0YTQ0MTMyYzQxY2Y5YmI6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_34_2022_07_01_dsm.tif
-1933745
-p_34
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.39269605664248, 'location.longitude': -71.11687390256927, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NGEyNWU2ZTg2N2NjZTIzODhiZDY2YjcxMWI2M2EzNDItYWNhYmY4NjBjNmQ5N2JhZWQ0YTQ0MTMyYzQxY2Y5YmI6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NmJhZjExMDliNmYxODczYTU2MGNhMjZlNThhMTVlZTAtMjQ1M2QxYzk1YzM4NjVkZjcxOWNhZTQwODIxMmExNTA6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=Y2ZhYjAzYjQyNmMwYzUwODFkM2I2OWYxZTQwZDM4MTYtOTRmNzQzZTI3N2U3MGMyNTQwZDEzODVhZGU2OTQ2YzQ6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NmNmMmE5NDQ4NzQxZjgyNzM0ZWZhN2Q5MmU2NGMxMjQtNzkwZTU1NjlmYjEyNGI0ZmYwMThmODFiZjQ2NjNlNDQ6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.7M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.7M [00:00<00:13, 978kB/s][A
-  8%|▊         | 1.05M/13.7M [00:00<00:07, 1.77MB/s][A
- 15%|█▌        | 2.10M/13.7M [00:00<00:03, 3.57MB/s][A
- 31%|███       | 4.19M/13.7M [00:00<00:01, 7.40MB/s][A
- 61%|██████    | 8.39M/13.7M [00:01<00:00, 15.4MB/s][A
- 88%|████████▊ | 12.1M/13.7M [00:01<00:00, 20.6MB/s][A100%|██████████| 13.7M/13.7M [00:01<00:00, 11.8MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NmJhZjExMDliNmYxODczYTU2MGNhMjZlNThhMTVlZTAtMjQ1M2QxYzk1YzM4NjVkZjcxOWNhZTQwODIxMmExNTA6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_34_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.6M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.6M [00:00<00:10, 936kB/s][A
- 10%|▉         | 1.05M/10.6M [00:00<00:05, 1.70MB/s][A
- 20%|█▉        | 2.10M/10.6M [00:00<00:02, 3.41MB/s][A
- 39%|███▉      | 4.19M/10.6M [00:00<00:00, 7.10MB/s][A
- 74%|███████▍  | 7.86M/10.6M [00:01<00:00, 13.9MB/s][A100%|██████████| 10.6M/10.6M [00:01<00:00, 9.46MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=Y2ZhYjAzYjQyNmMwYzUwODFkM2I2OWYxZTQwZDM4MTYtOTRmNzQzZTI3N2U3MGMyNTQwZDEzODVhZGU2OTQ2YzQ6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_34_2022_07_01_mask.tif
-
-  0%|          | 0.00/130k [00:00<?, ?B/s][A
-100%|██████████| 130k/130k [00:00<00:00, 436kB/s][A100%|██████████| 130k/130k [00:00<00:00, 436kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NmNmMmE5NDQ4NzQxZjgyNzM0ZWZhN2Q5MmU2NGMxMjQtNzkwZTU1NjlmYjEyNGI0ZmYwMThmODFiZjQ2NjNlNDQ6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_34_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/13.0M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.0M [00:00<00:12, 964kB/s][A
-  8%|▊         | 1.05M/13.0M [00:00<00:06, 1.79MB/s][A
- 16%|█▌        | 2.10M/13.0M [00:00<00:03, 3.59MB/s][A
- 32%|███▏      | 4.19M/13.0M [00:00<00:01, 7.48MB/s][A
- 65%|██████▍   | 8.39M/13.0M [00:01<00:00, 15.3MB/s][A
- 93%|█████████▎| 12.1M/13.0M [00:01<00:00, 20.4MB/s][A100%|██████████| 13.0M/13.0M [00:01<00:00, 11.4MB/s]
- 63%|██████▎   | 24/38 [13:41<07:46, 33.29s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YTc3MTQ4NjJjN2Y5OTZkYTllZDdjYTg3YjVkZTRmMTYtY2Y4ZGQ4ZGQxN2U5MGNmMzI5MDU2ZjdlOGEzNTM5NDQ6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_36_2022_07_01_dsm.tif
-1933745
-p_36
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.35239744120688, 'location.longitude': -71.10459340214736, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YTc3MTQ4NjJjN2Y5OTZkYTllZDdjYTg3YjVkZTRmMTYtY2Y4ZGQ4ZGQxN2U5MGNmMzI5MDU2ZjdlOGEzNTM5NDQ6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YjgyMDZkNTgwMWQ3Nzc2NmI2ZjUxMzk2Yzg5ZDkwM2ItNWFiZDg3ZjA3OWJlYjJjZmM2ZmY3NzEwMDVhODY2MDg6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MjNkNzA4Zjk1ZmVkYzViYjViNjA4YjdiNzA0NTk1OGEtZTIyM2M1Mjk5NmE5MmUwN2RjZmI3ODliNTM3MzM1YzE6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ODdkZjczNTYyNmYzYWFlMjI0OTZkNTM3NzIyY2NkYmYtN2Y1ZmQ5N2I0YzU0NWU0MzZhZGY3ZDQ3ZmYzNDAwYmY6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/11.3M [00:00<?, ?B/s][A
-  5%|▍         | 524k/11.3M [00:00<00:11, 972kB/s][A
-  9%|▉         | 1.05M/11.3M [00:00<00:05, 1.77MB/s][A
- 19%|█▊        | 2.10M/11.3M [00:00<00:02, 3.54MB/s][A
- 37%|███▋      | 4.19M/11.3M [00:00<00:00, 7.40MB/s][A
- 74%|███████▍  | 8.39M/11.3M [00:01<00:00, 15.2MB/s][A
- 93%|█████████▎| 10.5M/11.3M [00:01<00:00, 14.0MB/s][A100%|██████████| 11.3M/11.3M [00:01<00:00, 9.42MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YjgyMDZkNTgwMWQ3Nzc2NmI2ZjUxMzk2Yzg5ZDkwM2ItNWFiZDg3ZjA3OWJlYjJjZmM2ZmY3NzEwMDVhODY2MDg6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_36_2022_07_01_rgb.tif
-
-  0%|          | 0.00/8.76M [00:00<?, ?B/s][A
-  6%|▌         | 524k/8.76M [00:00<00:08, 932kB/s][A
- 12%|█▏        | 1.05M/8.76M [00:00<00:04, 1.70MB/s][A
- 24%|██▍       | 2.10M/8.76M [00:00<00:01, 3.39MB/s][A
- 48%|████▊     | 4.19M/8.76M [00:00<00:00, 6.27MB/s][A100%|██████████| 8.76M/8.76M [00:01<00:00, 8.03MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MjNkNzA4Zjk1ZmVkYzViYjViNjA4YjdiNzA0NTk1OGEtZTIyM2M1Mjk5NmE5MmUwN2RjZmI3ODliNTM3MzM1YzE6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_36_2022_07_01_mask.tif
-
-  0%|          | 0.00/39.0k [00:00<?, ?B/s][A100%|██████████| 39.0k/39.0k [00:00<00:00, 3.62MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ODdkZjczNTYyNmYzYWFlMjI0OTZkNTM3NzIyY2NkYmYtN2Y1ZmQ5N2I0YzU0NWU0MzZhZGY3ZDQ3ZmYzNDAwYmY6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_36_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/11.0M [00:00<?, ?B/s][A
-  5%|▍         | 524k/11.0M [00:00<00:10, 993kB/s][A
- 10%|▉         | 1.05M/11.0M [00:00<00:05, 1.80MB/s][A
- 19%|█▉        | 2.10M/11.0M [00:00<00:02, 3.58MB/s][A
- 38%|███▊      | 4.19M/11.0M [00:00<00:00, 7.45MB/s][A
- 72%|███████▏  | 7.86M/11.0M [00:00<00:00, 14.3MB/s][A100%|██████████| 11.0M/11.0M [00:01<00:00, 10.2MB/s]
- 66%|██████▌   | 25/38 [14:16<07:18, 33.71s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZTVjZjY4YmVmODBlNzBjZDA5MTI4Y2I4N2VjM2NkZDQtYmZmMGQ4N2ZhY2JhYjRlMDI3ZjY0MmRkMTUyNjdmZWI6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_37_2022_07_01_dsm.tif
-1933745
-p_37
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.36049745750755, 'location.longitude': -71.10486381542744, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZTVjZjY4YmVmODBlNzBjZDA5MTI4Y2I4N2VjM2NkZDQtYmZmMGQ4N2ZhY2JhYjRlMDI3ZjY0MmRkMTUyNjdmZWI6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MTAyMGU0MzNiNjExYmFiODdhNTAzMjNhNWIzMDI3MGUtNzQwOGFkM2Y3MzZiMjNhYWNkZTQ5OTliMjg5YmJjOTk6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NTZjZDY4NDA1N2M2MjJiMWY4OGI4MjMxODI0MDRlYzgtMjJmNGNkNmU3ODI0NWM0OThkYmM0OGYyMTQ2ZTIxNzY6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MTVhMTBmZTM0ZTU2NzUyYzMzM2M2OTBlYjFmOGE1ZGEtM2E0OGI5MDZlYjdlNDdjYjZjNTFiODlkYTViZGExZGI6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/14.3M [00:00<?, ?B/s][A
-  4%|▎         | 524k/14.3M [00:00<00:14, 961kB/s][A
-  7%|▋         | 1.05M/14.3M [00:00<00:07, 1.76MB/s][A
- 15%|█▍        | 2.10M/14.3M [00:00<00:03, 3.06MB/s][A
- 18%|█▊        | 2.62M/14.3M [00:00<00:03, 3.38MB/s][A
- 26%|██▌       | 3.67M/14.3M [00:01<00:02, 4.79MB/s][A
- 37%|███▋      | 5.24M/14.3M [00:01<00:01, 7.08MB/s][A
- 59%|█████▊    | 8.39M/14.3M [00:01<00:00, 13.0MB/s][A
- 84%|████████▍ | 12.1M/14.3M [00:01<00:00, 19.0MB/s][A100%|██████████| 14.3M/14.3M [00:01<00:00, 9.69MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MTAyMGU0MzNiNjExYmFiODdhNTAzMjNhNWIzMDI3MGUtNzQwOGFkM2Y3MzZiMjNhYWNkZTQ5OTliMjg5YmJjOTk6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_37_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.6M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.6M [00:00<00:10, 961kB/s][A
- 10%|▉         | 1.05M/10.6M [00:00<00:05, 1.73MB/s][A
- 20%|█▉        | 2.10M/10.6M [00:00<00:02, 3.46MB/s][A
- 40%|███▉      | 4.19M/10.6M [00:00<00:00, 7.24MB/s][A
- 79%|███████▉  | 8.39M/10.6M [00:01<00:00, 15.0MB/s][A100%|██████████| 10.6M/10.6M [00:01<00:00, 9.67MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NTZjZDY4NDA1N2M2MjJiMWY4OGI4MjMxODI0MDRlYzgtMjJmNGNkNmU3ODI0NWM0OThkYmM0OGYyMTQ2ZTIxNzY6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_37_2022_07_01_mask.tif
-
-  0%|          | 0.00/108k [00:00<?, ?B/s][A
-100%|██████████| 108k/108k [00:00<00:00, 396kB/s][A100%|██████████| 108k/108k [00:00<00:00, 396kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MTVhMTBmZTM0ZTU2NzUyYzMzM2M2OTBlYjFmOGE1ZGEtM2E0OGI5MDZlYjdlNDdjYjZjNTFiODlkYTViZGExZGI6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_37_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.9M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.9M [00:00<00:12, 964kB/s][A
-  8%|▊         | 1.05M/12.9M [00:00<00:06, 1.74MB/s][A
- 16%|█▌        | 2.10M/12.9M [00:00<00:03, 3.50MB/s][A
- 32%|███▏      | 4.19M/12.9M [00:00<00:01, 7.31MB/s][A
- 61%|██████    | 7.86M/12.9M [00:01<00:00, 14.2MB/s][A
- 89%|████████▉ | 11.5M/12.9M [00:01<00:00, 19.7MB/s][A100%|██████████| 12.9M/12.9M [00:01<00:00, 11.0MB/s]
- 68%|██████▊   | 26/38 [14:44<06:24, 32.08s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NTRkNzEwMjg5NmM2ZmY2YTllZTU1MDg4OTA5ODZkYWQtMjM1NzM2NTVlM2I5MDJkZjIzMDMyODA0ZTdlNzQ2N2Y6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_38_2022_07_01_dsm.tif
-1933745
-p_38
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.36859746092087, 'location.longitude': -71.10513434011757, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NTRkNzEwMjg5NmM2ZmY2YTllZTU1MDg4OTA5ODZkYWQtMjM1NzM2NTVlM2I5MDJkZjIzMDMyODA0ZTdlNzQ2N2Y6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YTQzMjFkYjY1OTA5ZmEyNDBjODBhZGU4Zjg1YmFlOWQtNzY5NmU5N2Y4YmMzYWJiNTg4ODYxZjA0Y2FkOWVjNDM6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=OTc3OWE3MGU1Yjg0NmRlM2FkNTljOTE0MTVjNmVkMTUtZjk4YTQ2MjBhMTc2ODQ5ZjAyOWNiZjFhMDkyYjA5Y2Y6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MDA5MzMxNjk0OTIzNDZiNWRhNTAwNGE1NmZhNGFhOTUtNzg3OTJmNWI4OTllMmU1NjQ5M2Q3ODVmN2EyNzcwOGQ6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/14.0M [00:00<?, ?B/s][A
-  4%|▎         | 524k/14.0M [00:00<00:14, 927kB/s][A
-  7%|▋         | 1.05M/14.0M [00:00<00:07, 1.68MB/s][A
- 15%|█▍        | 2.10M/14.0M [00:00<00:03, 3.37MB/s][A
- 30%|██▉       | 4.19M/14.0M [00:00<00:01, 7.02MB/s][A
- 56%|█████▌    | 7.86M/14.0M [00:01<00:00, 13.5MB/s][A
- 82%|████████▏ | 11.5M/14.0M [00:01<00:00, 18.8MB/s][A100%|██████████| 14.0M/14.0M [00:01<00:00, 11.4MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YTQzMjFkYjY1OTA5ZmEyNDBjODBhZGU4Zjg1YmFlOWQtNzY5NmU5N2Y4YmMzYWJiNTg4ODYxZjA0Y2FkOWVjNDM6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_38_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.8M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.8M [00:00<00:10, 985kB/s][A
- 10%|▉         | 1.05M/10.8M [00:00<00:05, 1.81MB/s][A
- 19%|█▉        | 2.10M/10.8M [00:00<00:02, 3.65MB/s][A
- 39%|███▉      | 4.19M/10.8M [00:00<00:00, 7.62MB/s][A
- 73%|███████▎  | 7.86M/10.8M [00:00<00:00, 14.9MB/s][A100%|██████████| 10.8M/10.8M [00:01<00:00, 10.2MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=OTc3OWE3MGU1Yjg0NmRlM2FkNTljOTE0MTVjNmVkMTUtZjk4YTQ2MjBhMTc2ODQ5ZjAyOWNiZjFhMDkyYjA5Y2Y6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_38_2022_07_01_mask.tif
-
-  0%|          | 0.00/119k [00:00<?, ?B/s][A
-100%|██████████| 119k/119k [00:00<00:00, 324kB/s][A100%|██████████| 119k/119k [00:00<00:00, 324kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MDA5MzMxNjk0OTIzNDZiNWRhNTAwNGE1NmZhNGFhOTUtNzg3OTJmNWI4OTllMmU1NjQ5M2Q3ODVmN2EyNzcwOGQ6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_38_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/13.0M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.0M [00:00<00:13, 935kB/s][A
-  8%|▊         | 1.05M/13.0M [00:00<00:07, 1.70MB/s][A
- 16%|█▌        | 2.10M/13.0M [00:00<00:03, 3.42MB/s][A
- 32%|███▏      | 4.19M/13.0M [00:00<00:01, 7.10MB/s][A
- 60%|██████    | 7.86M/13.0M [00:01<00:00, 13.7MB/s][A
- 89%|████████▊ | 11.5M/13.0M [00:01<00:00, 18.9MB/s][A100%|██████████| 13.0M/13.0M [00:01<00:00, 10.8MB/s]
- 71%|███████   | 27/38 [15:17<05:54, 32.24s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=N2NhOGI4ODA4YTMyYjNiN2U0YjkzN2VlMzY5NjMxOTctNTg2NThiYjM2N2E5ZTZjMWY4ODU2NDM1YzdmYzYyZGM6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_39_2022_07_01_dsm.tif
-1933745
-p_39
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.3766974514458, 'location.longitude': -71.1054049762714, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=N2NhOGI4ODA4YTMyYjNiN2U0YjkzN2VlMzY5NjMxOTctNTg2NThiYjM2N2E5ZTZjMWY4ODU2NDM1YzdmYzYyZGM6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NzdiOGVhZWQwZmUwMDY2YWVlYmZkMDRhMzk0MjYxYWUtNTBmYzU0MWQ1ZmU3OGEzMTRhZWY2MzkyMGU1ZGFmOTM6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NWJhZWQ4NDE3YmVlOTE4ODczZjNlODUzZjdiZTY5ZjgtZDM1NzA1NDJmZTk1YjRkNmU3NmM3YTZjMTJmYTNhNzk6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZTRlNjU3ZTE4Nzg0ZmRkNzMwYTE1YzI5ODE3YWEyZDYtYzNiNmU1N2U5ODgzNjY0ODk3Y2NjMThlMjZkNTk5MDQ6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/14.1M [00:00<?, ?B/s][A
-  4%|▎         | 524k/14.1M [00:00<00:13, 976kB/s][A
-  7%|▋         | 1.05M/14.1M [00:00<00:07, 1.79MB/s][A
- 11%|█         | 1.57M/14.1M [00:00<00:06, 2.03MB/s][A
- 15%|█▍        | 2.10M/14.1M [00:00<00:04, 2.59MB/s][A
- 22%|██▏       | 3.15M/14.1M [00:01<00:02, 4.13MB/s][A
- 37%|███▋      | 5.24M/14.1M [00:01<00:01, 7.81MB/s][A
- 63%|██████▎   | 8.91M/14.1M [00:01<00:00, 14.6MB/s][A
- 89%|████████▉ | 12.6M/14.1M [00:01<00:00, 20.1MB/s][A100%|██████████| 14.1M/14.1M [00:01<00:00, 9.48MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NzdiOGVhZWQwZmUwMDY2YWVlYmZkMDRhMzk0MjYxYWUtNTBmYzU0MWQ1ZmU3OGEzMTRhZWY2MzkyMGU1ZGFmOTM6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_39_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.7M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.7M [00:00<00:14, 682kB/s][A
- 10%|▉         | 1.05M/10.7M [00:00<00:07, 1.27MB/s][A
- 20%|█▉        | 2.10M/10.7M [00:01<00:03, 2.61MB/s][A
- 39%|███▉      | 4.19M/10.7M [00:01<00:01, 5.71MB/s][A
- 73%|███████▎  | 7.86M/10.7M [00:01<00:00, 11.6MB/s][A100%|██████████| 10.7M/10.7M [00:01<00:00, 7.72MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NWJhZWQ4NDE3YmVlOTE4ODczZjNlODUzZjdiZTY5ZjgtZDM1NzA1NDJmZTk1YjRkNmU3NmM3YTZjMTJmYTNhNzk6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_39_2022_07_01_mask.tif
-
-  0%|          | 0.00/100k [00:00<?, ?B/s][A
-100%|██████████| 100k/100k [00:00<00:00, 376kB/s][A100%|██████████| 100k/100k [00:00<00:00, 375kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZTRlNjU3ZTE4Nzg0ZmRkNzMwYTE1YzI5ODE3YWEyZDYtYzNiNmU1N2U5ODgzNjY0ODk3Y2NjMThlMjZkNTk5MDQ6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_39_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/13.0M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.0M [00:00<00:12, 960kB/s][A
-  8%|▊         | 1.05M/13.0M [00:00<00:07, 1.52MB/s][A
- 24%|██▍       | 3.15M/13.0M [00:00<00:01, 5.15MB/s][A
- 48%|████▊     | 6.29M/13.0M [00:00<00:00, 10.4MB/s][A
- 73%|███████▎  | 9.44M/13.0M [00:01<00:00, 15.2MB/s][A
-100%|██████████| 13.0M/13.0M [00:01<00:00, 20.1MB/s][A100%|██████████| 13.0M/13.0M [00:01<00:00, 11.0MB/s]
- 74%|███████▎  | 28/38 [15:46<05:13, 31.31s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZGJhNWRkMmQwYjZmZDQyYjAyMDQyNjE3Mzg5Mzg4Y2EtYTliOTUxMTAyZjY5ZGRlMDAzYTg0OTcyYzNhZTRmNTM6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_43_2022_07_01_dsm.tif
-1933745
-p_43
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.352597455353646, 'location.longitude': -71.09367298004328, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZGJhNWRkMmQwYjZmZDQyYjAyMDQyNjE3Mzg5Mzg4Y2EtYTliOTUxMTAyZjY5ZGRlMDAzYTg0OTcyYzNhZTRmNTM6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NmZlOTUzZjQ2MzFmY2JmNzk3MWQ2YzZjY2IwY2RiNTktNDU0YTA5MGQwMGY4NjMxZWMwODJjNDMyNzc1YWE0OWE6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YWMxZGM0OTdiMTJlMTI1ZGEzNmQyNTNkYjE1OWI3NGItOWZkMTVhMDU4MzIxYWQ5ODEzZGZmNDNlOGYxMDc0ZTI6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YzE1MzdhOWZmN2MyYmJjOTZhNzRiOGY1YmQzMmFjZjktMGRjNzQ1M2NlNTgzZmE1YjkzMDMwOWMxMTRlYjRlYjU6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/7.50M [00:00<?, ?B/s][A
-  7%|▋         | 524k/7.50M [00:00<00:07, 969kB/s][A
- 14%|█▍        | 1.05M/7.50M [00:00<00:03, 1.76MB/s][A
- 28%|██▊       | 2.10M/7.50M [00:00<00:01, 3.51MB/s][A
- 56%|█████▌    | 4.19M/7.50M [00:00<00:00, 7.33MB/s][A100%|██████████| 7.50M/7.50M [00:00<00:00, 7.55MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NmZlOTUzZjQ2MzFmY2JmNzk3MWQ2YzZjY2IwY2RiNTktNDU0YTA5MGQwMGY4NjMxZWMwODJjNDMyNzc1YWE0OWE6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_43_2022_07_01_rgb.tif
-
-  0%|          | 0.00/6.67M [00:00<?, ?B/s][A
-  8%|▊         | 524k/6.67M [00:00<00:06, 940kB/s][A
- 16%|█▌        | 1.05M/6.67M [00:00<00:03, 1.72MB/s][A
- 31%|███▏      | 2.10M/6.67M [00:00<00:01, 3.44MB/s][A
- 63%|██████▎   | 4.19M/6.67M [00:00<00:00, 7.16MB/s][A100%|██████████| 6.67M/6.67M [00:01<00:00, 6.66MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YWMxZGM0OTdiMTJlMTI1ZGEzNmQyNTNkYjE1OWI3NGItOWZkMTVhMDU4MzIxYWQ5ODEzZGZmNDNlOGYxMDc0ZTI6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_43_2022_07_01_mask.tif
-
-  0%|          | 0.00/24.4k [00:00<?, ?B/s][A100%|██████████| 24.4k/24.4k [00:00<00:00, 4.12MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YzE1MzdhOWZmN2MyYmJjOTZhNzRiOGY1YmQzMmFjZjktMGRjNzQ1M2NlNTgzZmE1YjkzMDMwOWMxMTRlYjRlYjU6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_43_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/7.97M [00:00<?, ?B/s][A
-  7%|▋         | 524k/7.97M [00:00<00:07, 969kB/s][A
- 13%|█▎        | 1.05M/7.97M [00:00<00:03, 1.76MB/s][A
- 26%|██▋       | 2.10M/7.97M [00:00<00:01, 3.52MB/s][A
- 53%|█████▎    | 4.19M/7.97M [00:00<00:00, 7.34MB/s][A
-100%|██████████| 7.97M/7.97M [00:01<00:00, 14.7MB/s][A100%|██████████| 7.97M/7.97M [00:01<00:00, 7.95MB/s]
- 76%|███████▋  | 29/38 [16:18<04:45, 31.68s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MmI3NmQwNDUwZmM5OTRjYTE0N2E5MDE1YzY4ZjE0YTMtOWJiMWUxYzM3MTgxNWFjNmQ4MjQzYzUwMDllYzgyMWY6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_44_2022_07_01_dsm.tif
-1933745
-p_44
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.36069752807875, 'location.longitude': -71.09394199269506, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MmI3NmQwNDUwZmM5OTRjYTE0N2E5MDE1YzY4ZjE0YTMtOWJiMWUxYzM3MTgxNWFjNmQ4MjQzYzUwMDllYzgyMWY6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YThjNmUyOTYyOTcxYzg3MjFjMzY1YzMxZTgwNzA2ZmUtMmM3MjQ5NTgxYzQ0N2NhZjgyOTA2YjdlNGVhOTdhNDM6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NDcwNmU0MTIyZWVkM2IzYjBiMmE2NGJlZmU0NWY2ZWYtMzkxOTRiN2E0OGE0YmIxZjZkM2U0MzNiMmZjZmRjMzM6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YTc3NDUxMzhlMGY5NDcwNjIwNWQyZjRhNzI1Y2U4MGItY2JkZmNkYTE4MjYyYjI1ZTc5ODU0M2MxMjgwYWQ3Mjg6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.4M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.4M [00:00<00:13, 984kB/s][A
-  8%|▊         | 1.05M/13.4M [00:00<00:06, 1.79MB/s][A
- 16%|█▌        | 2.10M/13.4M [00:00<00:03, 3.57MB/s][A
- 31%|███▏      | 4.19M/13.4M [00:00<00:01, 7.44MB/s][A
- 59%|█████▉    | 7.86M/13.4M [00:00<00:00, 14.3MB/s][A
- 86%|████████▋ | 11.5M/13.4M [00:01<00:00, 19.9MB/s][A100%|██████████| 13.4M/13.4M [00:01<00:00, 11.5MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YThjNmUyOTYyOTcxYzg3MjFjMzY1YzMxZTgwNzA2ZmUtMmM3MjQ5NTgxYzQ0N2NhZjgyOTA2YjdlNGVhOTdhNDM6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_44_2022_07_01_rgb.tif
-
-  0%|          | 0.00/9.97M [00:00<?, ?B/s][A
-  5%|▌         | 524k/9.97M [00:00<00:09, 979kB/s][A
- 11%|█         | 1.05M/9.97M [00:00<00:05, 1.78MB/s][A
- 21%|██        | 2.10M/9.97M [00:00<00:02, 3.59MB/s][A
- 42%|████▏     | 4.19M/9.97M [00:00<00:00, 7.48MB/s][A
- 79%|███████▉  | 7.86M/9.97M [00:01<00:00, 14.2MB/s][A100%|██████████| 9.97M/9.97M [00:01<00:00, 9.40MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NDcwNmU0MTIyZWVkM2IzYjBiMmE2NGJlZmU0NWY2ZWYtMzkxOTRiN2E0OGE0YmIxZjZkM2U0MzNiMmZjZmRjMzM6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_44_2022_07_01_mask.tif
-
-  0%|          | 0.00/56.8k [00:00<?, ?B/s][A100%|██████████| 56.8k/56.8k [00:00<00:00, 1.68MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YTc3NDUxMzhlMGY5NDcwNjIwNWQyZjRhNzI1Y2U4MGItY2JkZmNkYTE4MjYyYjI1ZTc5ODU0M2MxMjgwYWQ3Mjg6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_44_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.2M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.2M [00:00<00:11, 994kB/s][A
-  9%|▊         | 1.05M/12.2M [00:00<00:06, 1.79MB/s][A
- 17%|█▋        | 2.10M/12.2M [00:00<00:02, 3.58MB/s][A
- 34%|███▍      | 4.19M/12.2M [00:00<00:01, 7.43MB/s][A
- 65%|██████▍   | 7.86M/12.2M [00:00<00:00, 14.3MB/s][A
- 91%|█████████ | 11.0M/12.2M [00:01<00:00, 18.7MB/s][A100%|██████████| 12.2M/12.2M [00:01<00:00, 10.8MB/s]
- 79%|███████▉  | 30/38 [16:48<04:07, 30.98s/it] 82%|████████▏ | 31/38 [16:49<02:33, 21.98s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YWMxMjJkMDY3ZWM3MDM1YWI1MGI2NTgyOGQ3OGMxNjUtODdkMmI4MmRlYjQyNDhlYzU0YmUxNDcxODcwNzEyZDI6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_46_2022_07_01_dsm.tif
-1933745
-p_45
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.36879758793082, 'location.longitude': -71.0942111161808, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YmQwZDAwOGQwOTc3NTlmZmYxZWUwYzA5MDYwODcyN2QtYjg2YzJiNjkxMmMxYmE0ZWNiZjljOTc0YWQyYjNlNWE6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YzFjZjVhYzY3NmM0MzI3MTBkY2QyNTVlNWQ5MTUwMDQtMGQ1NDI0MDcyNWRjNWQyNWE5NGVmNTk4ZTA2Y2Q4NzQ6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NmUzYzMxY2RjN2JjMGM4NTlkMzNjNTIxYmNmZjNmODQtMjAzN2QwMDk3ZDcyNzI4ZDRkZWQ3ZWZhMjU2ODlmOGU6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NTU5NDUzMWI4YTcyNjE0OWJjYzgwOGE0YWQ0MGJhOTQtOGE3M2UwMzY2MzhjOGU1NGJkOGQ3YTk5ZTQ0MTM3ZmI6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-../data/clean_data/solar/1933745/1933745_p_45_2022_07_01_dsm.tif already exists. Skip downloading. Set overwrite=True to overwrite.
-../data/clean_data/solar/1933745/1933745_p_45_2022_07_01_rgb.tif already exists. Skip downloading. Set overwrite=True to overwrite.
-../data/clean_data/solar/1933745/1933745_p_45_2022_07_01_mask.tif already exists. Skip downloading. Set overwrite=True to overwrite.
-../data/clean_data/solar/1933745/1933745_p_45_2022_07_01_annualFlux.tif already exists. Skip downloading. Set overwrite=True to overwrite.
-1933745
-p_46
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.376897634908865, 'location.longitude': -71.09448035055388, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YWMxMjJkMDY3ZWM3MDM1YWI1MGI2NTgyOGQ3OGMxNjUtODdkMmI4MmRlYjQyNDhlYzU0YmUxNDcxODcwNzEyZDI6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NmI1YTY0OTU3OGIzM2FkMmIxNThiMTY4NTJmYjJmZTgtZWY5M2M3OWIxNjc3MTZjOTQ0YzgwZDA0NWFiMTY3ZTY6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YjYzZWNmNjkzODJhZjNhZjU0YWEwZTg2ODM0NjA0YWYtMmFhODU1MTJmMzg2MjhmYWRiZGZhMDQ5OTQzZGJjOWQ6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MjUyZTNhYTEzMTBlZTg4YzI3MmJlMTkzMzE4MGIzM2MtMmIxZTU5YmU0YWZkOWMxNzNkYTRjZmE4YTE1N2E0YWU6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/14.3M [00:00<?, ?B/s][A
-  4%|▎         | 524k/14.3M [00:00<00:14, 936kB/s][A
-  7%|▋         | 1.05M/14.3M [00:00<00:07, 1.71MB/s][A
- 15%|█▍        | 2.10M/14.3M [00:00<00:03, 3.43MB/s][A
- 29%|██▉       | 4.19M/14.3M [00:00<00:01, 7.16MB/s][A
- 55%|█████▌    | 7.86M/14.3M [00:01<00:00, 14.0MB/s][A
- 81%|████████  | 11.5M/14.3M [00:01<00:00, 19.3MB/s][A100%|██████████| 14.3M/14.3M [00:01<00:00, 11.6MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NmI1YTY0OTU3OGIzM2FkMmIxNThiMTY4NTJmYjJmZTgtZWY5M2M3OWIxNjc3MTZjOTQ0YzgwZDA0NWFiMTY3ZTY6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_46_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.6M [00:00<?, ?B/s][A
-  5%|▍         | 524k/10.6M [00:00<00:10, 925kB/s][A
- 10%|▉         | 1.05M/10.6M [00:00<00:05, 1.68MB/s][A
- 20%|█▉        | 2.10M/10.6M [00:00<00:02, 3.36MB/s][A
- 40%|███▉      | 4.19M/10.6M [00:00<00:00, 7.05MB/s][A
- 74%|███████▍  | 7.86M/10.6M [00:01<00:00, 13.9MB/s][A100%|██████████| 10.6M/10.6M [00:01<00:00, 9.38MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YjYzZWNmNjkzODJhZjNhZjU0YWEwZTg2ODM0NjA0YWYtMmFhODU1MTJmMzg2MjhmYWRiZGZhMDQ5OTQzZGJjOWQ6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_46_2022_07_01_mask.tif
-
-  0%|          | 0.00/89.4k [00:00<?, ?B/s][A
-100%|██████████| 89.4k/89.4k [00:00<00:00, 560kB/s][A100%|██████████| 89.4k/89.4k [00:00<00:00, 559kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MjUyZTNhYTEzMTBlZTg4YzI3MmJlMTkzMzE4MGIzM2MtMmIxZTU5YmU0YWZkOWMxNzNkYTRjZmE4YTE1N2E0YWU6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_46_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.9M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.9M [00:00<00:12, 984kB/s][A
-  8%|▊         | 1.05M/12.9M [00:00<00:06, 1.79MB/s][A
- 16%|█▋        | 2.10M/12.9M [00:00<00:03, 3.56MB/s][A
- 33%|███▎      | 4.19M/12.9M [00:00<00:01, 7.34MB/s][A
- 61%|██████    | 7.86M/12.9M [00:00<00:00, 14.4MB/s][A
- 94%|█████████▎| 12.1M/12.9M [00:01<00:00, 20.6MB/s][A100%|██████████| 12.9M/12.9M [00:01<00:00, 11.3MB/s]
- 84%|████████▍ | 32/38 [17:22<02:32, 25.40s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZWI4NzlmYzM1MzFhNzE3ZjQ4ZWQxMGZhZjEzMjEwNzktYjg0OTMxZWIwNGVlNGUxNjBlMTJkMDIyMjAwY2JiYjg6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_50_2022_07_01_dsm.tif
-1933745
-p_50
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.35279643016407, 'location.longitude': -71.08275244715853, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZWI4NzlmYzM1MzFhNzE3ZjQ4ZWQxMGZhZjEzMjEwNzktYjg0OTMxZWIwNGVlNGUxNjBlMTJkMDIyMjAwY2JiYjg6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MjE4OTA4MjUzOTBmOWZkMDkxNmY1NDg2NDVlZGZjODQtZGIwODRkYmM4NzRiMjU0MzQ2NDZiZTNiMjFmYjY3NjQ6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MGZlZTRmOTM0N2RkY2M0MWQ1ZWYzMjcwY2Y3NGFhMzEtNDdjZGY2NzM5YmJhMzgxZTBkNmNhNTljMmM5MDhhZWE6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ODBkM2UzNWVhMDcxMTBkYmJkNTVjNTAzZjllMTVmNTYtOWVmYTAxZWRkMzQ5N2FiNjA3Y2FjYWQ3NjJhOTc2Y2E6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/9.75M [00:00<?, ?B/s][A
-  5%|▌         | 524k/9.75M [00:00<00:09, 931kB/s][A
- 11%|█         | 1.05M/9.75M [00:00<00:05, 1.70MB/s][A
- 22%|██▏       | 2.10M/9.75M [00:00<00:02, 3.40MB/s][A
- 43%|████▎     | 4.19M/9.75M [00:00<00:00, 7.10MB/s][A
- 81%|████████  | 7.86M/9.75M [00:01<00:00, 13.6MB/s][A100%|██████████| 9.75M/9.75M [00:01<00:00, 8.81MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MjE4OTA4MjUzOTBmOWZkMDkxNmY1NDg2NDVlZGZjODQtZGIwODRkYmM4NzRiMjU0MzQ2NDZiZTNiMjFmYjY3NjQ6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_50_2022_07_01_rgb.tif
-
-  0%|          | 0.00/8.36M [00:00<?, ?B/s][A
-  6%|▋         | 524k/8.36M [00:00<00:08, 971kB/s][A
- 13%|█▎        | 1.05M/8.36M [00:00<00:04, 1.79MB/s][A
- 25%|██▌       | 2.10M/8.36M [00:00<00:01, 3.57MB/s][A
- 50%|█████     | 4.19M/8.36M [00:00<00:00, 7.49MB/s][A
-100%|██████████| 8.36M/8.36M [00:01<00:00, 15.4MB/s][A100%|██████████| 8.36M/8.36M [00:01<00:00, 8.34MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MGZlZTRmOTM0N2RkY2M0MWQ1ZWYzMjcwY2Y3NGFhMzEtNDdjZGY2NzM5YmJhMzgxZTBkNmNhNTljMmM5MDhhZWE6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_50_2022_07_01_mask.tif
-
-  0%|          | 0.00/44.7k [00:00<?, ?B/s][A100%|██████████| 44.7k/44.7k [00:00<00:00, 2.05MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ODBkM2UzNWVhMDcxMTBkYmJkNTVjNTAzZjllMTVmNTYtOWVmYTAxZWRkMzQ5N2FiNjA3Y2FjYWQ3NjJhOTc2Y2E6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_50_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/9.56M [00:00<?, ?B/s][A
-  5%|▌         | 524k/9.56M [00:00<00:09, 918kB/s][A
- 11%|█         | 1.05M/9.56M [00:00<00:04, 1.76MB/s][A
- 22%|██▏       | 2.10M/9.56M [00:00<00:02, 3.29MB/s][A
- 44%|████▍     | 4.19M/9.56M [00:00<00:00, 6.93MB/s][A
- 77%|███████▋  | 7.34M/9.56M [00:01<00:00, 12.6MB/s][A100%|██████████| 9.56M/9.56M [00:01<00:00, 8.64MB/s]
- 87%|████████▋ | 33/38 [17:59<02:24, 28.84s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=OTY5YWI3MDIwMTY3MTk4YjAxNWNmYTUxMGZhMDU4NzItYWYxMzBjMDM5NjRjYTNhYmRlZTNjZjQyNDU2NmY2Y2I6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_51_2022_07_01_dsm.tif
-1933745
-p_51
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.36089655902075, 'location.longitude': -71.0830200591287, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=OTY5YWI3MDIwMTY3MTk4YjAxNWNmYTUxMGZhMDU4NzItYWYxMzBjMDM5NjRjYTNhYmRlZTNjZjQyNDU2NmY2Y2I6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NDUyNjA4MGJiNmU4ZGQ3Yjg1MTVmM2FkZjljYzAyNzUtZDViYThmM2ZlYjRhMDUyNmEwZDIyNDhkZjNmNjI0ZmY6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NDUyZWZjYTRlOGEwYTVmNDM1NDVmMmRhMmM0OThhMmUtZjMzMTk4MThiNGY2ZWRiYjQ4YmZlNzI3ZDA5NGY0ZjI6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZDk0MWFjNDgxODBkNjhkNWJhYzU0MGExNGVkMGVmOGUtYjAzZjk1ZDlkNjZmYTdmMGJmOTM2MjJiMzhlZTJmMTI6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/8.76M [00:00<?, ?B/s][A
-  6%|▌         | 524k/8.76M [00:00<00:08, 974kB/s][A
- 12%|█▏        | 1.05M/8.76M [00:00<00:04, 1.77MB/s][A
- 24%|██▍       | 2.10M/8.76M [00:00<00:01, 3.56MB/s][A
- 48%|████▊     | 4.19M/8.76M [00:00<00:00, 7.47MB/s][A
- 90%|████████▉ | 7.86M/8.76M [00:00<00:00, 14.5MB/s][A100%|██████████| 8.76M/8.76M [00:01<00:00, 8.52MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NDUyNjA4MGJiNmU4ZGQ3Yjg1MTVmM2FkZjljYzAyNzUtZDViYThmM2ZlYjRhMDUyNmEwZDIyNDhkZjNmNjI0ZmY6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_51_2022_07_01_rgb.tif
-
-  0%|          | 0.00/7.94M [00:00<?, ?B/s][A
-  7%|▋         | 524k/7.94M [00:00<00:07, 979kB/s][A
- 13%|█▎        | 1.05M/7.94M [00:00<00:03, 1.79MB/s][A
- 26%|██▋       | 2.10M/7.94M [00:00<00:01, 3.58MB/s][A
- 53%|█████▎    | 4.19M/7.94M [00:00<00:00, 7.49MB/s][A
- 99%|█████████▉| 7.86M/7.94M [00:01<00:00, 14.2MB/s][A100%|██████████| 7.94M/7.94M [00:01<00:00, 7.89MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NDUyZWZjYTRlOGEwYTVmNDM1NDVmMmRhMmM0OThhMmUtZjMzMTk4MThiNGY2ZWRiYjQ4YmZlNzI3ZDA5NGY0ZjI6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_51_2022_07_01_mask.tif
-
-  0%|          | 0.00/30.2k [00:00<?, ?B/s][A100%|██████████| 30.2k/30.2k [00:00<00:00, 5.65MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZDk0MWFjNDgxODBkNjhkNWJhYzU0MGExNGVkMGVmOGUtYjAzZjk1ZDlkNjZmYTdmMGJmOTM2MjJiMzhlZTJmMTI6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_51_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/8.33M [00:00<?, ?B/s][A
-  6%|▋         | 524k/8.33M [00:00<00:08, 943kB/s][A
- 13%|█▎        | 1.05M/8.33M [00:00<00:04, 1.71MB/s][A
- 25%|██▌       | 2.10M/8.33M [00:00<00:01, 3.40MB/s][A
- 50%|█████     | 4.19M/8.33M [00:00<00:00, 7.04MB/s][A
- 94%|█████████▍| 7.86M/8.33M [00:01<00:00, 13.9MB/s][A100%|██████████| 8.33M/8.33M [00:01<00:00, 7.90MB/s]
- 89%|████████▉ | 34/38 [18:30<01:57, 29.42s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=OTk0NDg1OTFjMDg1MWFiYWExODY5ZTI1NzI2YjIyYWYtMzg3MDA1ZmM0Njg0MjIxOTZjMDFlYzI3Yjc0N2Q5ZmM6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_52_2022_07_01_dsm.tif
-1933745
-p_52
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.368996675018664, 'location.longitude': -71.08328778135673, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=OTk0NDg1OTFjMDg1MWFiYWExODY5ZTI1NzI2YjIyYWYtMzg3MDA1ZmM0Njg0MjIxOTZjMDFlYzI3Yjc0N2Q5ZmM6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NWI1YjQ0MTIwMTVjYjZiOWM2OWJiYmM4YTJjNDRkYzctYjUwYTg4NzQxZDkwZWJhZTQxMTdjODYyNjdiMjQ5Yzk6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YWI3ODVlMWNiZWJkZTNlY2FjMTIyNzBmNjJjNzczYjctNTdkMTVhZDYxMDI0ZGRkZWIzMmRmYjZhNzM5YjQzMzk6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=Y2FjYzY0ZjlmNjg2MWZlMzNiYWY1ZmI2ZjAyYzYxNzktNzI4YzE5MTRhYmJhOWZhZTlkYTdlNTA4ZDU2Zjc2ODI6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/14.1M [00:00<?, ?B/s][A
-  4%|▎         | 524k/14.1M [00:00<00:23, 586kB/s][A
-  7%|▋         | 1.05M/14.1M [00:01<00:11, 1.16MB/s][A
- 15%|█▍        | 2.10M/14.1M [00:01<00:04, 2.49MB/s][A
- 30%|██▉       | 4.19M/14.1M [00:01<00:01, 5.55MB/s][A
- 56%|█████▌    | 7.86M/14.1M [00:01<00:00, 11.5MB/s][A
- 82%|████████▏ | 11.5M/14.1M [00:01<00:00, 16.7MB/s][A100%|██████████| 14.1M/14.1M [00:01<00:00, 8.89MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NWI1YjQ0MTIwMTVjYjZiOWM2OWJiYmM4YTJjNDRkYzctYjUwYTg4NzQxZDkwZWJhZTQxMTdjODYyNjdiMjQ5Yzk6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_52_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.4M [00:00<?, ?B/s][A
-  5%|▌         | 524k/10.4M [00:00<00:14, 673kB/s][A
- 10%|█         | 1.05M/10.4M [00:00<00:07, 1.22MB/s][A
- 20%|██        | 2.10M/10.4M [00:01<00:03, 2.55MB/s][A
- 35%|███▌      | 3.67M/10.4M [00:01<00:01, 4.86MB/s][A
- 65%|██████▌   | 6.82M/10.4M [00:01<00:00, 10.1MB/s][A
-100%|██████████| 10.4M/10.4M [00:01<00:00, 15.7MB/s][A100%|██████████| 10.4M/10.4M [00:01<00:00, 7.32MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YWI3ODVlMWNiZWJkZTNlY2FjMTIyNzBmNjJjNzczYjctNTdkMTVhZDYxMDI0ZGRkZWIzMmRmYjZhNzM5YjQzMzk6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_52_2022_07_01_mask.tif
-
-  0%|          | 0.00/76.8k [00:00<?, ?B/s][A
-100%|██████████| 76.8k/76.8k [00:00<00:00, 536kB/s][A100%|██████████| 76.8k/76.8k [00:00<00:00, 535kB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=Y2FjYzY0ZjlmNjg2MWZlMzNiYWY1ZmI2ZjAyYzYxNzktNzI4YzE5MTRhYmJhOWZhZTlkYTdlNTA4ZDU2Zjc2ODI6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_52_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.9M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.9M [00:00<00:12, 968kB/s][A
-  8%|▊         | 1.05M/12.9M [00:00<00:06, 1.76MB/s][A
- 16%|█▋        | 2.10M/12.9M [00:00<00:03, 3.53MB/s][A
- 33%|███▎      | 4.19M/12.9M [00:00<00:01, 7.37MB/s][A
- 65%|██████▌   | 8.39M/12.9M [00:01<00:00, 15.2MB/s][A
- 93%|█████████▎| 12.1M/12.9M [00:01<00:00, 20.5MB/s][A100%|██████████| 12.9M/12.9M [00:01<00:00, 11.2MB/s]
- 92%|█████████▏| 35/38 [19:01<01:29, 29.97s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ZTM4YmI4YTUzZjI2ODU3ZTAyYTNhMmI4ZDJlMjUyYTQtOTdhNzVjYzFkOGU5OTIwNDYzYzJhMTA3ZTZhZWE0Mzk6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_53_2022_07_01_dsm.tif
-1933745
-p_53
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.3770967781568, 'location.longitude': -71.08355561389567, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ZTM4YmI4YTUzZjI2ODU3ZTAyYTNhMmI4ZDJlMjUyYTQtOTdhNzVjYzFkOGU5OTIwNDYzYzJhMTA3ZTZhZWE0Mzk6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=Y2VlNWE1NGMxYzM5ZmUwZDFjZWNkNDRlNDdhNjk4MTItMTcwY2EzZGVhZGU2Y2VlNzM1N2U1YjFiNTVkOTk2NzA6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NzRmMWFhODNjZjk4YzFkODEyNTRiMDExODk5MzA1ZjktNTE5ZDAzYjJkMjdjMDAwOGEwOWQwNTM1YTI2NmQ2YTY6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MDQ3OGVlZTU3ZjM0MzE0Njg4Y2E2NDdlNDcyNWRiYzQtNGVlMTAyOGUyMWJkOGQxMjEyYzgwNmJiNDMwNDJmZTI6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/13.9M [00:00<?, ?B/s][A
-  4%|▍         | 524k/13.9M [00:00<00:13, 972kB/s][A
-  8%|▊         | 1.05M/13.9M [00:00<00:07, 1.80MB/s][A
- 15%|█▌        | 2.10M/13.9M [00:00<00:03, 3.61MB/s][A
- 30%|███       | 4.19M/13.9M [00:00<00:01, 7.53MB/s][A
- 57%|█████▋    | 7.86M/13.9M [00:00<00:00, 14.7MB/s][A
- 83%|████████▎ | 11.5M/13.9M [00:01<00:00, 20.2MB/s][A100%|██████████| 13.9M/13.9M [00:01<00:00, 11.6MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=Y2VlNWE1NGMxYzM5ZmUwZDFjZWNkNDRlNDdhNjk4MTItMTcwY2EzZGVhZGU2Y2VlNzM1N2U1YjFiNTVkOTk2NzA6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_53_2022_07_01_rgb.tif
-
-  0%|          | 0.00/10.1M [00:00<?, ?B/s][A
-  5%|▌         | 524k/10.1M [00:00<00:09, 979kB/s][A
- 10%|█         | 1.05M/10.1M [00:00<00:05, 1.80MB/s][A
- 21%|██        | 2.10M/10.1M [00:00<00:02, 3.61MB/s][A
- 41%|████▏     | 4.19M/10.1M [00:00<00:00, 7.52MB/s][A
- 83%|████████▎ | 8.39M/10.1M [00:00<00:00, 15.4MB/s][A100%|██████████| 10.1M/10.1M [00:01<00:00, 9.66MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NzRmMWFhODNjZjk4YzFkODEyNTRiMDExODk5MzA1ZjktNTE5ZDAzYjJkMjdjMDAwOGEwOWQwNTM1YTI2NmQ2YTY6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_53_2022_07_01_mask.tif
-
-  0%|          | 0.00/42.2k [00:00<?, ?B/s][A100%|██████████| 42.2k/42.2k [00:00<00:00, 2.27MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MDQ3OGVlZTU3ZjM0MzE0Njg4Y2E2NDdlNDcyNWRiYzQtNGVlMTAyOGUyMWJkOGQxMjEyYzgwNmJiNDMwNDJmZTI6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_53_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/12.6M [00:00<?, ?B/s][A
-  4%|▍         | 524k/12.6M [00:00<00:12, 983kB/s][A
-  8%|▊         | 1.05M/12.6M [00:00<00:06, 1.79MB/s][A
- 17%|█▋        | 2.10M/12.6M [00:00<00:02, 3.59MB/s][A
- 33%|███▎      | 4.19M/12.6M [00:00<00:01, 7.48MB/s][A
- 62%|██████▏   | 7.86M/12.6M [00:00<00:00, 14.3MB/s][A
- 91%|█████████ | 11.5M/12.6M [00:01<00:00, 19.9MB/s][A100%|██████████| 12.6M/12.6M [00:01<00:00, 11.1MB/s]
- 95%|█████████▍| 36/38 [19:30<00:59, 29.54s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YWYzMzQ1ZDdmN2M3NWJlMzc3OTM4YTdjMTYxNDA4M2QtYWEwMzQwZGQ3MDIxY2JmMjVjZWFhYThmMTc1ZDIwNzI6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_58_2022_07_01_dsm.tif
-1933745
-p_58
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.361094550304045, 'location.longitude': -71.07209801530452, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YWYzMzQ1ZDdmN2M3NWJlMzc3OTM4YTdjMTYxNDA4M2QtYWEwMzQwZGQ3MDIxY2JmMjVjZWFhYThmMTc1ZDIwNzI6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=YzVmZDFjZWU3MDllOWQ5MmI0N2E5NWM2NmI3ZmVjOTctN2M3ZmYwNmVhOGU0NjRkZDJlODM1MWYxMzY2YzViNjY6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=ODk1YmJkMTI4ZDFkM2UzNTVmZmQ0OGFjNDFiZmQyYWYtZTM5NGY4YThmZmM4YjZmZWM5OGM4NmM4NjIzMDI4M2Y6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NzIwNmNjZTUxNTNmMDlhOGEwYjdjODk5YjBiOGExZGUtMzhmZDk0Njc0NjJiOGE3NjY3NTVhZGM5MjYxODJjOWQ6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/9.87M [00:00<?, ?B/s][A
-  5%|▌         | 524k/9.87M [00:00<00:09, 967kB/s][A
- 11%|█         | 1.05M/9.87M [00:00<00:05, 1.74MB/s][A
- 21%|██        | 2.10M/9.87M [00:00<00:02, 3.51MB/s][A
- 42%|████▏     | 4.19M/9.87M [00:00<00:00, 7.34MB/s][A
- 80%|███████▉  | 7.86M/9.87M [00:01<00:00, 14.1MB/s][A100%|██████████| 9.87M/9.87M [00:01<00:00, 9.21MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=YzVmZDFjZWU3MDllOWQ5MmI0N2E5NWM2NmI3ZmVjOTctN2M3ZmYwNmVhOGU0NjRkZDJlODM1MWYxMzY2YzViNjY6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_58_2022_07_01_rgb.tif
-
-  0%|          | 0.00/8.09M [00:00<?, ?B/s][A
-  6%|▋         | 524k/8.09M [00:00<00:07, 982kB/s][A
- 13%|█▎        | 1.05M/8.09M [00:00<00:03, 1.79MB/s][A
- 26%|██▌       | 2.10M/8.09M [00:00<00:01, 3.39MB/s][A
- 32%|███▏      | 2.62M/8.09M [00:01<00:01, 3.01MB/s][A
- 78%|███████▊  | 6.29M/8.09M [00:01<00:00, 9.71MB/s][A100%|██████████| 8.09M/8.09M [00:01<00:00, 6.69MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=ODk1YmJkMTI4ZDFkM2UzNTVmZmQ0OGFjNDFiZmQyYWYtZTM5NGY4YThmZmM4YjZmZWM5OGM4NmM4NjIzMDI4M2Y6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_58_2022_07_01_mask.tif
-
-  0%|          | 0.00/34.7k [00:00<?, ?B/s][A100%|██████████| 34.7k/34.7k [00:00<00:00, 2.44MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NzIwNmNjZTUxNTNmMDlhOGEwYjdjODk5YjBiOGExZGUtMzhmZDk0Njc0NjJiOGE3NjY3NTVhZGM5MjYxODJjOWQ6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_58_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/10.4M [00:00<?, ?B/s][A
-  5%|▌         | 524k/10.4M [00:00<00:10, 916kB/s][A
- 10%|█         | 1.05M/10.4M [00:00<00:05, 1.65MB/s][A
- 20%|██        | 2.10M/10.4M [00:00<00:02, 3.31MB/s][A
- 40%|████      | 4.19M/10.4M [00:00<00:00, 6.92MB/s][A
- 76%|███████▌  | 7.86M/10.4M [00:01<00:00, 13.7MB/s][A100%|██████████| 10.4M/10.4M [00:01<00:00, 9.11MB/s]
- 97%|█████████▋| 37/38 [20:08<00:32, 32.08s/it]Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MGIyNGQ3MWEzYWQyZWIxZjFhZTE4MzZhNGI5MTZkMDItZGMzYWNjNzdhNzRmZmI3NzIyNGZhMjYzMmM3MjY4YmE6RFNNOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_59_2022_07_01_dsm.tif
-1933745
-p_59
-../data/clean_data/solar/1933745
-AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-{'location.latitude': 42.36919472215487, 'location.longitude': -71.07236433622174, 'radiusMeters': 500, 'view': 'IMAGERY_AND_ANNUAL_FLUX_LAYERS', 'requiredQuality': 'HIGH', 'pixelSizeMeters': 0.5, 'key': 'AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY'}
-{'imageryDate': {'year': 2022, 'month': 7, 'day': 1}, 'imageryProcessedDate': {'year': 2023, 'month': 8, 'day': 4}, 'dsmUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MGIyNGQ3MWEzYWQyZWIxZjFhZTE4MzZhNGI5MTZkMDItZGMzYWNjNzdhNzRmZmI3NzIyNGZhMjYzMmM3MjY4YmE6RFNNOkhJR0g', 'rgbUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=MDU1NjJlMGVjMTFiYzFkNGMxMTI3MTUyMDY4MzhkZDEtYThiMGE0NjAwY2Y3YmFiMGFhNzg4YTNhZTM0ZjRhNGE6UkdCOkhJR0g', 'maskUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NmQ5YTMxOTQwMzM0NWRjYzQyNTMzMTgwYjY1NjdkMjQtNzIxODcwMzgxOGQ5NWVkOWFkYWZkYjcyYmUyYWRlYmM6TUFTSzpISUdI', 'annualFluxUrl': 'https://solar.googleapis.com/v1/geoTiff:get?id=NTMxYWVhYzNjMDdjOWJlMTJhM2NjOTg1NGNhYzZmZGYtNzhhODE0NGQzZWIxNmYwMjIwNWE5YWEzNGVlMjYzNmQ6QU5OVUFMX0ZMVVg6SElHSA', 'imageryQuality': 'HIGH'}
-
-  0%|          | 0.00/11.9M [00:00<?, ?B/s][A
-  4%|▍         | 524k/11.9M [00:00<00:16, 679kB/s][A
-  9%|▉         | 1.05M/11.9M [00:00<00:08, 1.31MB/s][A
- 18%|█▊        | 2.10M/11.9M [00:01<00:03, 2.76MB/s][A
- 35%|███▌      | 4.19M/11.9M [00:01<00:01, 6.03MB/s][A
- 66%|██████▌   | 7.86M/11.9M [00:01<00:00, 12.3MB/s][A
- 92%|█████████▏| 11.0M/11.9M [00:01<00:00, 16.4MB/s][A100%|██████████| 11.9M/11.9M [00:01<00:00, 8.59MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=MDU1NjJlMGVjMTFiYzFkNGMxMTI3MTUyMDY4MzhkZDEtYThiMGE0NjAwY2Y3YmFiMGFhNzg4YTNhZTM0ZjRhNGE6UkdCOkhJR0g&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_59_2022_07_01_rgb.tif
-
-  0%|          | 0.00/9.36M [00:00<?, ?B/s][A
-  6%|▌         | 524k/9.36M [00:00<00:09, 959kB/s][A
- 11%|█         | 1.05M/9.36M [00:00<00:04, 1.72MB/s][A
- 22%|██▏       | 2.10M/9.36M [00:00<00:02, 3.48MB/s][A
- 45%|████▍     | 4.19M/9.36M [00:00<00:00, 7.26MB/s][A
- 84%|████████▍ | 7.86M/9.36M [00:01<00:00, 14.1MB/s][A100%|██████████| 9.36M/9.36M [00:01<00:00, 8.71MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NmQ5YTMxOTQwMzM0NWRjYzQyNTMzMTgwYjY1NjdkMjQtNzIxODcwMzgxOGQ5NWVkOWFkYWZkYjcyYmUyYWRlYmM6TUFTSzpISUdI&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_59_2022_07_01_mask.tif
-
-  0%|          | 0.00/35.1k [00:00<?, ?B/s][A100%|██████████| 35.1k/35.1k [00:00<00:00, 2.30MB/s]
-Downloading...
-From: https://solar.googleapis.com/v1/geoTiff:get?id=NTMxYWVhYzNjMDdjOWJlMTJhM2NjOTg1NGNhYzZmZGYtNzhhODE0NGQzZWIxNmYwMjIwNWE5YWEzNGVlMjYzNmQ6QU5OVUFMX0ZMVVg6SElHSA&key=AIzaSyAdQpSvkqXFi_jf9xZsOlJivC82X__MdeY
-To: /data2/lukas/projects/throwing_shade/data/clean_data/solar/1933745/1933745_p_59_2022_07_01_annualFlux.tif
-
-  0%|          | 0.00/11.9M [00:00<?, ?B/s][A
-  4%|▍         | 524k/11.9M [00:00<00:12, 933kB/s][A
-  9%|▉         | 1.05M/11.9M [00:00<00:06, 1.71MB/s][A
- 18%|█▊        | 2.10M/11.9M [00:00<00:02, 3.45MB/s][A
- 35%|███▌      | 4.19M/11.9M [00:00<00:01, 7.17MB/s][A
- 66%|██████▋   | 7.86M/11.9M [00:01<00:00, 14.1MB/s][A
- 97%|█████████▋| 11.5M/11.9M [00:01<00:00, 19.4MB/s][A100%|██████████| 11.9M/11.9M [00:01<00:00, 10.4MB/s]
-100%|██████████| 38/38 [20:45<00:00, 33.66s/it]100%|██████████| 38/38 [20:45<00:00, 32.77s/it]
