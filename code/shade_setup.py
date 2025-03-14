@@ -1,19 +1,23 @@
-import os
-import datetime as dt
-import sun_position as sp
-import shadowingfunctions as shadow
-from osgeo import gdal, osr
-from osgeo.gdalconst import *
-import numpy as np
-import geopandas as gpd
-import pandas as pd
+try:
+    import os
+    import datetime as dt
+    import sun_position as sp
+    import shadowingfunctions as shadow
+    from datetime import datetime, timedelta, time
+    from osgeo import gdal, osr
+    from osgeo.gdalconst import *
+    import numpy as np
+    import geopandas as gpd
+    import pandas as pd
+    import rasterio
+except Exception as e:
+    print(f"Error: {e}")
 
 
 
 ### Shade calculation setup
-
 def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/', date=dt.datetime.now(),
-                           intervalTime=30, onetime=1, filepath_save='None', UTC=0, dst=1, useveg=0, trunkheight=25,
+                           intervalTime=30, final_stamp=None, shade_fractions=False, onetime=1, filepath_save='None', UTC=0, dst=1, useveg=0, trunkheight=25,
                            transmissivity=20):
     '''Calculates spot, hourly and or daily shading for a DSM
     Needs:
@@ -25,115 +29,118 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
     UTC = defaults to 0, optional in plugin, denotes the UCT shift (AMS +2)
     dst = defaults to 1, not sure what this does. 1 or 0
     '''
-    print(date)
+    try:
+        print(date)
 
-    gdal_dsm = gdal.Open(filepath_dsm)
-    dsm = gdal_dsm.ReadAsArray().astype(float)
+        gdal_dsm = gdal.Open(filepath_dsm)
+        dsm = gdal_dsm.ReadAsArray().astype(float)
 
-    # response to issue #85
-    nd = gdal_dsm.GetRasterBand(1).GetNoDataValue()
-    dsm[dsm == nd] = 0.
-    if dsm.min() < 0:
-        dsm = dsm + np.abs(dsm.min())
+        # response to issue #85
+        nd = gdal_dsm.GetRasterBand(1).GetNoDataValue()
+        dsm[dsm == nd] = 0.
+        if dsm.min() < 0:
+            dsm = dsm + np.abs(dsm.min())
 
-    sizex = dsm.shape[0]
-    sizey = dsm.shape[1]
+        sizex = dsm.shape[0]
+        sizey = dsm.shape[1]
 
-    old_cs = osr.SpatialReference()
-    dsm_ref = gdal_dsm.GetProjection()
-    print(dsm_ref)
-    # dsm_ref = dsmlayer.crs().toWkt()
-    old_cs.ImportFromWkt(dsm_ref)
+        old_cs = osr.SpatialReference()
+        dsm_ref = gdal_dsm.GetProjection()
+        # print(dsm_ref)
+        # dsm_ref = dsmlayer.crs().toWkt()
+        old_cs.ImportFromWkt(dsm_ref)
 
-    wgs84_wkt = """
-    GEOGCS["WGS 84",
-        DATUM["WGS_1984",
-            SPHEROID["WGS 84",6378137,298.257223563,
-                AUTHORITY["EPSG","7030"]],
-            AUTHORITY["EPSG","6326"]],
-        PRIMEM["Greenwich",0,
-            AUTHORITY["EPSG","8901"]],
-        UNIT["degree",0.01745329251994328,
-            AUTHORITY["EPSG","9122"]],
-        AUTHORITY["EPSG","4326"]]"""
+        wgs84_wkt = """
+        GEOGCS["WGS 84",
+            DATUM["WGS_1984",
+                SPHEROID["WGS 84",6378137,298.257223563,
+                    AUTHORITY["EPSG","7030"]],
+                AUTHORITY["EPSG","6326"]],
+            PRIMEM["Greenwich",0,
+                AUTHORITY["EPSG","8901"]],
+            UNIT["degree",0.01745329251994328,
+                AUTHORITY["EPSG","9122"]],
+            AUTHORITY["EPSG","4326"]]"""
 
-    new_cs = osr.SpatialReference()
-    new_cs.ImportFromWkt(wgs84_wkt)
+        new_cs = osr.SpatialReference()
+        new_cs.ImportFromWkt(wgs84_wkt)
 
-    transform = osr.CoordinateTransformation(old_cs, new_cs)
+        transform = osr.CoordinateTransformation(old_cs, new_cs)
 
-    width = gdal_dsm.RasterXSize
-    height = gdal_dsm.RasterYSize
-    gt = gdal_dsm.GetGeoTransform()
-    minx = gt[0]
-    miny = gt[3] + width * gt[4] + height * gt[5]
-    lonlat = transform.TransformPoint(minx, miny)
-    geotransform = gdal_dsm.GetGeoTransform()
-    scale = 1 / geotransform[1]
+        width = gdal_dsm.RasterXSize
+        height = gdal_dsm.RasterYSize
+        gt = gdal_dsm.GetGeoTransform()
+        minx = gt[0]
+        miny = gt[3] + width * gt[4] + height * gt[5]
+        lonlat = transform.TransformPoint(minx, miny)
+        geotransform = gdal_dsm.GetGeoTransform()
+        scale = 1 / geotransform[1]
 
-    gdalver = float(gdal.__version__[0])
-    if gdalver >= 3.:
-        lon = lonlat[1]  # changed to gdal 3
-        lat = lonlat[0]  # changed to gdal 3
-    else:
-        lon = lonlat[0]  # changed to gdal 2
-        lat = lonlat[1]  # changed to gdal 2
-    # print('lon:' + str(lon))
-    # print('lat:' + str(lat))
+        gdalver = float(gdal.__version__[0])
+        if gdalver >= 3.:
+            lon = lonlat[1]  # changed to gdal 3
+            lat = lonlat[0]  # changed to gdal 3
+        else:
+            lon = lonlat[0]  # changed to gdal 2
+            lat = lonlat[1]  # changed to gdal 2
+        # print('lon:' + str(lon))
+        # print('lat:' + str(lat))
 
-    ## Import vegetation dsm
+        ## Import vegetation dsm
 
-    trans = transmissivity / 100.0
+        trans = transmissivity / 100.0
 
-    if useveg == 1:
-        usevegdem = 1
+        if useveg == 1:
+            usevegdem = 1
 
-        # Changed import conditions
-        if filepath_veg == "None":
-            print("No vegetation filepath given")
-            return
+            # Changed import conditions
+            if filepath_veg == "None":
+                print("No vegetation filepath given")
+                return
 
-        # load raster
-        # gdal.AllRegister()
-        # provider = vegdsm.dataProvider()
-        # filePathOld = str(provider.dataSourceUri())
-        dataSet = gdal.Open(filepath_veg)
-        vegdsm = dataSet.ReadAsArray().astype(float)
+            # load raster
+            # gdal.AllRegister()
+            # provider = vegdsm.dataProvider()
+            # filePathOld = str(provider.dataSourceUri())
+            dataSet = gdal.Open(filepath_veg)
+            vegdsm = dataSet.ReadAsArray().astype(float)
 
-        vegsizex = vegdsm.shape[0]
-        vegsizey = vegdsm.shape[1]
+            vegsizex = vegdsm.shape[0]
+            vegsizey = vegdsm.shape[1]
 
-        if not (vegsizex == sizex) & (vegsizey == sizey):
-            print("Error; All grids must be of same extent and resolution")
-            return
-        ## Removed the option for Trunkzone DSM. Defaults to 25%
-        # if self.dlg.checkBoxTrunkExist.isChecked():
-        #     vegdsm2 = self.layerComboManagerVEGDSM2.currentLayer()
+            if not (vegsizex == sizex) & (vegsizey == sizey):
+                print("Error; All grids must be of same extent and resolution")
+                return
+            ## Removed the option for Trunkzone DSM. Defaults to 25%
+            # if self.dlg.checkBoxTrunkExist.isChecked():
+            #     vegdsm2 = self.layerComboManagerVEGDSM2.currentLayer()
 
-        #     if vegdsm2 is None:
-        #         QMessageBox.critical(None, "Error", "No valid trunk zone DSM selected")
-        #         return
+            #     if vegdsm2 is None:
+            #         QMessageBox.critical(None, "Error", "No valid trunk zone DSM selected")
+            #         return
 
-        #     # load raster
-        #     gdal.AllRegister()
-        #     provider = vegdsm2.dataProvider()
-        #     filePathOld = str(provider.dataSourceUri())
-        #     dataSet = gdal.Open(filePathOld)
-        #     vegdsm2 = dataSet.ReadAsArray().astype(float)
-        # else:
-        trunkratio = trunkheight / 100.0
-        vegdsm2 = vegdsm * trunkratio
+            #     # load raster
+            #     gdal.AllRegister()
+            #     provider = vegdsm2.dataProvider()
+            #     filePathOld = str(provider.dataSourceUri())
+            #     dataSet = gdal.Open(filePathOld)
+            #     vegdsm2 = dataSet.ReadAsArray().astype(float)
+            # else:
+            trunkratio = trunkheight / 100.0
+            vegdsm2 = vegdsm * trunkratio
 
-        vegsizex = vegdsm2.shape[0]
-        vegsizey = vegdsm2.shape[1]
+            vegsizex = vegdsm2.shape[0]
+            vegsizey = vegdsm2.shape[1]
 
-        if not (vegsizex == sizex) & (vegsizey == sizey):  # &
-            print("Error; All grids must be of same extent and resolution")
-            return
-    else:
-        vegdsm = 0
-        vegdsm2 = 0
-        usevegdem = 0
+            if not (vegsizex == sizex) & (vegsizey == sizey):  # &
+                print("Error; All grids must be of same extent and resolution")
+                return
+        else:
+            vegdsm = 0
+            vegdsm2 = 0
+            usevegdem = 0
+    except Exception as e:
+        print(f"Error at before calculations: {e}")
 
     ## REMOVED WALLSHADOW FUNCTIONS FOR NOW.
     # if self.dlg.checkBoxWallsh.isChecked():
@@ -168,220 +175,317 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
     #         QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
     #         return
     # else:
-    wallsh = 0
-    wheight = 0
-    waspect = 0
 
-    if filepath_save == 'None':
-        print("Error", "No output path given")
-        return
-    else:
-        # date = self.dlg.calendarWidget.selectedDate()
-        year = date.year
-        month = date.month
-        day = date.day
-        # TODO: Check what UTC does. Optional in plugin, so set to 0
-        # UTC = self.dlg.spinBoxUTC.value()
-        if onetime == 1:
-            time = date.time()
-            print(time)
-            hour = time.hour
-            minu = time.minute
-            sec = time.second
+    try:
+        wallsh = 0
+        wheight = 0
+        waspect = 0
+
+        if filepath_save == 'None':
+            print("Error", "No output path given")
+            return
         else:
-            onetime = 0
-            hour = 0
-            minu = 0
-            sec = 0
+            # date = self.dlg.calendarWidget.selectedDate()
+            year = date.year
+            month = date.month
+            day = date.day
 
-        tv = [year, month, day, hour, minu, sec]
-        # TODO: What exactly is set by timeInterval. For now this just takes the minutes as set above.
-        # intervalTime = self.dlg.intervalTimeEdit.time()
-        # self.timeInterval = intervalTime.minute() + (intervalTime.hour() * 60) + (intervalTime.second()/60)
+            if onetime == 1:
+                time = date.time()
+                print(time)
+                hour = time.hour
+                minu = time.minute
+                sec = time.second
+            else:
+                onetime = 0
+                hour = 0
+                minu = 0
+                sec = 0
 
-        shadowresult = dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem,
-                                    intervalTime, onetime, filepath_save, gdal_dsm, trans,
-                                    dst, wallsh, wheight, waspect, tile_no)
+            tv = [year, month, day, hour, minu, sec]
 
-        shfinal = shadowresult["shfinal"]
-        time_vector = shadowresult["time_vector"]
+            if final_stamp is None:
+                final_stamp = date.replace(hour=23, minute=59, second=59)
 
-        if onetime == 0:
-            timestr = time_vector.strftime("%Y%m%d")
-            # Changed filepath to include the tile_id in the filename.
-            # savestr = '/shadow_fraction_on_'
-            savestr = '_shadow_fraction_on_'
-        else:
-            timestr = time_vector.strftime("%Y%m%d_%H%M")
-            # savestr = '/Shadow_at_'
-            savestr = 'Shadow_at_'
+            # shadow result is a list of dictionaries for each shadowfraction interval
+            shadowresult = dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem,
+                                        intervalTime, final_stamp, shade_fractions, onetime, filepath_save, gdal_dsm, trans,
+                                        dst, wallsh, wheight, waspect, tile_no)
 
-    filename = filepath_save + tile_no + savestr + timestr + '.tif'
+            print("Shadow result was returned: ", shadowresult, " for date: ", date)
 
-    ## TODO: change to saverasternd or other function
-    saveraster(gdal_dsm, filename, shfinal)
+            # TODO: what do we do if this is onetime analysis
+            for sh_result in shadowresult:
+                shfinal = sh_result["shfinal"]
+                time_vector = sh_result["time_vector"]
+
+                if onetime == 0:
+                    # TODO: change the shadow fraction here to also include time
+                    # so I need to change the time_vector returned by shadowfraction
+                    timestr = time_vector.strftime("%Y%m%d_%H%M")
+
+                    # timestr = time_vector.strftime("%Y%m%d")
+                    # Changed filepath to include the tile_id in the filename.
+                    # savestr = '/shadow_fraction_on_'
+                    savestr = '_shadow_fraction_on_'
+                else:
+                    timestr = time_vector.strftime("%Y%m%d_%H%M")
+                    # savestr = '/Shadow_at_'
+                    savestr = 'Shadow_at_'
+
+                filename = filepath_save + tile_no + savestr + timestr + '.tif'
+
+                print("File path trying to save at:", filename)
+
+                ## TODO: change to saverasternd or other function
+                saveraster(gdal_dsm, filename, shfinal)
+    except Exception as e:
+        print(f"Error in shade calc somewhere around daily shading: {e}")
+
+
+        # shfinal = shadowresult["shfinal"]
+        # time_vector = shadowresult["time_vector"]
+
+        # if onetime == 0:
+        #     # TODO: change the shadow fraction here to also include time
+        #     # so I need to change the time_vector returned by shadowfraction
+        #     if shade_fractions:
+        #         timestr = time_vector.strftime("%Y%m%d_%H%M")
+        #     else:
+        #         timestr = time_vector.strftime("%Y%m%d")
+        #     # Changed filepath to include the tile_id in the filename.
+        #     # savestr = '/shadow_fraction_on_'
+        #     savestr = '_shadow_fraction_on_'
+        # else:
+        #     timestr = time_vector.strftime("%Y%m%d_%H%M")
+        #     # savestr = '/Shadow_at_'
+        #     savestr = 'Shadow_at_'
+
+    # filename = filepath_save + tile_no + savestr + timestr + '.tif'
+
+    # print("File path trying to save at:", filename)
+
+    # ## TODO: change to saverasternd or other function
+    # saveraster(gdal_dsm, filename, shfinal)
 
 
 ############## DAILYSHADING ################
-
-def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem, timeInterval, onetime, folder,
+def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem, timeInterval, final_stamp, shade_fractions, onetime, folder,
                  gdal_data, trans, dst, wallshadow, wheight, waspect, tile_no):
     # lon = lonlat[0]
     # lat = lonlat[1]
-    year = tv[0]
-    month = tv[1]
-    day = tv[2]
+    try:
 
-    alt = np.median(dsm)
-    location = {'longitude': lon, 'latitude': lat, 'altitude': alt}
+        if final_stamp is None:
+            final_stamp = dt.time(23, 59)
 
-    if usevegdem == 1:
-        psi = trans
-        # amaxvalue
-        vegmax = vegdsm.max()
-        amaxvalue = dsm.max() - dsm.min()
-        amaxvalue = np.maximum(amaxvalue, vegmax)
+        year = tv[0]
+        month = tv[1]
+        day = tv[2]
 
-        # Elevation vegdsms if buildingDSM includes ground heights
-        vegdem = vegdsm + dsm
-        vegdem[vegdem == dsm] = 0
-        vegdem2 = vegdsm2 + dsm
-        vegdem2[vegdem2 == dsm] = 0
+        alt = np.median(dsm)
+        location = {'longitude': lon, 'latitude': lat, 'altitude': alt}
 
-        # Bush separation
-        bush = np.logical_not((vegdem2 * vegdem)) * vegdem
+        if usevegdem == 1:
+            psi = trans
+            # amaxvalue
+            vegmax = vegdsm.max()
+            amaxvalue = dsm.max() - dsm.min()
+            amaxvalue = np.maximum(amaxvalue, vegmax)
 
-    #     vegshtot = np.zeros((sizex, sizey))
-    # else:
+            # Elevation vegdsms if buildingDSM includes ground heights
+            vegdem = vegdsm + dsm
+            vegdem[vegdem == dsm] = 0
+            vegdem2 = vegdsm2 + dsm
+            vegdem2[vegdem2 == dsm] = 0
 
-    shtot = np.zeros((sizex, sizey))
+            # Bush separation
+            bush = np.logical_not((vegdem2 * vegdem)) * vegdem
 
-    if onetime == 1:
-        itera = 1
-    else:
-        itera = int(np.round(1440 / timeInterval))
+        #     vegshtot = np.zeros((sizex, sizey))
+        # else:
 
-    alt = np.zeros(itera)
-    azi = np.zeros(itera)
-    hour = int(0)
-    index = 0
-    time = dict()
-    time['UTC'] = UTC
+        shtot = np.zeros((sizex, sizey))
 
-    if wallshadow == 1:
-        walls = wheight
-        dirwalls = waspect
-    else:
-        walls = np.zeros((sizex, sizey))
-        dirwalls = np.zeros((sizex, sizey))
-
-    for i in range(0, itera):
-        if onetime == 0:
-            minu = int(timeInterval * i)
-            if minu >= 60:
-                hour = int(np.floor(minu / 60))
-                minu = int(minu - hour * 60)
+        if onetime == 1:
+            itera = 1
         else:
-            minu = tv[4]
-            hour = tv[3]
+            # Compute total intervals up to final_interval
+            total_minutes = final_stamp.hour * 60 + final_stamp.minute
+            itera = total_minutes // timeInterval  # Compute intervals from 00:00 to final time
 
-        doy = day_of_year(year, month, day)
+            print(f"Shading will be calculated from 00:00 to {final_stamp.strftime('%H:%M')} in {itera} intervals")
 
-        ut_time = doy - 1. + ((hour - dst) / 24.0) + (minu / (60. * 24.0)) + (0. / (60. * 60. * 24.0))
+            # itera = int(np.round(1440 / timeInterval))
 
-        if ut_time < 0:
-            year = year - 1
-            month = 12
-            day = 31
-            doy = day_of_year(year, month, day)
-            ut_time = ut_time + doy - 1
+        alt = np.zeros(itera+1)
+        azi = np.zeros(itera+1)
+        hour = int(0)
+        index = 0
+        time_dict = dict()
+        time_dict['UTC'] = UTC
 
-        HHMMSS = dectime_to_timevec(ut_time)
+        if wallshadow == 1:
+            walls = wheight
+            dirwalls = waspect
+        else:
+            walls = np.zeros((sizex, sizey))
+            dirwalls = np.zeros((sizex, sizey))
 
-        time['year'] = year
-        time['month'] = month
-        time['day'] = day
-        time['hour'] = HHMMSS[0]
-        time['min'] = HHMMSS[1]
-        time['sec'] = HHMMSS[2]
+        # final list of dictionaries to return with all shadow fractions recorded
+        # - 1 dict for each shadefraction interval
+        final_shadowresults = []
+    except Exception as e:
+        print(f"There is an error at the beginning of dailyshading somewhere for {tile_no}")
 
-        sun = sp.sun_position(time, location)
-        alt[i] = 90. - sun['zenith']
-        azi[i] = sun['azimuth']
-
-        if time['sec'] == 59:  # issue 228 and 256
-            time['sec'] = 0
-            time['min'] = time['min'] + 1
-            if time['min'] == 60:
-                time['min'] = 0
-                time['hour'] = time['hour'] + 1
-                if time['hour'] == 24:
-                    time['hour'] = 0
-
-        time_vector = dt.datetime(year, month, day, time['hour'], time['min'], time['sec'])
-        timestr = time_vector.strftime("%Y%m%d_%H%M")
-
-        if alt[i] > 0:
-            if wallshadow == 1:  # Include wall shadows (Issue #121)
-                if usevegdem == 1:
-                    vegsh, sh, _, wallsh, _, wallshve, _, _ = shadow.shadowingfunction_wallheight_23(dsm, vegdem, vegdem2,
-                                                                                              azi[i], alt[i], scale,
-                                                                                              amaxvalue, bush, walls,
-                                                                                              dirwalls * np.pi / 180.)
-                    sh = sh - (1 - vegsh) * (1 - psi)
-                    if onetime == 0:
-                        filenamewallshve = folder + '/Facadeshadow_fromvegetation_' + timestr + '_LST.tif'
-                        saveraster(gdal_data, filenamewallshve, wallshve)
-                else:
-                    sh, wallsh, _, _, _ = shadow.shadowingfunction_wallheight_13(dsm, azi[i], alt[i], scale,
-                                                                          walls, dirwalls * np.pi / 180.)
-                    # shtot = shtot + sh
-
-                if onetime == 0:
-                    filename = folder + '/Shadow_ground_' + timestr + '_LST.tif'
-                    saveraster(gdal_data, filename, sh)
-                    filenamewallsh = folder + '/Facadeshadow_frombuilding_' + timestr + '_LST.tif'
-                    saveraster(gdal_data, filenamewallsh, wallsh)
-
-
+    try:
+        # TODO: Change this back to 0
+        for i in range(0, itera+1):
+            if onetime == 0:
+                minu = int(timeInterval * i)
+                if minu >= 60:
+                    hour = int(np.floor(minu / 60))
+                    minu = int(minu - hour * 60)
             else:
-                if usevegdem == 0:
-                    sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, 0)
-                    # shtot = shtot + sh
+                minu = tv[4]
+                hour = tv[3]
+
+            print(f"Calculating {hour}:{minu} shadows, at iteration {i}")
+
+            doy = day_of_year(year, month, day)
+
+            ut_time = doy - 1. + ((hour - dst) / 24.0) + (minu / (60. * 24.0)) + (0. / (60. * 60. * 24.0))
+
+            # print(f"UT time is {ut_time}")
+
+            if ut_time < 0:
+                year = year - 1
+                month = 12
+                day = 31
+                doy = day_of_year(year, month, day)
+                ut_time = ut_time + doy - 1
+
+            HHMMSS = dectime_to_timevec(ut_time) # returns in the form (HOURS, MINS, SECS)
+
+            time_dict['year'] = year
+            time_dict['month'] = month
+            time_dict['day'] = day
+            time_dict['hour'] = HHMMSS[0]
+            time_dict['min'] = HHMMSS[1]
+            time_dict['sec'] = HHMMSS[2]
+
+            print(f"This is the dictionary used for time {time_dict}")
+
+            sun = sp.sun_position(time_dict, location)
+            alt[i] = 90. - sun['zenith']
+            azi[i] = sun['azimuth']
+
+            if time_dict['sec'] == 59:  # issue 228 and 256
+                time_dict['sec'] = 0
+                time_dict['min'] = time_dict['min'] + 1
+                if time_dict['min'] == 60:
+                    time_dict['min'] = 0
+                    time_dict['hour'] = time_dict['hour'] + 1
+                    if time_dict['hour'] == 24:
+                        time_dict['hour'] = 0
+
+            time_vector = dt.datetime(year, month, day, time_dict['hour'], time_dict['min'], time_dict['sec'])
+            timestr = time_vector.strftime("%Y%m%d_%H%M")
+
+            if alt[i] > 0:
+                check_path = folder + tile_no + '_Shadow_' + timestr + '_LST.tif'
+                if os.path.exists(check_path):
+                    print(f"Skipping calculation. Using existing shadow file: {check_path}")
+
+                    # Read existing shadow data
+                    with rasterio.open(check_path) as src:
+                        sh = src.read(1)  # Read the first (and only) band
+
+                    # Add to total shadow calculation
+                    shtot = shtot + sh
+                    index += 1  # Increment the index as if we calculated it
+
+                    continue  # Skip the calculation step and move to the next iteration
+
+                print(f"I am about to calculate shadows for this time {time_vector}, there is sun")
+                if wallshadow == 1:  # Include wall shadows (Issue #121)
+                    if usevegdem == 1:
+                        vegsh, sh, _, wallsh, _, wallshve, _, _ = shadow.shadowingfunction_wallheight_23(dsm, vegdem, vegdem2,
+                                                                                                azi[i], alt[i], scale,
+                                                                                                amaxvalue, bush, walls,
+                                                                                                dirwalls * np.pi / 180.)
+                        sh = sh - (1 - vegsh) * (1 - psi)
+                        if onetime == 0:
+                            filenamewallshve = folder + '/Facadeshadow_fromvegetation_' + timestr + '_LST.tif'
+                            saveraster(gdal_data, filenamewallshve, wallshve)
+                    else:
+                        sh, wallsh, _, _, _ = shadow.shadowingfunction_wallheight_13(dsm, azi[i], alt[i], scale,
+                                                                            walls, dirwalls * np.pi / 180.)
+                        # shtot = shtot + sh
+
+                    if onetime == 0:
+                        filename = folder + '/Shadow_ground_' + timestr + '_LST.tif'
+                        saveraster(gdal_data, filename, sh)
+                        filenamewallsh = folder + '/Facadeshadow_frombuilding_' + timestr + '_LST.tif'
+                        saveraster(gdal_data, filenamewallsh, wallsh)
+
+
                 else:
-                    # changed to "optimized" function
-                    shadowresult = shadow.shadowingfunction_20(dsm, vegdem, vegdem2, azi[i], alt[i], scale, amaxvalue,
+                    if usevegdem == 0:
+                        sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, 0)
+                        # shtot = shtot + sh
+                    else:
+                        print(f"Calling shadow function for tile {tile_no} at {time_vector}")
+                        # changed to "optimized" function
+                        shadowresult = shadow.shadowingfunction_20(dsm, vegdem, vegdem2, azi[i], alt[i], scale, amaxvalue,
                                                                bush, 0)
 
-                    vegsh = shadowresult["vegsh"]
-                    sh = shadowresult["sh"]
-                    sh = sh - (1 - vegsh) * (1 - psi)
-                # vegshtot = vegshtot + sh
-                # sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, 0)
+                        vegsh = shadowresult["vegsh"]
+                        sh = shadowresult["sh"]
+                        sh = sh - (1 - vegsh) * (1 - psi)
+                        print(f"vegsh is actually computed {sh}")
+                    # vegshtot = vegshtot + sh
+                    # sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, 0)
+                    if onetime == 0:
+                        filename = folder + tile_no + '_Shadow_' + timestr + '_LST.tif'
+                        ## EDITED
+                        saveraster(gdal_data, filename, sh)
 
-                if onetime == 0:
-                    filename = folder + tile_no + '_Shadow_' + timestr + '_LST.tif'
-                    ## EDITED 
-                    saveraster(gdal_data, filename, sh)
+                shtot = shtot + sh
+                index += 1
 
-            shtot = shtot + sh
-            index += 1
+                # Convert hour, min, sec into a time object
+                search_time = time(time_dict['hour'], time_dict['min'], time_dict['sec'])
+                search_time_rounded = round_time_obj(search_time)
 
-    shfinal = shtot / index
+                # Check if any timestamp in the list matches the time
+                if shade_fractions and (onetime==0):
+                    if any(ts.time() == search_time_rounded for ts in shade_fractions):
+                        shfinal = shtot / index
+                        time_vector_rounded = dt.datetime(year, month, day,
+                                    search_time_rounded.hour,
+                                    search_time_rounded.minute,
+                                    search_time_rounded.second)
+                        final_shadowresults.append({'shfinal': shfinal, 'time_vector': time_vector_rounded})
 
-    if wallshadow == 1:
-        if onetime == 1:
-            filenamewallsh = folder + '/Facadeshadow_frombuilding_' + timestr + '_LST.tif'
-            saveraster(gdal_data, filenamewallsh, wallsh)
-            if usevegdem == 1:
-                filenamewallshve = folder + '/Facadeshadow_fromvegetation_' + timestr + '_LST.tif'
-                saveraster(gdal_data, filenamewallshve, wallshve)
+                shfinal = shtot / index
 
-    shadowresult = {'shfinal': shfinal, 'time_vector': time_vector}
+                if wallshadow == 1:
+                    if onetime == 1:
+                        filenamewallsh = folder + '/Facadeshadow_frombuilding_' + timestr + '_LST.tif'
+                        saveraster(gdal_data, filenamewallsh, wallsh)
+                        if usevegdem == 1:
+                            filenamewallshve = folder + '/Facadeshadow_fromvegetation_' + timestr + '_LST.tif'
+                            saveraster(gdal_data, filenamewallshve, wallshve)
+    except Exception as e:
+        print(f"Error at iteration {i}: {e}")
+
+    final_shadowresults.append({'shfinal': shfinal, 'time_vector': time_vector})
 
     # dlg.progressBar.setValue(0)
+    print("These are final shadow results for day ", (tv[0], tv[1], tv[2]), ":", final_shadowresults)
 
-    return shadowresult
+    return final_shadowresults
 
 
 def day_of_year(yy, month, day):
@@ -406,6 +510,30 @@ def day_of_year(yy, month, day):
     return doy
 
 
+def round_time_obj(t):
+    """
+    Rounds a time object to the nearest minute.
+
+    Parameters:
+        t (datetime.time): The time to round.
+
+    Returns:
+        datetime.time: The rounded time.
+    """
+    # Combine the time with an arbitrary date (we use the minimum date)
+    dt_obj = dt.datetime.combine(dt.datetime.min, t)
+
+    # If seconds are 30 or more, add one minute to round up
+    if dt_obj.second >= 30:
+        dt_obj += dt.timedelta(minutes=1)
+
+    # Reset seconds and microseconds to zero
+    dt_obj = dt_obj.replace(second=0, microsecond=0)
+
+    # Return just the time component
+    return dt_obj.time()
+
+
 def dectime_to_timevec(dectime):
     # This subroutine converts dectime to individual hours, minutes and seconds
 
@@ -424,18 +552,31 @@ def dectime_to_timevec(dectime):
 
 
 def saveraster(gdal_data, filename, raster):
+    from osgeo.gdal import GDT_Float32
+
     rows = gdal_data.RasterYSize
     cols = gdal_data.RasterXSize
+    driver = gdal.GetDriverByName("GTiff")
 
-    outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
+    # ✅ Fix: Import `GDT_Float32` from GDAL
+    from osgeo.gdal import GDT_Float32
+
+    # ✅ Create the output raster file
+    outDs = driver.Create(filename, cols, rows, 1, GDT_Float32)
     outBand = outDs.GetRasterBand(1)
 
-    # write the data
+    # ✅ Write raster data
     outBand.WriteArray(raster, 0, 0)
-    # flush data to disk, set the NoData value and calculate stats
-    outBand.FlushCache()
+
+    # ✅ Set NoData value
     outBand.SetNoDataValue(-9999)
 
-    # georeference the image and set the projection
+    # ✅ Flush cache (ensures data is written to disk)
+    outBand.FlushCache()
+
+    # ✅ Set georeferencing (projection & transform)
     outDs.SetGeoTransform(gdal_data.GetGeoTransform())
     outDs.SetProjection(gdal_data.GetProjection())
+
+    # ✅ Fix: Close dataset properly to save changes!
+    outDs = None  # 🚀 Crucial step!

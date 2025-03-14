@@ -22,7 +22,7 @@ def tree_segment_main(osmid, sam_checkpoint, base_path):
     model = main.deepforest()
     model.use_release()
 
-    for tile_no in no_of_tiles:
+    for tile_no in range(no_of_tiles):
         # get the rgb raster for the tile number
         rgb_file = [f for f in os.listdir(folder_path) if ('rgb' in f.lower()) & (f"p_{tile_no}_" in f.lower())]
 
@@ -87,3 +87,8 @@ def tree_segment_main(osmid, sam_checkpoint, base_path):
                 transform=transform,
         ) as dst:
             dst.write(final_mask, 1)
+
+sam_checkpoint = "C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/sam/sam_vit_h_4b8939.pth"
+base_path = "C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/"
+
+tree_segment_main('d48092b5', sam_checkpoint, base_path)
