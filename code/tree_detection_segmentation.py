@@ -11,16 +11,17 @@ import torch
 import matplotlib.pyplot as plt
 
 # Limit threads to 32
-os.environ["OMP_NUM_THREADS"] = "32"
-os.environ["MKL_NUM_THREADS"] = "32"
-os.environ["NUMEXPR_NUM_THREADS"] = "32"
-torch.set_num_threads(32)
-cv2.setNumThreads(32)
+os.environ["OMP_NUM_THREADS"] = "16"
+os.environ["MKL_NUM_THREADS"] = "16"
+os.environ["NUMEXPR_NUM_THREADS"] = "16"
+torch.set_num_threads(16)
+cv2.setNumThreads(16)
 
 def process_raster_files(osmid, raster_dir, output_dir, sam_checkpoint):
     # Load the DeepForest model
     model = main.deepforest()
     model.use_release()
+    # model.config["workers"] = 8  # Adjust this based on your system
 
     # Get a list of all raster files in the directory
     raster_files = glob.glob(os.path.join(raster_dir, '*rgb.tif'))
