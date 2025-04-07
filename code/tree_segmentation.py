@@ -91,4 +91,4 @@ def tree_segment_main(osmid, sam_checkpoint, base_path):
 sam_checkpoint = "C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/sam/sam_vit_h_4b8939.pth"
 base_path = "C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/"
 
-tree_segment_main('d48092b5', sam_checkpoint, base_path)
+tree_segment_main('9fdfc3b9', sam_checkpoint, base_path)

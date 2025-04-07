@@ -17,7 +17,7 @@ except Exception as e:
 
 ### Shade calculation setup
 def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/', date=dt.datetime.now(),
-                           intervalTime=30, final_stamp=None, shade_fractions=False, onetime=1, filepath_save='None', UTC=0, dst=1, useveg=0, trunkheight=25,
+                           intervalTime=30, final_stamp=None, start_time=None, shade_fractions=False, onetime=1, filepath_save='None', UTC=0, dst=1, useveg=0, trunkheight=25,
                            transmissivity=20):
     '''Calculates spot, hourly and or daily shading for a DSM
     Needs:
@@ -209,7 +209,7 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
 
             # shadow result is a list of dictionaries for each shadowfraction interval
             shadowresult = dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem,
-                                        intervalTime, final_stamp, shade_fractions, onetime, filepath_save, gdal_dsm, trans,
+                                        intervalTime, final_stamp, start_time, shade_fractions, onetime, filepath_save, gdal_dsm, trans,
                                         dst, wallsh, wheight, waspect, tile_no)
 
             print("Shadow result was returned: ", shadowresult, " for date: ", date)
@@ -270,12 +270,11 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
 
 
 ############## DAILYSHADING ################
-def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem, timeInterval, final_stamp, shade_fractions, onetime, folder,
-                 gdal_data, trans, dst, wallshadow, wheight, waspect, tile_no):
+def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem, timeInterval, final_stamp, start_time,
+                 shade_fractions, onetime, folder, gdal_data, trans, dst, wallshadow, wheight, waspect, tile_no):
     # lon = lonlat[0]
     # lat = lonlat[1]
     try:
-
         if final_stamp is None:
             final_stamp = dt.time(23, 59)
 
@@ -310,9 +309,13 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
         if onetime == 1:
             itera = 1
         else:
-            # Compute total intervals up to final_interval
-            total_minutes = final_stamp.hour * 60 + final_stamp.minute
-            itera = total_minutes // timeInterval  # Compute intervals from 00:00 to final time
+            print(type(final_stamp))
+            print(type(start_time))
+            # Total time difference in minutes between start_time and final_stamp
+            time_diff = (final_stamp - start_time).total_seconds() / 60.0
+
+            # Number of intervals of length `timeInterval` minutes
+            itera = int(time_diff // timeInterval)
 
             print(f"Shading will be calculated from 00:00 to {final_stamp.strftime('%H:%M')} in {itera} intervals")
 
@@ -336,16 +339,20 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
         # - 1 dict for each shadefraction interval
         final_shadowresults = []
     except Exception as e:
-        print(f"There is an error at the beginning of dailyshading somewhere for {tile_no}")
+        print(f"There is an error at the beginning of dailyshading somewhere for {tile_no}, {e}")
 
     try:
-        # TODO: Change this back to 0
-        for i in range(0, itera+1):
+        # TODO: change this to adapt to start time
+        for i in range(0, itera + 1):
             if onetime == 0:
-                minu = int(timeInterval * i)
-                if minu >= 60:
-                    hour = int(np.floor(minu / 60))
-                    minu = int(minu - hour * 60)
+                # Calculate current time
+                delta_minutes = int(timeInterval * i)
+                c_time = start_time + pd.to_timedelta(delta_minutes, unit="m")
+
+                # Extract hour and minute from c_time
+                hour = c_time.hour
+                minu = c_time.minute
+
             else:
                 minu = tv[4]
                 hour = tv[3]
@@ -404,6 +411,25 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
                     # Add to total shadow calculation
                     shtot = shtot + sh
                     index += 1  # Increment the index as if we calculated it
+
+                    # Convert hour, min, sec into a time object
+                    search_time = time(time_dict['hour'], time_dict['min'], time_dict['sec'])
+                    search_time_rounded = round_time_obj(search_time)
+                    time_vector_rounded = dt.datetime(year, month, day,
+                                        search_time_rounded.hour,
+                                        search_time_rounded.minute,
+                                        search_time_rounded.second)
+
+                    if i == itera: # on the last file
+                        shfinal = shtot / index
+                        final_shadowresults.append({'shfinal': shfinal, 'time_vector': time_vector})
+                        return final_shadowresults
+
+                    # Check if any timestamp in the list matches the time
+                    if shade_fractions and (onetime==0):
+                        if any(ts.time() == search_time_rounded for ts in shade_fractions):
+                            shfinal = shtot / index
+                            final_shadowresults.append({'shfinal': shfinal, 'time_vector': time_vector_rounded})
 
                     continue  # Skip the calculation step and move to the next iteration
 
