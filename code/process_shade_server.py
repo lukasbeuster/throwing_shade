@@ -29,7 +29,7 @@ from scipy.ndimage import uniform_filter
 from scipy.ndimage import gaussian_filter
 from scipy.ndimage import minimum_filter
 
-import startinpy
+# import startinpy
 
 import concurrent.futures
 
@@ -1889,3 +1889,61 @@ def filter_intervals(intervals, building_shadow_files_exist, tree_shadow_files_e
         tree_intervals_needed = False
 
     return building_intervals_needed, tree_intervals_needed
+
+dataset = pd.read_csv("../data/AirView_Hamburg_Measurements_filtered_dates.csv")
+dataset['ID'] = dataset.index
+
+## INPUTS: Edit the following variables
+dataset_path = "../data/AirView_Hamburg_Measurements_filtered_dates.csv"
+latitude_column = "latitude"
+longitude_column = "longitude"
+# the timestamp column should be able to work with pd.to_datetime() format
+timestamp_column_name = "gps_timestamp"
+unique_ID_column = "ID"
+osmid = 'd48092b5'
+
+# input shade parameters: don't change dst, only change the utc for
+# summer being daylight savings (e.g. March - Oct)
+# time and winter as the rest
+# 'trs' is tree transmissivity, average values for winter (defoliated) is 45% and
+# summer is around 10%
+summer_params = {'utc':2, 'dst':0, 'trs':10}
+winter_params = {'utc':1, 'dst':0, 'trs':45}
+
+# input the date daylight savings start and ends (for now we can only process
+# 1 year at a time) in the format year, month, date
+dst_start = datetime(2022, 3, 27)
+dst_end = datetime(2022, 10, 30)
+
+# input solstice day for binning
+solstice_day = pd.to_datetime("2022-06-21")
+
+# input desired shade calculation interval
+sh_int = 30
+
+# Simulate for building and/or combined shade
+building_sh = False
+combined_sh = True
+
+# input which parameters you want in the output:
+parameters = {
+            'building_shade_step': False,
+            'tree_shade_step': True,
+            'bldg_shadow_fraction': False,
+            'tree_shadow_fraction': True,
+            'hours_before': [1,2,4]
+        }
+
+base_path = "../throwing_shade/"
+# input save path for the final dataset with shade values
+output_path = "../results/output/d48092b5"
+
+# directory for dsm data
+raster_dir = f'../data/clean_data/solar/{osmid}'
+
+dataset_final = main(dataset, osmid, unique_ID_column, raster_dir, solstice_day,
+         longitude_column, latitude_column, timestamp_column_name, dst_start, dst_end,
+         output_path, summer_params, winter_params,
+         combined_sh=combined_sh, building_sh=False, interval=30,
+         geometry=False, crs="EPSG:4326", simulate_solstice=True, bin_size=7,
+         parameters=parameters)

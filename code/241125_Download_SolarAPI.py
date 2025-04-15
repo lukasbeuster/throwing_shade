@@ -145,42 +145,6 @@ def download_building_footprints(gdf, osm_id, save_path):
     except Exception as e:
         print(f"Error in download_building_footprints: {e}")
 
-# def download_building_footprints(gdf, osm_id, save_path):
-#     """
-#     Download building footprints for the geometries in the GeoDataFrame if not already saved.
-#     """
-#     # Check if the file already exists
-#     if os.path.exists(save_path):
-#         print(f"Buildings already downloaded and saved at: {save_path}")
-#         return
-
-#     all_buildings = gpd.GeoDataFrame()  # Initialize an empty GeoDataFrame to hold all building footprints
-#     tags = {"building": True}
-
-#     print(len(gdf))
-
-#     # Iterate over each polygon in the GeoDataFrame
-#     for polygon in gdf.geometry:
-#         if polygon.is_valid and isinstance(polygon, (Polygon, MultiPolygon)):
-#             try:
-#                 # Download building footprints for the current polygon
-#                 buildings = ox.features_from_polygon(polygon, tags)
-#                 print(buildings)
-#                 # Convert lists in the GeoDataFrame to strings for saving
-#                 buildings = buildings.apply(convert_lists_to_strings, axis=0)
-#                 all_buildings = gpd.GeoDataFrame(pd.concat([all_buildings, buildings], ignore_index=True))
-#             except Exception as e:
-#                 print(f"Error processing polygon: {e}")
-
-#     # Save the combined building footprints if any buildings were found
-#     if not all_buildings.empty:
-#         if not os.path.exists(os.path.dirname(save_path)):
-#             os.makedirs(os.path.dirname(save_path))
-#         all_buildings.to_file(save_path, driver='GPKG')
-#         print(f"Success: Downloaded and saved {all_buildings.shape[0]} buildings.")
-#     else:
-#         print("No buildings found for the specified area.")
-
 def main(place, spacing):
     try:
         # Geocode the place and get OSM data

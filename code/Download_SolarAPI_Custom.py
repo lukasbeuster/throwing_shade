@@ -16,7 +16,7 @@ import hashlib
 from IPython.display import display
 import math
 
-def solarAPI_main(dataset, latitude_column, longitude_column, solar_coverage_medium, solar_coverage_high):
+def solarAPI_main(dataset, latitude_column, longitude_column, solar_coverage_medium, solar_coverage_high, geometry=False):
     """
     Processes geographic data and interacts with SolarAPI to obtain solar potential information
     for a given set of points.
@@ -45,9 +45,11 @@ def solarAPI_main(dataset, latitude_column, longitude_column, solar_coverage_med
         None: The function primarily performs data processing, saves outputs,
         and interacts with external APIs.
     """
-
-    geometry = [Point(xy) for xy in zip(dataset[longitude_column], dataset[latitude_column])]
-    points_dataset = gpd.GeoDataFrame(dataset, geometry=geometry, crs="EPSG:4326")
+    if geometry:
+        points_dataset = gpd.GeoDataFrame(dataset, geometry=geometry, crs="EPSG:4326")
+    else:
+        geometry = [Point(xy) for xy in zip(dataset[longitude_column], dataset[latitude_column])]
+        points_dataset = gpd.GeoDataFrame(dataset, geometry=geometry, crs="EPSG:4326")
 
     # Assuming gdf is your GeoDataFrame in EPSG:4326
     points_dataset = points_dataset.to_crs("EPSG:32632")
@@ -78,7 +80,7 @@ def solarAPI_main(dataset, latitude_column, longitude_column, solar_coverage_med
     centroid_gdf.set_geometry("geometry", inplace=True)
 
     osm_id = generate_osm_id(hull.bounds)
-    print(f"Generated OSM ID for custom bounding box: {osm_id}")
+    print(f"Generated OSM ID for dataset: {osm_id}")
 
     centroid_gdf = centroid_gdf.reset_index()
     centroid_gdf = centroid_gdf.drop(['index'], axis=1)
@@ -109,7 +111,6 @@ def solarAPI_main(dataset, latitude_column, longitude_column, solar_coverage_med
         print("The geometry for the region is empty or invalid.")
 
     all_buildings = download_building_footprints(gdf, osm_id, save_path)
-    all_buildings_filtered = all_buildings[all_buildings.geom_type != "Point"]
 
     # Load SolarAPIMediumArea and SolarAPIHighArea
     solar_coverage_medium = gpd.read_file(solar_coverage_medium)
@@ -134,20 +135,16 @@ def solarAPI_main(dataset, latitude_column, longitude_column, solar_coverage_med
 
     # Check if all points are valid
     all_points_valid = valid_points.all()
-    print(f"All points within SolarAPI coverage: {all_points_valid}")
+    if all_points_valid:
+        print(f"All points within SolarAPI coverage: {all_points_valid}")
+    else:
+        raise Exception("Not all points are within SolarAPI coverage")
 
     # Call Google API for additional data
     api_response = download_google_api_data(centroid_gdf, osm_id)
     print("Solar API download completed")
 
     return osm_id
-
-def create_bounding_box_gdf(minx, miny, maxx, maxy, crs="EPSG:4326"):
-    """Create a GeoDataFrame with a bounding box polygon."""
-    bbox_polygon = box(minx, miny, maxx, maxy)  # Create a rectangle
-    bbox_gdf = gpd.GeoDataFrame({'geometry': [bbox_polygon]}, crs=crs)
-    print("Created bounding box")
-    return bbox_gdf
 
 def generate_osm_id(bounds):
     """
@@ -157,72 +154,6 @@ def generate_osm_id(bounds):
     bbox_str = f"{minx}_{miny}_{maxx}_{maxy}"
     return hashlib.md5(bbox_str.encode()).hexdigest()[:8]  # Generate an 8-character hash
 
-def lat_lon_to_utm_epsg(min_x, min_y, max_x, max_y):
-    """Convert latitude and longitude coordinates to the corresponding UTM projection CRS."""
-    utm_crs_list = query_utm_crs_info(
-        datum_name="WGS 84",
-        area_of_interest=AreaOfInterest(
-            west_lon_degree=min_x,
-            south_lat_degree=min_y,
-            east_lon_degree=max_x,
-            north_lat_degree=max_y,
-        ),
-    )
-    return CRS.from_epsg(utm_crs_list[0].code)
-
-def generate_points_within_polygon(polygon, spacing, min_distance_boundary=None):
-    """
-    Generate points within a polygon with a specified spacing. Optionally filter points
-    that are too close to a boundary defined by another geometry.
-    """
-    min_x, min_y, max_x, max_y = polygon.bounds
-    x_coords = np.arange(min_x, max_x, spacing)
-    y_coords = np.arange(min_y, max_y, spacing)
-
-    points = [
-        Point(x, y)
-        for x in x_coords
-        for y in y_coords
-        if polygon.contains(Point(x, y))
-    ]
-
-    if min_distance_boundary is not None:
-        boundary_buffer = min_distance_boundary.buffer(-spacing)
-        points = [point for point in points if boundary_buffer.contains(point)]
-
-    return points
-
-def create_points_geodataframe(gdf, spacing, boundary=None):
-    """
-    Create a GeoDataFrame of points generated within geometries of an input GeoDataFrame.
-    Optionally exclude points too close to a boundary defined by another GeoDataFrame.
-    """
-    all_points, point_ids, osm_ids = [], [], []
-    point_id_counter = 1
-
-    for _, row in gdf.iterrows():
-        geom = row.geometry
-        osm_id = row.osm_id
-
-        if geom.geom_type == 'Polygon':
-            points = generate_points_within_polygon(geom, spacing, boundary)
-        elif geom.geom_type == 'MultiPolygon':
-            points = [
-                pt for poly in geom.geoms
-                for pt in generate_points_within_polygon(poly, spacing, boundary)
-            ]
-        else:
-            continue
-
-        all_points.extend(points)
-        point_ids.extend([f"p_{point_id_counter + i}" for i in range(len(points))])
-        osm_ids.extend([osm_id] * len(points))
-        point_id_counter += len(points)
-
-    print("Creating points within geometry")
-
-    return gpd.GeoDataFrame({'geometry': all_points, 'id': point_ids, 'osm_id': osm_ids}, crs=gdf.crs)
-
 def save_points(points_gdf, osm_id):
     """Save points GeoDataFrame to a GeoPackage."""
     save_dir = f'../data/clean_data/solar/{osm_id}'
@@ -231,16 +162,6 @@ def save_points(points_gdf, osm_id):
     save_path = os.path.join(save_dir, f'{osm_id}_query_points.gpkg')
     points_gdf.to_file(save_path, driver='GPKG')
     print(f"Points saved to: {save_path}")
-
-def convert_lists_to_strings(column):
-    """
-    Convert list elements in a column to comma-separated strings for saving in GeoPackage.
-    """
-    if column.dtype == 'object' and column.apply(lambda x: isinstance(x, list)).any():
-        return column.apply(lambda x: ','.join(map(str, x)) if isinstance(x, list) else x)
-    else:
-        return column
-
 
 def download_building_footprints(gdf, osm_id, save_path):
     """
@@ -294,29 +215,6 @@ def download_building_footprints(gdf, osm_id, save_path):
     except Exception as e:
         print(f"Error in download_building_footprints: {e}")
 
-def dissolve_to_singlepolygon(geometries, crs="EPSG:32632"):
-    """
-    Dissolve a collection of geometries into a GeoDataFrame containing individual polygon features.
-
-    Parameters:
-        geometries (GeoSeries or iterable of shapely geometries):
-            The input geometries to be dissolved.
-        crs (str, optional):
-            The coordinate reference system for the output GeoDataFrame.
-            Default is "EPSG:32632".
-    Returns:
-        GeoDataFrame:
-            A GeoDataFrame where the 'geometry' column contains one or more Polygon features
-            resulting from the dissolution of the input geometries, with the specified CRS.
-    """
-    dissolved = unary_union(geometries)
-    # If dissolved is a MultiPolygon, split it into separate polygons:
-    if dissolved.geom_type == "MultiPolygon":
-        final_geo = list(dissolved.geoms)
-    else:
-        final_geo = [dissolved]
-    return gpd.GeoDataFrame(geometry=final_geo, crs=crs)
-
 def download_google_api_data(points_gdf, osm_id):
     """
     Request data from the Google API using the given parameters.
@@ -362,19 +260,17 @@ def download_google_api_data(points_gdf, osm_id):
 
 def adaptive_grid_from_convex_hull(points_dataset, cell_size=950, buffer_distance=50):
     """
-    Create a grid of non-overlapping cells that minimally covers the points
-
-    Instead of using the axis-aligned bounding box, this function computes
-    the convex hull of the points, buffers it by buffer_distance, and then generates a grid
-    covering the hull's bounding box. Finally, only cells that intersect the buffered hull are kept.
+    Generate a grid of square cells that adaptively cover a buffered convex hull around a set of points.
 
     Parameters:
-        cluster_gdf (GeoDataFrame): GeoDataFrame containing the points of a cluster (in a projected CRS).
-        cell_size (float): Desired side length of each grid cell (in meters), e.g., 950.
-        buffer_distance (float): Distance to buffer the convex hull (in meters), e.g., 50.
+        points_dataset (GeoDataFrame): A GeoDataFrame of point geometries in a projected CRS.
+        cell_size (float): The width and height of each square cell in meters. Default is 950.
+        buffer_distance (float): Distance (in meters) to expand the convex hull. Default is 50.
 
     Returns:
-        grid_gdf (GeoDataFrame): GeoDataFrame of grid cells (non-overlapping) that cover the buffered convex hull.
+        tuple:
+            - buffered_hull (shapely.geometry.Polygon): The convex hull of the points expanded by the buffer distance.
+            - grid_gdf (GeoDataFrame): A GeoDataFrame of square grid cells that intersect the buffered hull.
     """
     convex_hull = points_dataset.unary_union.convex_hull
 
@@ -389,15 +285,31 @@ def adaptive_grid_from_convex_hull(points_dataset, cell_size=950, buffer_distanc
     n_rows = math.ceil((maxy - miny) / cell_size)
 
     cells = []
-    for i in range(n_cols):
-        for j in range(n_rows):
-            # Create a cell that is exactly cell_size x cell_size.
-            cell = box(minx + i * cell_size, miny + j * cell_size,
-                    minx + (i + 1) * cell_size, miny + (j + 1) * cell_size)
-            # Only include the cell if it intersects the buffered hull.
-            if cell.intersects(buffered_hull):
-                cells.append(cell)
+
+    # Special case: only one cell needed in either direction
+    if n_cols == 1 and n_rows == 1:
+        centroid = buffered_hull.centroid
+        center_x, center_y = centroid.x, centroid.y
+
+        cell = box(
+            center_x - cell_size / 2, center_y - cell_size / 2,
+            center_x + cell_size / 2, center_y + cell_size / 2
+        )
+
+        if cell.intersects(buffered_hull):
+            cells.append(cell)
+    else:
+        for i in range(n_cols):
+            for j in range(n_rows):
+                # Create a cell that is exactly cell_size x cell_size.
+                cell = box(minx + i * cell_size, miny + j * cell_size,
+                           minx + (i + 1) * cell_size, miny + (j + 1) * cell_size)
+
+                # Only include the cell if it intersects the buffered hull.
+                if cell.intersects(buffered_hull):
+                    cells.append(cell)
 
     # Create a GeoDataFrame for these cells.
     grid_gdf = gpd.GeoDataFrame(geometry=cells, crs=points_dataset.crs)
+
     return buffered_hull, grid_gdf
