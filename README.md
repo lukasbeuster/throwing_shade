@@ -145,11 +145,9 @@ Simulates the impact of **building** and/or **tree** shade at all GPS points and
 - Main: `process_shade.py`
 - Subs: `shade_setup.py`, `shadowingfunctions.py`, `sun_position.py`
 
----
+### ⚠️ Caveats
 
-> 🚫 **IGNORE**: `archive/`, `analysis/` folders – for experiments only
-
----
+- **DON'T** change the 'dst' (daylight savings) parameter from 0, instead change the UTC input for daylight savings period
 
 ## Folder Structure
 
