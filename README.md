@@ -148,6 +148,7 @@ Simulates the impact of **building** and/or **tree** shade at all GPS points and
 ### ⚠️ Caveats
 
 - **DON'T** change the 'dst' (daylight savings) parameter from 0, instead change the UTC input for daylight savings period
+- Be very careful about what UTC your dataset is in, mistakes with this might cause simulations to be off by hours
 
 ## Folder Structure
 
