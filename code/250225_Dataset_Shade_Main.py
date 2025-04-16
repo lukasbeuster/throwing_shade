@@ -7,13 +7,13 @@ from process_shade import main
 
 # === 1. Required Input Files ===
 # Path to the input dataset (must be a GeoJSON or shapefile with latitude & longitude columns)
-dataset_path = "C:/Users/xx/path/to/input_dataset.geojson"
+dataset_path = "xx"
 
 # Column names in your dataset
 latitude_column = "latitude"
 longitude_column = "longitude"
-timestamp_column_name = "timestamp"  # Format must be compatible with `pd.to_datetime()`
-unique_ID_column = "trajectory_id"   # A column that uniquely identifies each row or trace
+timestamp_column_name = "TIME"  # Format must be compatible with `pd.to_datetime()`
+unique_ID_column = "ID"   # A column that uniquely identifies each row or trace
 
 # Solar API coverage shapefiles (already downloaded locally)
 solar_coverage_medium = "C:/Users/xx/solar-api-coverage/SolarAPIMediumArea.shp"
@@ -23,7 +23,7 @@ solar_coverage_high = "C:/Users/xx/solar-api-coverage/SolarAPIHighArea.shp"
 sam_checkpoint = "C:/Users/xx/throwing_shade/data/clean_data/solar/sam/sam_vit_h_4b8939.pth"
 
 # Base directory for DSM and output folders
-base_path = "C:/Users/xx/throwing_shade/"
+base_path = "xx/throwing_shade"
 
 # Path to save final output
 output_path = "C:/Users/xx/throwing_shade/output/final_with_shade.geojson"
@@ -31,8 +31,9 @@ output_path = "C:/Users/xx/throwing_shade/output/final_with_shade.geojson"
 # === 2. Shade Simulation Parameters ===
 
 # Tree transmissivity & UTC offset for summer (DST) and winter (non-DST)
-summer_params = {'utc': 2, 'dst': 0, 'trs': 10}
-winter_params = {'utc': 1, 'dst': 0, 'trs': 45}
+# DON'T CHANGE DST HERE: only change the UTC for your dataset
+summer_params = {'utc': 1, 'dst': 0, 'trs': 10}
+winter_params = {'utc': 0, 'dst': 0, 'trs': 45}
 
 # DST start and end dates (adjust per year)
 dst_start = datetime(2022, 3, 27)
@@ -59,7 +60,7 @@ parameters = {
 
 # === 3. Run Pipeline ===
 
-dataset = gpd.read_file(dataset_path)
+# dataset = gpd.read_file(dataset_path)
 
 # 1. Download Solar API data (requires solar shapefiles and lat/lon)
 osmid = solarAPI_main(
@@ -100,4 +101,3 @@ dataset_final = main(
     bin_size=0,
     parameters=parameters
 )
-
