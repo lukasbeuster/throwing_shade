@@ -17,7 +17,7 @@ from osgeo.gdalconst import *
 import shade_setup as shade
 import numpy as np
 import geopandas as gpd
-from datetime import datetime, date
+from datetime import datetime, date, time
 import pandas as pd
 from shapely.geometry import box
 from shapely.geometry import mapping
@@ -40,7 +40,7 @@ gdal.UseExceptions()
 
 # MAIN
 
-def main(dataset_path, osmid, unique_ID_column, raster_dir, solstice_day,
+def main(dataset, osmid, unique_ID_column, raster_dir, solstice_day,
          longitude_column, latitude_column, timestamp_column_name, dst_start, dst_end,
          output_path, summer_params, winter_params,
          combined_sh=False, building_sh=False, interval=30,
@@ -52,7 +52,7 @@ def main(dataset_path, osmid, unique_ID_column, raster_dir, solstice_day,
     exports the final dataset as a GeoJSON file.
 
     Parameters:
-        dataset_path (str): Path to the input GeoJSON or shapefile dataset.
+        dataset (str): Path to the input GeoJSON or shapefile dataset.
         osmid (str): OSM ID used to locate raster directories and output structure.
         unique_ID_column (str): Column name used to group data during final aggregation.
         raster_dir (str): Directory path containing processed DSM raster files.
@@ -91,7 +91,7 @@ def main(dataset_path, osmid, unique_ID_column, raster_dir, solstice_day,
     main_raster(osmid, raster_dir)
 
     dataset_gdf, tile_grouped_days, original_dataset = load_and_preprocess_dataset(
-        dataset_path, osmid, solstice_day, longitude_column, latitude_column, timestamp_column_name,
+        dataset, osmid, solstice_day, longitude_column, latitude_column, timestamp_column_name,
         dst_start, dst_end, interval, geometry, crs, simulate_solstice, bin_size
     )
 
@@ -106,7 +106,7 @@ def main(dataset_path, osmid, unique_ID_column, raster_dir, solstice_day,
 
 # MAIN HELPERS
 
-def load_and_preprocess_dataset(dataset_path, osmid, solstice_day,
+def load_and_preprocess_dataset(dataset, osmid, solstice_day,
                                 lon_col, lat_col, ts_col, dst_start, dst_end,
                                 interval, geometry, crs, simulate_solstice, bin_size):
     """
@@ -134,7 +134,6 @@ def load_and_preprocess_dataset(dataset_path, osmid, solstice_day,
             - dict: Mapping of tiles to binned timestamps for shade simulation.
             - GeoDataFrame: Original unmodified dataset for merging at the end.
     """
-    dataset = gpd.read_file(dataset_path)
     dataset_copy = dataset.copy()
     dataset_gdf, tile_grouped_days = process_dataset(
         dataset_copy, solstice_day,
@@ -282,7 +281,6 @@ def main_shade(osmid, tile_id, timestamps, date_c, shade_interval=30, inputs={'u
     Raises:
         Exception: If the matched canopy DSM file cannot be identified based on the building DSM filename.
     """
-    print('in main shade')
     # Directory containing the raster files
     processing_dir = f"../data/clean_data/solar/{osmid}/rdy_for_processing/"
     # processing_dir = f'../data/clean_data/solar/{osmid}/rdy_for_processing/'
@@ -302,10 +300,7 @@ def main_shade(osmid, tile_id, timestamps, date_c, shade_interval=30, inputs={'u
         chm_path for chm_path in glob.glob(os.path.join(processing_dir, '*canopy_dsm.tif')) if (f"{tile_id}_" in chm_path)
     ]
 
-    print(f'Found {len(building_file)} building file and {len(canopy_file)} chm file for tile {tile_id}')
-
     identifier = extract_identifier(building_file[0])
-    print("identifier: ", identifier)
 
     if identifier+"_" in canopy_file[0]:
         matched_chm_path = canopy_file[0]
@@ -400,8 +395,6 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, shade_interval, t
     matched_chm_path = matched_chm_path.replace("\\", "/")
     identifier = extract_identifier(bldg_path)
 
-    print(f"This is the building path I am looking at: {bldg_path}, This is the matched canopy path I am looking at: {matched_chm_path}")
-
     # Check if the file exists
     if os.path.isfile(matched_chm_path):
         print(f"The file {matched_chm_path} exists.")
@@ -414,8 +407,6 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, shade_interval, t
     tile_no = identifier
     # tile_no = '/' + identifier
 
-    print("Tile no or identifier:", tile_no)
-
     building_directory = f"../results/output/{osmid}/building_shade/{folder_no}/"
     tree_directory = f"../results/output/{osmid}/tree_shade/{folder_no}/"
 
@@ -425,13 +416,9 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, shade_interval, t
     building_shadow_files_exist = directory_check(building_directory, shadow_check=True, shade_intervals=intervals, date=date)
     tree_shadow_files_exist = directory_check(tree_directory, shadow_check=True, shade_intervals=intervals, date=date)
 
-    print("These are the intervals I need to calculate for: ", intervals)
-    print("These are the building shade directory check for these intervals: ", building_shadow_files_exist)
-
     if intervals:
         # filter to only calculate intervals that don't have a file
         building_intervals_needed, tree_intervals_needed = filter_intervals(intervals, building_shadow_files_exist, tree_shadow_files_exist)
-        print(tree_intervals_needed)
     else:
         building_intervals_needed = False
         tree_intervals_needed = False
@@ -542,7 +529,7 @@ def get_dataset_shaderesult(dataset, osmid, building_shade_step, tree_shade_step
         rounded_ts = rounded_timestamp
 
     # Define paths for shade rasters
-    base_path = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/code/results/output/{osmid}"
+    base_path = f"../code/results/output/{osmid}"
 
     building_shade_path = f"{base_path}/building_shade/{tile_number}/{osmid}_{tile_id}_Shadow_{rounded_ts.strftime('%Y%m%d_%H%M')}_LST.tif"
     tree_shade_path = f"{base_path}/tree_shade/{tile_number}/{osmid}_{tile_id}_Shadow_{rounded_ts.strftime('%Y%m%d_%H%M')}_LST.tif"
@@ -561,11 +548,9 @@ def get_dataset_shaderesult(dataset, osmid, building_shade_step, tree_shade_step
         raise Exception("Couldn't find building mask file to extract shade values")
     else:
         building_mask_path = building_mask_file[0]
-        print(f"this is the building mask: {building_mask_path} for tile number {tile_id}")
 
     # Extract values if the respective shade calculations exist
     if building_shade_step:
-        print("extracting building shade values...")
         result_df["building_shade"] = extract_values_from_raster(building_shade_path, building_mask_path, dataset, buffer)
 
     if tree_shade_step:
@@ -592,12 +577,8 @@ def get_dataset_shaderesult(dataset, osmid, building_shade_step, tree_shade_step
                     dataset, base_path, building_mask_path, "building_shade", rounded_ts, tile_number, osmid, hr_before, buffer
                 )
 
-    print(f"Number of columns in the results_df: {len(result_df.columns)}")
-
     # Merge results back into dataset
     dataset_final = pd.concat([dataset, result_df], axis=1)
-
-    print(f"Number of columns in the dataset_final: {len(dataset_final.columns)}")
 
     return dataset_final
 
@@ -780,7 +761,6 @@ def hours_before_shadow_fr(dataset, base_path, building_mask_path, shade_type, r
         print(f"This shade file for start hour doesn't exist: {shadow_file_path}")
         start_hour_file = get_closest_shade_file(base_path, shade_type, tile_number, osmid, start_hour)
         start_hour = extract_datetime_from_path(start_hour_file)
-        print(f"This is the new start hour: {start_hour}")
         if start_hour >= rounded_timestamp:
             # there are no shade files available
             return np.full(len(dataset), np.nan)
@@ -1007,7 +987,6 @@ def process_dataset(dataset, solstice_day, processed_raster_dir, longitude_colum
         df_gdf = gpd.GeoDataFrame(dataset, geometry="geometry", crs=crs)
 
     else:
-        print(f"This is the crs of df_gdf {dataset.crs}")
         df_gdf = gpd.GeoDataFrame(dataset, geometry="geometry", crs="EPSG:32631")
 
     print(f"This is the dataset length after making geodataframe: {len(df_gdf)}")
@@ -1213,13 +1192,9 @@ def assign_summer_winter(p_date, dst_start, dst_end):
     Returns:
         int: 1 if the date is during summer (DST), 0 if during winter.
     """
-    print(f"This is the date I am assigning summer and winter: {p_date}")
-    print(f"This is dst start date {dst_start} and this is dst end {dst_end}")
     if dst_start.date() <= p_date < dst_end.date():
-        print(f"I assined 1 for {p_date}")
         return 1  # Summer time
     else:
-        print(f"I assined 0 for {p_date}")
         return 0  # Winter time
 
 def get_interval_stamp(timestamp, interval=30):
@@ -1303,11 +1278,10 @@ def process_raster(path, osmid):
         fixed_path = path.replace("\\", "/")
         last_slash_index = fixed_path.rfind("/")
         file_name = fixed_path[last_slash_index + 1:]
-        print("File name:", file_name)
 
         # Define new file paths based on the osmid
-        file_name_building = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}building_dsm.tif"
-        file_name_trees = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}canopy_dsm.tif"
+        file_name_building = f"../data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}building_dsm.tif"
+        file_name_trees = f"../data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}canopy_dsm.tif"
         # file_name_building = f'../data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}building_dsm.tif'
         # file_name_trees = f'../data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}canopy_dsm.tif'
 
@@ -1350,7 +1324,7 @@ def process_raster(path, osmid):
             print("Making CHM mask")
 
             # New CHM mask path, identified by the OSMID and filename in the new folder
-            chm_mask_folder = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/canopy_masks/{osmid}/"
+            chm_mask_folder = f"../data/clean_data/canopy_masks/{osmid}/"
             # chm_mask_folder = f'../data/clean_data/canopy_masks/{osmid}/'
             chm_mask_file = f'{chm_mask_folder}{file_name[:-7]}rgb_segmented.tif'
 
@@ -1379,7 +1353,7 @@ def process_raster(path, osmid):
 
             # Load corresponding AHN subtiles
             # buildings_path = f'../data/clean_data/solar/{osmid}/{osmid}_buildings.gpkg'
-            buildings_path = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/{osmid}/{osmid}_buildings.gpkg"
+            buildings_path = f"../data/clean_data/solar/{osmid}/{osmid}_buildings.gpkg"
             buildings = gpd.read_file(buildings_path, mask=dsm_bbox_gdf)
 
             # Check if buildings GeoDataFrame is empty
@@ -1394,7 +1368,6 @@ def process_raster(path, osmid):
                 buildings.geometry = buildings.buffer(1.5)
 
                 # Rasterize building polygons (same size as dsm so it works with UMEP)
-                print("Rasterizing building polygons")
                 try:
                     osm_bldg_mask = rasterize(
                         ((mapping(geom), 1) for geom in buildings.geometry),
@@ -1412,8 +1385,6 @@ def process_raster(path, osmid):
 
             dtm_raw = np.where(combined_bldg_tree_mask == 0, dsm_data, np.nan)
 
-            print("Filtering data")
-
             ### Filter the raw data
             ## Apply minimum filter
             filtered_data = apply_minimum_filter(dtm_raw, np.nan, size=50)
@@ -1422,8 +1393,6 @@ def process_raster(path, osmid):
             filtered_data = apply_minimum_filter(filtered_data, np.nan, size=10)
 
             ### Interpolate:
-
-            print("Doing Laplace interpolation")
 
             t = dsm_transform
             pts = []
@@ -1442,11 +1411,6 @@ def process_raster(path, osmid):
             dt.insert(pts, insertionstrategy="BBox")
 
             interpolated = dt.interpolate({"method": "Laplace"}, coords)
-
-            if interpolated.shape != dsm_data.shape:
-                print("Interpolation is fucking it up")
-                print(f"Interpolated shape: {interpolated.shape}")
-                print(f"Initial dsm shape: {dsm_data.shape}")
 
             # Calculate the number of rows and columns
             ncols = int((xmax - xmin) / resolution_x)
@@ -1467,9 +1431,6 @@ def process_raster(path, osmid):
             # Reshape the points array if it's flattened
             if points.ndim == 1:
                 points = points.reshape(-1, 3)
-
-            # In this example, points should be a 2D array with shape (n, 3)
-            print(f"Points shape: {points.shape}")
 
             # Map the points to the raster grid
             for point in points:
@@ -1517,13 +1478,13 @@ def process_raster(path, osmid):
             last_slash_index = path.rfind('/')
             # Extract the part after the last '/' (excluding '/')
             file_name = path[last_slash_index + 1:]
-            file_name_building = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/{osmid}/rdy_for_processing/" + file_name[:-7] + "building_dsm.tif"
-            file_name_trees = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/{osmid}/rdy_for_processing/" + file_name[:-7] + "canopy_dsm.tif"
+            file_name_building = f"../data/clean_data/solar/{osmid}/rdy_for_processing/" + file_name[:-7] + "building_dsm.tif"
+            file_name_trees = f"../data/clean_data/solar/{osmid}/rdy_for_processing/" + file_name[:-7] + "canopy_dsm.tif"
             # file_name_building = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + "building_dsm.tif"
             # file_name_trees = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + "canopy_dsm.tif"
 
             # processing_directory = f'../data/clean_data/solar/{osmid}/rdy_for_processing/'
-            processing_directory = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/{osmid}/rdy_for_processing/"
+            processing_directory = f"../data/clean_data/solar/{osmid}/rdy_for_processing/"
 
             directory_check(directory=processing_directory, shadow_check=False)
 
@@ -1535,9 +1496,6 @@ def process_raster(path, osmid):
 
             crop_and_save_raster(canopy_dsm, dsm_transform, dsm_meta, nodata_value, n,file_name_trees)
             crop_and_save_raster(dsm_buildings, dsm_transform, dsm_meta, nodata_value, n,file_name_building)
-
-            print(f"Original transform: {dsm_transform}")
-            print(f"New transform: {transform}")
 
     except Exception as e:
         print(f"Error processing {path} with OSMID: {osmid}: {e}")
@@ -1552,11 +1510,9 @@ def apply_median_filter(data, nodata_value, size=3, nodata=True):
         # Apply the median filter only to valid data
         filtered_data = data.copy()
         filtered_data[~mask] = median_filter(data[~mask], size=size)
-        print('Filtering: Ignoring Nodata')
     else:
         filtered_data = data.copy()
         filtered_data = median_filter(data, size=size)
-        print('Filtering; Handling nodata')
 
     return filtered_data
 
@@ -1593,18 +1549,15 @@ def apply_minimum_filter(data, nodata_value, size=3, nodata=True):
         # Apply the Gaussian filter only to valid data
         filtered_data = data.copy()
         filtered_data[~mask] = minimum_filter(data[~mask], size=size)
-        print('Filtering: Ignoring Nodata')
     else:
         filtered_data = data.copy()
         filtered_data = minimum_filter(data, size=size)
-        print('Filtering; Handling nodata')
 
 
     return filtered_data
 
 def crop_and_save_raster(raster, transform, meta, nodata, n, out_path):
     # TODO: MAYBE JUST REPLACE THE NAN WITH MIN INSTEAD OF CROPPING?
-    print(f"Before cropping: {raster.shape}")
     # Calculate new top-left corner coordinates
     new_x = transform.c + n * transform.a
     new_y = transform.f + n * transform.e
@@ -1622,8 +1575,6 @@ def crop_and_save_raster(raster, transform, meta, nodata, n, out_path):
     # Fill NaN values with the minimum value
     cropped_data = np.where(np.isnan(cropped_data), min_value, cropped_data)
 
-    print(f"After cropping: {cropped_data.shape}")
-
     # Update the metadata
     meta.update({
         'height': cropped_data.shape[0],
@@ -1636,8 +1587,6 @@ def crop_and_save_raster(raster, transform, meta, nodata, n, out_path):
         dst.write(cropped_data, 1)
         if nodata is not None:
             dst.nodata = nodata
-
-    print(f"Cropped raster saved to {out_path}")
 
 def reproject_raster_to_dsm(src_raster, src_transform, src_crs, dst_crs, dst_transform, dst_shape):
     """
@@ -1812,13 +1761,10 @@ def directory_check(directory, shadow_check=True, shade_intervals=False, date=dt
 
     # Convert date to string format
     timestr = date.strftime("%Y%m%d")
-    print("Timestr used for date: ", timestr)
 
     if shadow_check:
         # Check for files containing 'shadow_fraction_on_' with the given date
         shadow_files = [f for f in os.listdir(directory) if f'shadow_fraction_on_{timestr}' in f]
-
-        print("these are the shadow files: ", shadow_files)
 
         if shadow_files:
             if shade_intervals:
@@ -1893,12 +1839,16 @@ def filter_intervals(intervals, building_shadow_files_exist, tree_shadow_files_e
 dataset = pd.read_csv("../data/AirView_Hamburg_Measurements_filtered_dates.csv")
 dataset['ID'] = dataset.index
 
+# correct to the right time
+dataset['gps_timestamp'] = pd.to_datetime(dataset['gps_timestamp'])
+dataset['gps_timestamp_local'] = dataset['gps_timestamp'].dt.tz_convert('Europe/Berlin')
+
 ## INPUTS: Edit the following variables
-dataset_path = "../data/AirView_Hamburg_Measurements_filtered_dates.csv"
+# dataset_path = "../data/AirView_Hamburg_Measurements_filtered_dates.csv"
 latitude_column = "latitude"
 longitude_column = "longitude"
 # the timestamp column should be able to work with pd.to_datetime() format
-timestamp_column_name = "gps_timestamp"
+timestamp_column_name = 'gps_timestamp_local'
 unique_ID_column = "ID"
 osmid = 'd48092b5'
 

@@ -87,3 +87,7 @@ def tree_segment_main(osmid, sam_checkpoint, base_path):
                 transform=transform,
         ) as dst:
             dst.write(final_mask, 1)
+
+base_path = "C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade"
+sam_checkpoint = "../data/clean_data/solar/sam/sam_vit_h_4b8939.pth"
+tree_segment_main('fff2ea05', sam_checkpoint, base_path)

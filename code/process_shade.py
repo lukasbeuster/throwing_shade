@@ -542,7 +542,7 @@ def get_dataset_shaderesult(dataset, osmid, building_shade_step, tree_shade_step
         rounded_ts = rounded_timestamp
 
     # Define paths for shade rasters
-    base_path = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/code/results/output/{osmid}"
+    base_path = f"../code/results/output/{osmid}"
 
     building_shade_path = f"{base_path}/building_shade/{tile_number}/{osmid}_{tile_id}_Shadow_{rounded_ts.strftime('%Y%m%d_%H%M')}_LST.tif"
     tree_shade_path = f"{base_path}/tree_shade/{tile_number}/{osmid}_{tile_id}_Shadow_{rounded_ts.strftime('%Y%m%d_%H%M')}_LST.tif"
@@ -1306,8 +1306,8 @@ def process_raster(path, osmid):
         print("File name:", file_name)
 
         # Define new file paths based on the osmid
-        file_name_building = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}building_dsm.tif"
-        file_name_trees = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}canopy_dsm.tif"
+        file_name_building = f"../data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}building_dsm.tif"
+        file_name_trees = f"../data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}canopy_dsm.tif"
         # file_name_building = f'../data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}building_dsm.tif'
         # file_name_trees = f'../data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}canopy_dsm.tif'
 
@@ -1350,7 +1350,7 @@ def process_raster(path, osmid):
             print("Making CHM mask")
 
             # New CHM mask path, identified by the OSMID and filename in the new folder
-            chm_mask_folder = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/canopy_masks/{osmid}/"
+            chm_mask_folder = f"../data/clean_data/canopy_masks/{osmid}/"
             # chm_mask_folder = f'../data/clean_data/canopy_masks/{osmid}/'
             chm_mask_file = f'{chm_mask_folder}{file_name[:-7]}rgb_segmented.tif'
 
@@ -1379,7 +1379,7 @@ def process_raster(path, osmid):
 
             # Load corresponding AHN subtiles
             # buildings_path = f'../data/clean_data/solar/{osmid}/{osmid}_buildings.gpkg'
-            buildings_path = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/{osmid}/{osmid}_buildings.gpkg"
+            buildings_path = f"../data/clean_data/solar/{osmid}/{osmid}_buildings.gpkg"
             buildings = gpd.read_file(buildings_path, mask=dsm_bbox_gdf)
 
             # Check if buildings GeoDataFrame is empty
@@ -1517,13 +1517,13 @@ def process_raster(path, osmid):
             last_slash_index = path.rfind('/')
             # Extract the part after the last '/' (excluding '/')
             file_name = path[last_slash_index + 1:]
-            file_name_building = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/{osmid}/rdy_for_processing/" + file_name[:-7] + "building_dsm.tif"
-            file_name_trees = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/{osmid}/rdy_for_processing/" + file_name[:-7] + "canopy_dsm.tif"
+            file_name_building = f"../data/clean_data/solar/{osmid}/rdy_for_processing/" + file_name[:-7] + "building_dsm.tif"
+            file_name_trees = f"../data/clean_data/solar/{osmid}/rdy_for_processing/" + file_name[:-7] + "canopy_dsm.tif"
             # file_name_building = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + "building_dsm.tif"
             # file_name_trees = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + "canopy_dsm.tif"
 
             # processing_directory = f'../data/clean_data/solar/{osmid}/rdy_for_processing/'
-            processing_directory = f"C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/throwing_shade/data/clean_data/solar/{osmid}/rdy_for_processing/"
+            processing_directory = f"../data/clean_data/solar/{osmid}/rdy_for_processing/"
 
             directory_check(directory=processing_directory, shadow_check=False)
 

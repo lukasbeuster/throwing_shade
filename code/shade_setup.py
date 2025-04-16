@@ -30,8 +30,6 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
     dst = defaults to 1, not sure what this does. 1 or 0
     '''
     try:
-        print(date)
-
         gdal_dsm = gdal.Open(filepath_dsm)
         dsm = gdal_dsm.ReadAsArray().astype(float)
 
@@ -212,8 +210,6 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
                                         intervalTime, final_stamp, start_time, shade_fractions, onetime, filepath_save, gdal_dsm, trans,
                                         dst, wallsh, wheight, waspect, tile_no)
 
-            print("Shadow result was returned: ", shadowresult, " for date: ", date)
-
             # TODO: what do we do if this is onetime analysis
             for sh_result in shadowresult:
                 shfinal = sh_result["shfinal"]
@@ -357,8 +353,6 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
                 minu = tv[4]
                 hour = tv[3]
 
-            print(f"Calculating {hour}:{minu} shadows, at iteration {i}")
-
             doy = day_of_year(year, month, day)
 
             ut_time = doy - 1. + ((hour - dst) / 24.0) + (minu / (60. * 24.0)) + (0. / (60. * 60. * 24.0))
@@ -380,8 +374,6 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
             time_dict['hour'] = HHMMSS[0]
             time_dict['min'] = HHMMSS[1]
             time_dict['sec'] = HHMMSS[2]
-
-            print(f"This is the dictionary used for time {time_dict}")
 
             sun = sp.sun_position(time_dict, location)
             alt[i] = 90. - sun['zenith']
@@ -461,7 +453,6 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
                         sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, 0)
                         # shtot = shtot + sh
                     else:
-                        print(f"Calling shadow function for tile {tile_no} at {time_vector}")
                         # changed to "optimized" function
                         shadowresult = shadow.shadowingfunction_20(dsm, vegdem, vegdem2, azi[i], alt[i], scale, amaxvalue,
                                                                bush, 0)
@@ -469,7 +460,6 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
                         vegsh = shadowresult["vegsh"]
                         sh = shadowresult["sh"]
                         sh = sh - (1 - vegsh) * (1 - psi)
-                        print(f"vegsh is actually computed {sh}")
                     # vegshtot = vegshtot + sh
                     # sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, 0)
                     if onetime == 0:
@@ -507,9 +497,6 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
         print(f"Error at iteration {i}: {e}")
 
     final_shadowresults.append({'shfinal': shfinal, 'time_vector': time_vector})
-
-    # dlg.progressBar.setValue(0)
-    print("These are final shadow results for day ", (tv[0], tv[1], tv[2]), ":", final_shadowresults)
 
     return final_shadowresults
 
