@@ -1,12 +1,10 @@
 from deepforest import main
 import cv2
-import geopandas as gpd
 import numpy as np
 import rasterio
 from rasterio.transform import from_origin
 from segment_anything import SamPredictor, sam_model_registry
 import torch
-import matplotlib.pyplot as plt
 import os
 
 def tree_segment_main(osmid, sam_checkpoint, base_path):

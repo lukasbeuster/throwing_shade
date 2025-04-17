@@ -22,8 +22,6 @@ import pandas as pd
 from shapely.geometry import box
 from shapely.geometry import mapping
 
-import matplotlib.pyplot as plt
-
 from scipy.ndimage import median_filter
 from scipy.ndimage import uniform_filter
 from scipy.ndimage import gaussian_filter
@@ -93,19 +91,19 @@ def main(dataset_path, osmid, unique_ID_column, raster_dir, solstice_day,
     except Exception as e:
         print(f"{e}: Failing in raster creation")
 
-    # dataset_gdf, tile_grouped_days, original_dataset = load_and_preprocess_dataset(
-    #     dataset_path, osmid, solstice_day, longitude_column, latitude_column, timestamp_column_name,
-    #     dst_start, dst_end, interval, geometry, crs, simulate_solstice, bin_size
-    # )
+    dataset_gdf, tile_grouped_days, original_dataset = load_and_preprocess_dataset(
+        dataset_path, osmid, solstice_day, longitude_column, latitude_column, timestamp_column_name,
+        dst_start, dst_end, interval, geometry, crs, simulate_solstice, bin_size
+    )
 
-    # run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, solstice_day, summer_params, winter_params, combined_sh, building_sh, interval)
+    run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, solstice_day, summer_params, winter_params, combined_sh, building_sh, interval)
 
-    # dataset_with_shade = extract_and_merge_shade_values(dataset_gdf, osmid, parameters)
+    dataset_with_shade = extract_and_merge_shade_values(dataset_gdf, osmid, parameters)
 
-    # dataset_final = aggregate_results(dataset_with_shade, original_dataset, unique_ID_column, parameters)
+    dataset_final = aggregate_results(dataset_with_shade, original_dataset, unique_ID_column, parameters)
 
-    # dataset_final.to_file(output_path, driver="GeoJSON")
-    # return dataset_final
+    dataset_final.to_file(output_path, driver="GeoJSON")
+    return dataset_final
 
 # MAIN HELPERS
 

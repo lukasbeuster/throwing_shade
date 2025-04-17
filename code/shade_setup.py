@@ -7,7 +7,6 @@ try:
     from osgeo import gdal, osr
     from osgeo.gdalconst import *
     import numpy as np
-    import geopandas as gpd
     import pandas as pd
     import rasterio
 except Exception as e:
