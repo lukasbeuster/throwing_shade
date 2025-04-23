@@ -7,7 +7,7 @@ from segment_anything import SamPredictor, sam_model_registry
 import torch
 import os
 
-def tree_segment_main(osmid, sam_checkpoint, base_path):
+def tree_segment_main(osmid, sam_checkpoint):
     # Define the folder path and osmid
     folder_path = f"../data/clean_data/solar/{osmid}"
 

@@ -22,6 +22,8 @@ import pandas as pd
 from shapely.geometry import box
 from shapely.geometry import mapping
 
+import matplotlib.pyplot as plt
+
 from scipy.ndimage import median_filter
 from scipy.ndimage import uniform_filter
 from scipy.ndimage import gaussian_filter
@@ -36,21 +38,19 @@ importlib.reload(shade)
 # Set exception handling
 gdal.UseExceptions()
 
-# MAIN
-
-def main(dataset_path, osmid, unique_ID_column, raster_dir, solstice_day,
+def main(dataset, osmid, unique_ID_column, raster_dir, solstice_day,
          longitude_column, latitude_column, timestamp_column_name, dst_start, dst_end,
          output_path, summer_params, winter_params,
          combined_sh=False, building_sh=False, interval=30,
          geometry=False, crs="EPSG:4326", simulate_solstice=False, bin_size=0,
-         parameters=None):
+         parameters=None, buffer=0, save=False, max_workers=2, binned=False):
     """
     Main driver function for the shade simulation pipeline. It processes input geospatial data,
     runs building and/or tree shade simulations, extracts and aggregates shade metrics, and
     exports the final dataset as a GeoJSON file.
 
     Parameters:
-        dataset_path (str): Path to the input GeoJSON or shapefile dataset.
+        dataset (str): Path to the input GeoJSON or shapefile dataset.
         osmid (str): OSM ID used to locate raster directories and output structure.
         unique_ID_column (str): Column name used to group data during final aggregation.
         raster_dir (str): Directory path containing processed DSM raster files.
@@ -86,28 +86,27 @@ def main(dataset_path, osmid, unique_ID_column, raster_dir, solstice_day,
             'hours_before': []
         }
 
-    try:
-        main_raster(osmid, raster_dir)
-    except Exception as e:
-        print(f"{e}: Failing in raster creation")
+    main_raster(osmid, raster_dir, max_workers)
 
     dataset_gdf, tile_grouped_days, original_dataset = load_and_preprocess_dataset(
-        dataset_path, osmid, solstice_day, longitude_column, latitude_column, timestamp_column_name,
+        dataset, osmid, solstice_day, longitude_column, latitude_column, timestamp_column_name,
         dst_start, dst_end, interval, geometry, crs, simulate_solstice, bin_size
     )
 
-    run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, solstice_day, summer_params, winter_params, combined_sh, building_sh, interval)
+    run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, solstice_day, summer_params, winter_params, combined_sh, building_sh, interval, max_workers)
 
-    dataset_with_shade = extract_and_merge_shade_values(dataset_gdf, osmid, parameters)
+    dataset_with_shade = extract_and_merge_shade_values(dataset_gdf, osmid, parameters, buffer, max_workers, binned, unique_ID_column)
 
     dataset_final = aggregate_results(dataset_with_shade, original_dataset, unique_ID_column, parameters)
 
-    dataset_final.to_file(output_path, driver="GeoJSON")
+    if save:
+        dataset_final.to_file(output_path, driver="GeoJSON")
+
     return dataset_final
 
 # MAIN HELPERS
 
-def load_and_preprocess_dataset(dataset_path, osmid, solstice_day,
+def load_and_preprocess_dataset(dataset, osmid, solstice_day,
                                 lon_col, lat_col, ts_col, dst_start, dst_end,
                                 interval, geometry, crs, simulate_solstice, bin_size):
     """
@@ -135,7 +134,6 @@ def load_and_preprocess_dataset(dataset_path, osmid, solstice_day,
             - dict: Mapping of tiles to binned timestamps for shade simulation.
             - GeoDataFrame: Original unmodified dataset for merging at the end.
     """
-    dataset = gpd.read_file(dataset_path)
     dataset_copy = dataset.copy()
     dataset_gdf, tile_grouped_days = process_dataset(
         dataset_copy, solstice_day,
@@ -147,7 +145,7 @@ def load_and_preprocess_dataset(dataset_path, osmid, solstice_day,
     return dataset_gdf, tile_grouped_days, dataset_copy
 
 def run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, solstice_day,
-                          summer_params, winter_params, combined, building, interval):
+                          summer_params, winter_params, combined, building, interval, max_workers):
     """
     Submits shade simulation jobs (building/tree) for each tile and binned date
     based on seasonal classification.
@@ -166,7 +164,7 @@ def run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, solstice_day,
     Returns:
         None
     """
-    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         for tile_id, dates in tile_grouped_days.items():
             tile_dataset = dataset_gdf[dataset_gdf['tile_number'] == tile_id]
             for date_t, timestamps in dates.items():
@@ -180,7 +178,7 @@ def run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, solstice_day,
                 else:
                     raise ValueError(f"No data available for the day: {date_t}")
 
-def extract_and_merge_shade_values(dataset_gdf, osmid, parameters):
+def extract_and_merge_shade_values(dataset_gdf, osmid, parameters, buffer, max_workers, binned, unique_ID_column):
     """
     Extracts shade values for each timestamp-tile subset using parallel execution,
     based on specified simulation parameters.
@@ -197,18 +195,20 @@ def extract_and_merge_shade_values(dataset_gdf, osmid, parameters):
         DataFrame: Concatenated results of all processed subsets with shade metrics.
     """
     results = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = []
         for tile_no in dataset_gdf["tile_number"].unique():
             tile_data = dataset_gdf[dataset_gdf["tile_number"] == tile_no]
             for timestamp in tile_data["rounded_timestamp"].unique():
                 subset = tile_data[tile_data["rounded_timestamp"] == timestamp]
-                future = executor.submit(process_subset, subset, osmid,
+                future = executor.submit(process_subset, subset, osmid, unique_ID_column,
                                          building_shade_step=parameters['building_shade_step'],
                                          tree_shade_step=parameters['tree_shade_step'],
                                          bldg_shadow_fraction=parameters['bldg_shadow_fraction'],
                                          tree_shadow_fraction=parameters['tree_shadow_fraction'],
-                                         hours_before=parameters['hours_before'])
+                                         hours_before=parameters['hours_before'],
+                                        buffer=buffer,
+                                        binned=binned)
                 futures.append(future)
 
         for future in futures:
@@ -231,22 +231,30 @@ def aggregate_results(dataset_with_shade, original_dataset, unique_ID_column, pa
         GeoDataFrame: Final dataset with averaged shade metrics per unique ID.
     """
     shade_columns = []
+    critical_columns = []  # Only columns we require to be non-NaN
 
     if parameters['building_shade_step']:
         shade_columns.append("building_shade")
+        critical_columns.append("building_shade")  # Required
         shade_columns += [f"bldg_{h}_before_shadow_fraction" for h in parameters['hours_before']]
 
     if parameters['bldg_shadow_fraction']:
         shade_columns.append("bldg_shadow_fraction")
+        critical_columns.append("bldg_shadow_fraction")  # Required
 
     if parameters['tree_shade_step']:
         shade_columns.append("tree_shade")
+        critical_columns.append("tree_shade")  # Required
         shade_columns += [f"tree_{h}_before_shadow_fraction" for h in parameters['hours_before']]
 
     if parameters['tree_shadow_fraction']:
         shade_columns.append("tree_shadow_fraction")
+        critical_columns.append("tree_shadow_fraction")  # Required
 
-    dataset_cleaned = dataset_with_shade.dropna(subset=shade_columns)
+    # Drop only if required columns are NaN — not the before_fraction columns
+    dataset_cleaned = dataset_with_shade.dropna(subset=critical_columns)
+
+    # Aggregate using all shade-related columns
     dataset_aggregated = dataset_cleaned.groupby(unique_ID_column, as_index=False)[shade_columns].mean()
 
     merged = original_dataset.merge(dataset_aggregated, on=unique_ID_column, how="inner")
@@ -283,7 +291,6 @@ def main_shade(osmid, tile_id, timestamps, date_c, shade_interval=30, inputs={'u
     Raises:
         Exception: If the matched canopy DSM file cannot be identified based on the building DSM filename.
     """
-    print('in main shade')
     # Directory containing the raster files
     processing_dir = f"../data/clean_data/solar/{osmid}/rdy_for_processing/"
     # processing_dir = f'../data/clean_data/solar/{osmid}/rdy_for_processing/'
@@ -339,8 +346,8 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, shade_interval, t
 
     Notes:
         - Shade simulation is skipped for intervals with existing output files.
-        - Output files are saved to '../results/output/{osmid}/building_shade/' and
-          '../results/output/{osmid}/tree_shade/' respectively.
+        - Output files are saved to 'results/output/{osmid}/building_shade/' and
+          'results/output/{osmid}/tree_shade/' respectively.
         - `directory_check` is used to determine which files already exist.
         - `filter_intervals` is used to avoid redundant computation.
     """
@@ -388,11 +395,13 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, shade_interval, t
 
     if final_stamp is not None:
         date = final_stamp
+        all_intervals = intervals + [final_stamp]
     else:
         date = datetime.combine(date, datetime.min.time()).replace(hour=23, minute=59, second=59)
+        all_intervals = intervals
 
-    if not intervals:
-        intervals = False
+    if not all_intervals:
+        all_intervals = False
 
     bldg_path = bldg_path.replace("\\", "/")
     matched_chm_path = matched_chm_path.replace("\\", "/")
@@ -416,12 +425,12 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, shade_interval, t
     # if shade_intervals is not empty, the return here is a list of booleans whether the file exists for each interval
     # if it is empty it is a single boolean for the final timestamp basically
     # TODO: Maybe should I add the final_stamp to the interval check somehow
-    building_shadow_files_exist = directory_check(building_directory, shadow_check=True, shade_intervals=intervals, date=date)
-    tree_shadow_files_exist = directory_check(tree_directory, shadow_check=True, shade_intervals=intervals, date=date)
+    building_shadow_files_exist = directory_check(building_directory, shadow_check=True, shade_intervals=all_intervals, date=date)
+    tree_shadow_files_exist = directory_check(tree_directory, shadow_check=True, shade_intervals=all_intervals, date=date)
 
-    if intervals:
+    if all_intervals:
         # filter to only calculate intervals that don't have a file
-        building_intervals_needed, tree_intervals_needed = filter_intervals(intervals, building_shadow_files_exist, tree_shadow_files_exist)
+        building_intervals_needed, tree_intervals_needed = filter_intervals(all_intervals, building_shadow_files_exist, tree_shadow_files_exist)
     else:
         building_intervals_needed = False
         tree_intervals_needed = False
@@ -444,7 +453,7 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, shade_interval, t
 
 # SHADE DATA JOIN
 
-def process_subset(timestamp_data, osmid, building_shade_step=False, tree_shade_step=False,
+def process_subset(timestamp_data, osmid, unique_ID_column, building_shade_step=False, tree_shade_step=False,
                    bldg_shadow_fraction=False, tree_shadow_fraction=False, hours_before=[], buffer=0,
                    binned=False):
     """
@@ -467,7 +476,7 @@ def process_subset(timestamp_data, osmid, building_shade_step=False, tree_shade_
         GeoDataFrame: The input `timestamp_data` with additional columns for each requested shade metric.
     """
     return get_dataset_shaderesult(
-        timestamp_data, osmid,
+        timestamp_data, osmid, unique_ID_column,
         building_shade_step=building_shade_step,
         tree_shade_step=tree_shade_step,
         bldg_shadow_fraction=bldg_shadow_fraction,
@@ -477,7 +486,7 @@ def process_subset(timestamp_data, osmid, building_shade_step=False, tree_shade_
         binned=binned
     )
 
-def get_dataset_shaderesult(dataset, osmid, building_shade_step, tree_shade_step,
+def get_dataset_shaderesult(dataset, osmid, unique_ID_column, building_shade_step, tree_shade_step,
                             bldg_shadow_fraction, tree_shadow_fraction, hours_before,
                             buffer, binned):
     """
@@ -532,7 +541,7 @@ def get_dataset_shaderesult(dataset, osmid, building_shade_step, tree_shade_step
         rounded_ts = rounded_timestamp
 
     # Define paths for shade rasters
-    base_path = f"../code/results/output/{osmid}"
+    base_path = f"results/output/{osmid}"
 
     building_shade_path = f"{base_path}/building_shade/{tile_number}/{osmid}_{tile_id}_Shadow_{rounded_ts.strftime('%Y%m%d_%H%M')}_LST.tif"
     tree_shade_path = f"{base_path}/tree_shade/{tile_number}/{osmid}_{tile_id}_Shadow_{rounded_ts.strftime('%Y%m%d_%H%M')}_LST.tif"
@@ -554,16 +563,16 @@ def get_dataset_shaderesult(dataset, osmid, building_shade_step, tree_shade_step
 
     # Extract values if the respective shade calculations exist
     if building_shade_step:
-        result_df["building_shade"] = extract_values_from_raster(building_shade_path, building_mask_path, dataset, buffer)
+        result_df["building_shade"] = extract_values_from_raster(building_shade_path, building_mask_path, dataset, unique_ID_column, buffer=buffer)
 
     if tree_shade_step:
-        result_df["tree_shade"] = extract_values_from_raster(tree_shade_path, building_mask_path, dataset, buffer)
+        result_df["tree_shade"] = extract_values_from_raster(tree_shade_path, building_mask_path, dataset, unique_ID_column, buffer=buffer)
 
     if bldg_shadow_fraction:
-        result_df["bldg_shadow_fraction"] = extract_values_from_raster(bldg_shadow_fraction_path, building_mask_path, dataset, buffer)
+        result_df["bldg_shadow_fraction"] = extract_values_from_raster(bldg_shadow_fraction_path, building_mask_path, dataset, unique_ID_column, buffer=buffer)
 
     if tree_shadow_fraction:
-        result_df["tree_shadow_fraction"] = extract_values_from_raster(tree_shadow_fraction_path, building_mask_path, dataset, buffer)
+        result_df["tree_shadow_fraction"] = extract_values_from_raster(tree_shadow_fraction_path, building_mask_path, dataset, unique_ID_column, buffer=buffer)
 
     if hours_before:
         for hr_before in hours_before:
@@ -585,7 +594,7 @@ def get_dataset_shaderesult(dataset, osmid, building_shade_step, tree_shade_step
 
     return dataset_final
 
-def extract_values_from_raster(raster_path, building_mask_path, dataset, buffer=0):
+def extract_values_from_raster(raster_path, building_mask_path, dataset, unique_ID_column, buffer=0):
     """
     Extracts shade (or similar raster) values at each point location in a dataset, optionally
     averaging over a surrounding buffer, and excluding areas covered by buildings.
@@ -640,27 +649,26 @@ def extract_values_from_raster(raster_path, building_mask_path, dataset, buffer=
 
         for idx, row in dataset.iterrows():
             x, y = row.geometry.x, row.geometry.y
-            record_id = row['RECORD']
 
             try:
                 raster_row, raster_col = rowcol(raster_transform, x, y)
                 building_row, building_col = rowcol(building_transform, x, y)
             except Exception as e:
-                print(f"⚠️ Error converting coordinates for RECORD {record_id}: {e}")
+                print(f"⚠️ Error converting coordinates for RECORD: {e}")
                 continue
 
             # Check bounds before accessing raster/building arrays
             if not (0 <= raster_row < raster_data.shape[0] and 0 <= raster_col < raster_data.shape[1]):
-                print(f"❌ Raster index out of bounds for RECORD {record_id}")
+                print(f"❌ Raster index out of bounds for RECORD")
                 continue
             if not (0 <= building_row < building_mask.shape[0] and 0 <= building_col < building_mask.shape[1]):
-                print(f"❌ Building mask index out of bounds for RECORD {record_id}")
+                print(f"❌ Building mask index out of bounds for RECORD")
                 continue
 
             if buffer == 0:
                 bm_value = building_mask[building_row, building_col]
                 if bm_value == 1:
-                    print(f"🚫 Point on building — RECORD: {record_id}")
+                    print(f"🚫 Point on building — RECORD:")
                     values[idx] = np.nan
                 else:
                     val = raster_data[raster_row, raster_col]
@@ -693,7 +701,7 @@ def extract_values_from_raster(raster_path, building_mask_path, dataset, buffer=
                 )
                 valid_vals = filtered[~np.isnan(filtered)]
                 if valid_vals.size == 0:
-                    print(f"⚠️ Empty window after masking — RECORD: {record_id}")
+                    print(f"⚠️ Empty window after masking — RECORD:")
                     values[idx] = np.nan
                 else:
                     values[idx] = np.nanmean(valid_vals)
@@ -736,22 +744,19 @@ def hours_before_shadow_fr(dataset, base_path, building_mask_path, shade_type, r
     # Compute the starting timestamp based on hours_before
     start_hour = rounded_timestamp - timedelta(hours=hours_before)  # Ensure `hours_before` supports floats
 
+    # print(f"rounded timestamp: {rounded_timestamp}")
+
     # Get the earliest available shadow file timestamp for the given day
     first_shade_time = get_earliest_timestamp(f"{base_path}/{shade_type}/{tile_number}", rounded_timestamp)
+
+    # print(f"first shade timestamp: {first_shade_time}")
 
     if first_shade_time is None:
         raise Exception("There are no shade files in the directory for this date")
 
-    # Handle case where start_hour is before the first available shadow timestamp
-    if start_hour <= first_shade_time:
-        print("Start_hour is earlier or the same as first_shade_time, adjusting to first available time.")
-        start_hour = first_shade_time
-
-        # Construct the path to the shadow fraction raster file for `rounded_timestamp`
-        timestamp_shadow_fraction_raster = f"{base_path}/{shade_type}/{tile_number}/{osmid}_p_{tile_number}_shadow_fraction_on_{rounded_timestamp.strftime('%Y%m%d_%H%M')}.tif"
-
-        # If the shadow fraction raster file exists, extract values for all points
-        return extract_values_from_raster(timestamp_shadow_fraction_raster, building_mask_path, dataset, buffer)  # Direct return if available
+    if start_hour < first_shade_time:
+        print("Start_hour is earlier than the first available shade file — assigning NaNs.")
+        return np.full(len(dataset), np.nan)
 
     # If the exact `start_hour` shadow file doesn't exist, find the closest valid one
     shadow_file_path = f"{base_path}/{shade_type}/{tile_number}/{osmid}_p_{tile_number}_Shadow_{start_hour.strftime('%Y%m%d_%H%M')}_LST.tif"
@@ -760,7 +765,6 @@ def hours_before_shadow_fr(dataset, base_path, building_mask_path, shade_type, r
         print(f"This shade file for start hour doesn't exist: {shadow_file_path}")
         start_hour_file = get_closest_shade_file(base_path, shade_type, tile_number, osmid, start_hour)
         start_hour = extract_datetime_from_path(start_hour_file)
-        print(f"This is the new start hour: {start_hour}")
         if start_hour >= rounded_timestamp:
             # there are no shade files available
             return np.full(len(dataset), np.nan)
@@ -822,6 +826,7 @@ def get_shade_files_in_range(base_path, shade_type, tile_number, osmid, start_ho
 
                 # Check if the timestamp is within the range (inclusive)
                 if start_hour <= file_timestamp <= rounded_timestamp:
+                    # print(f"Start hour: {start_hour}, file timstamp: {file_timestamp}, rounded timestamp: {rounded_timestamp}")
                     valid_files.append(os.path.join(directory, filename))
 
     return sorted(valid_files)  # Return sorted list of file paths
@@ -988,6 +993,8 @@ def process_dataset(dataset, solstice_day, processed_raster_dir, longitude_colum
     else:
         df_gdf = gpd.GeoDataFrame(dataset, geometry="geometry", crs="EPSG:32631")
 
+    print(f"This is the dataset length after making geodataframe: {len(df_gdf)}")
+
     raster_files = glob.glob(os.path.join(processed_raster_dir, '*building_dsm.tif'))
 
     # Extract tile footprints from raster files
@@ -1008,6 +1015,8 @@ def process_dataset(dataset, solstice_day, processed_raster_dir, longitude_colum
                 tile_polygon = box(*rasterio.transform.array_bounds(height, width, transform))
                 raster_tiles.append({"tile_number": tile_number, "geometry": tile_polygon})
 
+    print(f"this is raster crs: {raster_crs}")
+
     # Convert raster tile footprints to a GeoDataFrame
     tiles_gdf = gpd.GeoDataFrame(raster_tiles, crs=raster_crs)
 
@@ -1016,6 +1025,8 @@ def process_dataset(dataset, solstice_day, processed_raster_dir, longitude_colum
 
     # Spatial join to assign each point to the correct tile
     df_gdf = gpd.sjoin(df_gdf, tiles_gdf, how="left", predicate="intersects")
+
+    print(f"This is the length after joining with tiles {len(df_gdf)}")
 
     # Drop unnecessary columns from spatial join
     df_gdf.drop(columns=["index_right"], inplace=True, errors="ignore")
@@ -1030,9 +1041,13 @@ def process_dataset(dataset, solstice_day, processed_raster_dir, longitude_colum
 
     df_gdf["diff_solstice_day"] = df_gdf["rounded_timestamp"].dt.date - solstice_day.date()
 
+    print(f"This is the size of df_gdf before I bin: {df_gdf.shape[0]}")
+
     tile_grouped_days, modified_dataset = bin_data2(df_gdf, solstice_day, simulate_solstice, grouping_cutoff=bin_size)
 
     # modified_dataset = add_dataset_grouped_days(df_gdf, solstice_day, tile_grouped_days)
+
+    print(f"This is the size of my modified dataset: {modified_dataset.shape[0]}")
 
     modified_dataset["season"] = modified_dataset["binned_date"].apply(
     lambda date: assign_summer_winter(date, dst_start, dst_end)
@@ -1228,7 +1243,7 @@ def match_date(ts, target_date):
 
 # RASTERS
 
-def main_raster(osmid, raster_dir):
+def main_raster(osmid, raster_dir, max_workers):
     """
     Processes all DSM raster files in a specified directory using multithreaded execution.
 
@@ -1249,7 +1264,7 @@ def main_raster(osmid, raster_dir):
     print(f"Processing {len(raster_files)} raster files.")
 
     # Use a ProcessPoolExecutor to process files in parallel
-    with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         # Submit tasks to the executor
         futures = [executor.submit(process_raster, file_path, osmid) for file_path in raster_files]
         # Optionally, wait for all tasks to complete and handle exceptions
@@ -1318,6 +1333,8 @@ def process_raster(path, osmid):
             chm_mask_file = f'{chm_mask_folder}{file_name[:-7]}rgb_segmented.tif'
 
             if os.path.exists(chm_mask_file):
+                print(f"CHM mask found: {chm_mask_file}")
+
                 # Load the CHM mask (assuming it’s already in the same resolution and extent)
                 with rasterio.open(chm_mask_file) as chm_src:
                     chm_mask = chm_src.read(1)  # Assuming it's a single-band mask
@@ -1355,7 +1372,6 @@ def process_raster(path, osmid):
                 buildings.geometry = buildings.buffer(1.5)
 
                 # Rasterize building polygons (same size as dsm so it works with UMEP)
-                print("Rasterizing building polygons")
                 try:
                     osm_bldg_mask = rasterize(
                         ((mapping(geom), 1) for geom in buildings.geometry),

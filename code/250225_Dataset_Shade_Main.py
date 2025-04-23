@@ -22,9 +22,6 @@ solar_coverage_high = "C:/Users/xx/solar-api-coverage/SolarAPIHighArea.shp"
 # Path to SAM tree segmentation model checkpoint
 sam_checkpoint = "C:/Users/xx/throwing_shade/data/clean_data/solar/sam/sam_vit_h_4b8939.pth"
 
-# Base directory for DSM and output folders
-base_path = "xx/throwing_shade"
-
 # Path to save final output
 output_path = "C:/Users/xx/throwing_shade/output/final_with_shade.geojson"
 
@@ -60,7 +57,7 @@ parameters = {
 
 # === 3. Run Pipeline ===
 
-# dataset = gpd.read_file(dataset_path)
+dataset = gpd.read_file(dataset_path)
 
 # 1. Download Solar API data (requires solar shapefiles and lat/lon)
 osmid = solarAPI_main(
@@ -73,10 +70,10 @@ osmid = solarAPI_main(
 )
 
 # 2. Run tree segmentation using SAM model
-tree_segment_main(osmid, sam_checkpoint, base_path)
+tree_segment_main(osmid, sam_checkpoint)
 
 # 3. Shade simulation
-raster_dir = f"{base_path}/data/clean_data/solar/{osmid}"
+raster_dir = f"../data/clean_data/solar/{osmid}"
 
 dataset_final = main(
     dataset_path,
