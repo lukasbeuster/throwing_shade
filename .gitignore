@@ -9,4 +9,6 @@
 .DS_Store
 code/archive/boston_sidewalks.ipynb
 .env
-.log
+*.log
+nohup.out
+/code/logs/
