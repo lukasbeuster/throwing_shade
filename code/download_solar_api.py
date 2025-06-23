@@ -34,7 +34,7 @@ def main(date):
 
     points_gdf.to_file(points_path, driver='GPKG')
 
-    os.environ["GOOGLE_API_KEY"] = "xxx"
+    os.environ["GOOGLE_API_KEY"] = "xx"
 
 
     save_dir = '../data/clean_data/solar/{OSMID}'

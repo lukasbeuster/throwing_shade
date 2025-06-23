@@ -17,7 +17,7 @@ def main(osmid, dates):
     print(f'Working on OSMID: {osmid}; Dates: {dates}')
     
     # Load polygon dataset
-    polygons = gpd.read_file('../data/raw_data/AMS/Q1_20230126_ingekort.gpkg')
+    polygons = gpd.read_file('../data/raw_data/singapore/Footpath_Jul2023/Footpath.shp')
 
     for date in dates:
         timestr = date.strftime("%Y%m%d")

@@ -35,58 +35,112 @@ def process_raster_files(osmid, raster_dir, output_dir, sam_checkpoint):
     predictor = SamPredictor(sam)
 
     for raster_path in raster_files:
-        print(f"Processing {raster_path}")
+            print(f"Processing {raster_path}")
+            try:
+                # Load the image for detection and segmentation
+                image = cv2.imread(raster_path)
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        # Load the image for detection and segmentation
-        image = cv2.imread(raster_path)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                # Predict bounding boxes using DeepForest
+                predicted_mask = model.predict_tile(raster_path, return_plot=False, patch_size=300, patch_overlap=0.25)
 
-        # Predict bounding boxes using DeepForest
-        predicted_mask = model.predict_tile(raster_path, return_plot=False, patch_size=300, patch_overlap=0.25)
+                # Set the image for SAM segmentation
+                predictor.set_image(image)
 
-        # Set the image for SAM segmentation
-        predictor.set_image(image)
+                # Create an empty mask with the same dimensions as the original image
+                final_mask = np.zeros(image.shape[:2], dtype=np.uint8)
 
-        # Create an empty mask with the same dimensions as the original image
-        final_mask = np.zeros(image.shape[:2], dtype=np.uint8)
+                # Iterate through the detected objects and use SAM to segment them
+                for i, prediction in predicted_mask.iterrows():
+                    x1, y1, x2, y2 = int(prediction['xmin']), int(prediction['ymin']), int(prediction['xmax']), int(prediction['ymax'])
+                    # Create a box prompt for SAM
+                    box = np.array([x1, y1, x2, y2])
+                    # Predict the mask using SAM
+                    masks, _, _ = predictor.predict(box=box)
+                    # Combine the SAM mask into the final mask
+                    for mask in masks:
+                        final_mask[mask] = 255  # Assuming binary segmentation, 255 for foreground
 
-        # Iterate through the detected objects and use SAM to segment them
-        for i, prediction in predicted_mask.iterrows():
-            x1, y1, x2, y2 = int(prediction['xmin']), int(prediction['ymin']), int(prediction['xmax']), int(prediction['ymax'])
+                # Save the final mask as a georeferenced TIFF
+                with rasterio.open(raster_path) as src:
+                    transform = src.transform
+                    crs = src.crs
 
-            # Create a box prompt for SAM
-            box = np.array([x1, y1, x2, y2])
+                # Define the output path for saving the segmented mask
+                output_path = os.path.join(output_dir, f"{os.path.basename(raster_path).replace('.tif', '_segmented.tif')}")
 
-            # Predict the mask using SAM
-            masks, _, _ = predictor.predict(box=box)
+                # Save the mask as a GeoTIFF
+                with rasterio.open(
+                        output_path,
+                        'w',
+                        driver='GTiff',
+                        height=final_mask.shape[0],
+                        width=final_mask.shape[1],
+                        count=1,
+                        dtype=final_mask.dtype,
+                        crs=crs,
+                        transform=transform,
+                ) as dst:
+                    dst.write(final_mask, 1)
 
-            # Combine the SAM mask into the final mask
-            for mask in masks:
-                final_mask[mask] = 255  # Assuming binary segmentation, 255 for foreground
+                print(f"Segmented mask saved to {output_path}")
 
-        # Save the final mask as a georeferenced TIFF
-        with rasterio.open(raster_path) as src:
-            transform = src.transform
-            crs = src.crs
+            except Exception as e:
+                print(f"Error processing {raster_path}: {e}")
 
-        # Define the output path for saving the segmented mask
-        output_path = os.path.join(output_dir, f"{os.path.basename(raster_path).replace('.tif', '_segmented.tif')}")
+    # for raster_path in raster_files:
+    #     print(f"Processing {raster_path}")
 
-        # Save the mask as a GeoTIFF
-        with rasterio.open(
-                output_path,
-                'w',
-                driver='GTiff',
-                height=final_mask.shape[0],
-                width=final_mask.shape[1],
-                count=1,
-                dtype=final_mask.dtype,
-                crs=crs,
-                transform=transform,
-        ) as dst:
-            dst.write(final_mask, 1)
+    #     # Load the image for detection and segmentation
+    #     image = cv2.imread(raster_path)
+    #     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        print(f"Segmented mask saved to {output_path}")
+    #     # Predict bounding boxes using DeepForest
+    #     predicted_mask = model.predict_tile(raster_path, return_plot=False, patch_size=300, patch_overlap=0.25)
+
+    #     # Set the image for SAM segmentation
+    #     predictor.set_image(image)
+
+    #     # Create an empty mask with the same dimensions as the original image
+    #     final_mask = np.zeros(image.shape[:2], dtype=np.uint8)
+
+    #     # Iterate through the detected objects and use SAM to segment them
+    #     for i, prediction in predicted_mask.iterrows():
+    #         x1, y1, x2, y2 = int(prediction['xmin']), int(prediction['ymin']), int(prediction['xmax']), int(prediction['ymax'])
+
+    #         # Create a box prompt for SAM
+    #         box = np.array([x1, y1, x2, y2])
+
+    #         # Predict the mask using SAM
+    #         masks, _, _ = predictor.predict(box=box)
+
+    #         # Combine the SAM mask into the final mask
+    #         for mask in masks:
+    #             final_mask[mask] = 255  # Assuming binary segmentation, 255 for foreground
+
+    #     # Save the final mask as a georeferenced TIFF
+    #     with rasterio.open(raster_path) as src:
+    #         transform = src.transform
+    #         crs = src.crs
+
+    #     # Define the output path for saving the segmented mask
+    #     output_path = os.path.join(output_dir, f"{os.path.basename(raster_path).replace('.tif', '_segmented.tif')}")
+
+    #     # Save the mask as a GeoTIFF
+    #     with rasterio.open(
+    #             output_path,
+    #             'w',
+    #             driver='GTiff',
+    #             height=final_mask.shape[0],
+    #             width=final_mask.shape[1],
+    #             count=1,
+    #             dtype=final_mask.dtype,
+    #             crs=crs,
+    #             transform=transform,
+    #     ) as dst:
+    #         dst.write(final_mask, 1)
+
+    #     print(f"Segmented mask saved to {output_path}")
 
 
 if __name__ == "__main__":

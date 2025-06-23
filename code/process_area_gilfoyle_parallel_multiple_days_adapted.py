@@ -93,7 +93,12 @@ def main(date):
     print(f'Found {len(building_files)} building files')
 
     # dates = ['5, 15', '6, 20', '7, 15', '8, 15', '09, 22']
-    dates = ['6, 21', '7, 19', '8, 16', '9, 13']
+    # dates = ['6, 21', '7, 19', '8, 16', '9, 13']
+    dates = ['6, 20', '7, 15', '8, 15']
+    # dates = ['3, 20', '4, 15', '5, 15']
+    # dates = ['12, 21', '1, 15', '2, 15', '3, 20']
+    # dates = ['12, 21', '1, 15', '2, 15']
+
     # Create a loop to iterate over the date strings
     for date_str in dates:
         # Split the string to get month and day as integers
@@ -399,7 +404,7 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date):
             intervalTime=30,
             onetime=0,
             filepath_save=building_directory,
-            UTC=8,
+            UTC=2,
             dst=1,
             useveg=0,
             trunkheight=25,
@@ -416,7 +421,7 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date):
             intervalTime=30,
             onetime=0,
             filepath_save=tree_directory,
-            UTC=8,
+            UTC=2,
             dst=1,
             useveg=1,
             trunkheight=25,
