@@ -2,7 +2,7 @@
 
 **Throwing Shade** is an ongoing research project focused on high-resolution shade simulation and analysis to support urban climate adaptation and heat stress mitigation.  
 This repository contains the core code, workflows, and data structure supporting the analyses presented in our manuscript submitted to *Nature Communications*.  
-👉 [Read the preprint for full details](#) *(add your link once available)*.
+👉 [Read the preprint for full details](#)  *(TODO: add link)*.
 
 ---
 
@@ -17,84 +17,173 @@ This approach mirrors real-world conditions where building and tree shade overla
 
 The analysis focuses on **sidewalks**, as they are key areas for pedestrian thermal comfort. Shade statistics are summarized for each sidewalk polygon, capturing both daily averages and 30-minute interval variation throughout the day.
 
-For full methodology, study area descriptions, and city-specific context, see the [preprint](#) *(add link)*.
+For full methodology, study area descriptions, and city-specific context, see the [preprint](#) *(TODO: add link)*.
 
 ---
+📦 Installation
 
-## 📦 Installation
+This project uses two separate Python environments:
+	•	Tree Detection & Segmentation (DeepForest & SAM)
+	•	Shade Simulation & Analysis ([UMEP](https://umep-docs.readthedocs.io/en/latest/)-based shadow casting, [startinpy](https://startinpy.readthedocs.io/latest/) for terrain processing & spatial stats)
 
-Use the provided `requirements.txt` to install all dependencies:
+1️⃣ Tree Detection Environment
+
+# Create and activate
 
 ```bash
-pip install -r requirements.txt
+python3 -m venv segment_trees
+source segment_trees/bin/activate
 ```
 
-## 🚀 Core Workflows
+# Install tree detection and segmentation dependencies
 
-Below is a brief summary of the main steps and scripts.
+For detailed instructions on setting up tree detection, please refer to the [DeepForest documentation](https://deepforest.readthedocs.io/en/latest/) and [Segment Anything Model (SAM)](https://github.com/facebookresearch/segment-anything). These provide guidance on downloading pre-trained models and installing required dependencies.
+
+```bash
+pip install -r requirements_trees.txt
+```
+
+2️⃣ Shade Simulation Environment
+
+# Deactivate tree env if needed
+```bash
+deactivate
+```
+
+# Create and activate
+```bash
+python3 -m venv throwing_shade
+source throwing_shade/bin/activate
+```
+
+# Install shade simulation dependencies
+
+```bash
+pip install -r requirements_shade.txt
+```
+
+✅ Switching Environments
+	•	For tree detection scripts: activate segment_trees
+	•	For shade simulation & analysis: activate throwing_shade
+
+⚡️ Tip
+
+Keep environments separate to avoid conflicts. Use conda if you prefer.
 
 ⸻
 
-☀️ 1. SolarAPI Data Download
+Add both requirements_trees.txt and requirements.txt to this repository.
 
-Download raw data via Google SolarAPI and OpenStreetMap:
+## ⚙️ Core Workflows — Quick How-To
 
-OSM:
-	•	OSM buildings
-	•	Query points
+Below is a brief summary of the main steps and scripts.
 
-Solar API
-	•	DSM and RGB imagery
-	•	Building mask
-	•	Annual flux (optional)
 
-Relevant script:
-code/01_download_solar_api.py
+### ☀️ 1. SolarAPI Data Download
 
----
+Uses geocoding and polygon tiling to generate request points inside your study area's bounds.
 
-## 🗺️ 2. Preprocessing
+Automates UTM conversion, checks SolarAPI coverage, and safely saves query points and building footprints.
 
-Prepare DSMs for shade simulation:
-	•	Derive a Building DSM and a Canopy DSM (CHM).
-	•	Trees are detected with DeepForest and segmented using Segment Anything Model (SAM).
-	•	Use startinpy for interpolation.
+Calls the Google Solar API to download high-resolution DSMs, RGB imagery, building masks, and optional annual flux layers.
 
-Relevant script:
-code/process_area_gilfoyle_parallel_multiple_days.py
+👉 Typical usage:
+```bash
+python code/01_download_SolarAPI.py "<Place Name>" <spacing in meters>
+```
+Example:
+```bash
+python code/01_download_SolarAPI.py "West, Amsterdam" 950
+```
+This sets up SolarAPI tiles with overlap, downloads necessary building footprints, and saves query points for shade simulation.
 
----
+Note: Requires a valid Google API key set in your ```.env``` file.
 
-## 🌳 3. Shadow Simulation
-
-Run shade simulation using a custom Python implementation of the UMEP Shadow Pattern tool:
-	•	Two runs: one for buildings only, one for buildings + trees.
-	•	Generates shade rasters per timestep and daily averages.
-	•	Parallelised for multiple days.
-
-Relevant script:
-code/03_process_area_parallel_multiple_days.py
+Relevant script:code/01_download_SolarAPI.py
 
 ---
 
-## 🚶 4. Sidewalk Extraction
+### 🌳 2. Tree Detection & Segmentation
 
-Generate sidewalk polygons using osm2streets (https://github.com/lukasbeuster/osm2streets):
+Runs DeepForest to detect trees in aerial imagery.
+
+Uses Segment Anything (SAM) to refine each detected tree into a precise canopy mask.
+
+Saves each canopy mask as a georeferenced raster aligned with the DSM.
 
 ```bash
-python3 sidewalk_generator.py "West, Amsterdam"
+python code/02_tree_detection_segmentation.py <OSMID>
 ```
-	•	Downloads raw OSM.
-	•	Tiles & processes data to produce detailed lane and sidewalk GeoJSONs.
+Example:
+```bash
+python code/02_tree_detection_segmentation.py 123456
+```
+Note: Requires the SAM checkpoint file in ```data/clean_data/sam/```.
+
+Script: code/02_tree_detection_segmentation.py
+
+--- 
+
+### 🏗️ 3. DSM Preprocessing & Shadow Casting
+
+Prepares separate DSMs for buildings and tree canopies after detection/segmentation.
+
+Applies masking, interpolation, and smoothing to create high-quality building DSMs and canopy DSMs.
+
+Runs computationally heavy shadow simulations for multiple key days using a standalone UMEP-based method.
+
+Processes tiles in parallel (CPU-intensive).
+
+python code/03_process_area_gilfoyle_parallel_multiple_days.py <OSMID>
+
+Example:
+
+python code/03_process_area_gilfoyle_parallel_multiple_days.py 15419236
+
+This script saves ready-to-use shadow rasters per timestep and daily averages for both "buildings only" and "buildings + trees" scenarios.
+
+NOTE: UTC for your study area has to be set manually inside the script. 
 
 ---
 
-## 📂 5. Other Key Scripts & Notebooks
-	•	shade_metrics_on_graph.ipynb — Assigns shade weights to network edges.
-	•	calculate_shade_metrics_all.py — Computes shade metrics for hard surfaces.
-	•	tree_detection_segmentation.ipynb — Tests tree detection outside NL using DeepForest + SAM.
-	•	momepy_importance.ipynb — Explores using momepy for network analysis.
-	•	240912_Download_SolarAPI.ipynb — Example SolarAPI workflow.
+### 🚶 4. OSM2streets Sidewalk Extraction
+
+If no high-quality sidewalk polygons are available, use osm2streets (https://github.com/lukasbeuster/osm2streets) to infer sidewalks and lanes for the area of interest.
+
+```bash
+python code/04_sidewalk_generator.py "<Place Name>" --tile_size 0.01 --driving_side Right
+```
+
+Example:
+```bash
+python code/04_sidewalk_generator.py "West, Amsterdam" --tile_size 0.01 --driving_side Right
+```
+This will:
+
+- Query the location with Nominatim.
+- Download raw OSM tiles.
+- Process each tile using OSM2streets to extract sidewalks, lanes, and intersections.
+- Save the output as GeoJSON files.
+
+
+### 📏 5. Shade Metrics on Sidewalks
+
+Calculate shade statistics for each sidewalk polygon, either using OSM2streets output or an existing detailed sidewalk dataset:
+
+- If using OSM2streets:
+```bash
+python code/05_calculate_shade_metrics_osm2streets.py <OSMID> <YYYY-MM-DD> <YYYY-MM-DD> ...
+```
+Example:
+```bash
+python code/05_calculate_shade_metrics_osm2streets.py 15419236 2024-06-21 2024-07-15
+```
+- If using an external sidewalk or public space dataset:
+Use ```05_calculate_shade_metrics_polygons.py``` and edit the script to specify your input polygons.
+
+This will compute both daily average and timestep-specific shade metrics for each polygon.
+
+> NOTE: More details for each step are in the script comments and the preprint.
 
 ---
 
@@ -117,14 +206,14 @@ results/
 
 ## 📑 References & Related Work
 
-This workflow builds upon:
-	•	UMEP (Lindberg et al., 2018)
-	•	Google SolarAPI
-	•	DeepForest (Weinstein et al., 2020; Weinstein et al., 2022)
-	•	Segment Anything Model (SAM) (Kirillov et al., 2023)
+This workflow builds on and integrates the following tools and research:
 
-Please cite these resources when using or extending this project.
+- [UMEP](https://umep-docs.readthedocs.io/en/latest/) (Lindberg et al., 2018) — an urban microclimate model used here for standalone shadow pattern simulation.
+- [Google SolarAPI](https://developers.google.com/maps/documentation/solar/overview) — provides high-resolution DSMs, RGB imagery, and solar flux data.
+- [DeepForest](https://deepforest.readthedocs.io/en/latest/) (Weinstein et al., 2020; 2022) — used for automated tree detection from aerial imagery.
+- [Segment Anything Model (SAM)](https://segment-anything.com/) (Kirillov et al., 2023) — used for fine-grained tree canopy segmentation.
 
+Please cite these resources appropriately if you use or extend this project.
 
 ---
 
@@ -139,100 +228,6 @@ Contributions and feedback are welcome. Please open an issue or submit a pull re
 ---
 ## 📎 More Information
 
-📄 Preprint link — Coming soon!
-
-## Usage
-
-
-
-### Preprocessing
-
-The UMEP plugin requires two inputs (if you want to include trees): 
-- DSM 
-- CHM
-
-Requirement (due to data-sources): Process DSM into Building DSM and Canopy Height Model (CHM/Canopy DSM)
-
-
-Dataflow: from data/clean_data/solar/{OSMID} to data/clean_data/solar/{OSMID}/rdy_for_processing
-
-Relevant code: 
-file: process_area_gilfoyle_parallel_multiple_days.py
-function: process_raster
-
-Steps:
-
-- Use CHM generated via AHN as raster mask (data/clean_data/chm) -> Canopy DSM
-
-(See 230921_Tree_Segmentation_multiple_tiles.R for AHN processing script (uses LidR package, thus written in R))
-
-![alt text](DSM_to_BuildingDSM.png)
-
-Fill in missing ground values.
-
-- Mask out buildings and trees from DSM -> prepare for interpolation 
-
-![alt text](DSM_to_Ground.png)
-
-- Interpolate using startinpy, add buildings and save newly created Building DSM
-
-![alt text](DSM_to_BuildingDSM.png)
-
-### Shadowcasting
-
-UMEP Shadow Pattern as standalone implementation.
-
-NOTE: For my research I'm running the shade simulation twice. 1st run with buildings only, 2nd run with buildings and trees. One of the things I'm working on is the difference between building and tree shade, so I require both. 
-
-Execution in parallel, for multiple days.
-
-Results (see results folder): 
-- shade raster per timestep
-- shade raster for daily shading. 
-for both buildings only (passing only the building DSM to the function) and buildings and trees (including both buildings and trees)
-
-You'll have to untangle this. 
-
-
-Relevant code:
-file: process_area_gilfoyle_parallel_multiple_days.py
-function: shade_processing
-
-links to
-- shade_setup.py
-- shadowingfunctions.py
-- sun_position.py
-
-
-### Sidewalk download
-
-needs osm2streets_python from this fork, or from the main project as soon as my pull request was accepted: https://github.com/lukasbeuster/osm2streets
-
-to download lane polygons for any area in the world use the `sidewalk_generator.py`
-
-```bash
-python3 sidewalk_generator.py "West, Amsterdam"
-```
-
-This will:
-- find the corresponding location
-- create tiles and download raw osm xml files
-- process these tiles sequentially using osm2streets, saving geojson files of lanes and intersections
-
-### Other noteworthy code:
-
-- shade_metrics_on_graph.ipynb: notebook with the code to calculate shade_weights per edge in a network graph. 
-
-- calculate_shade_metrics_multiple_days.py: calculate shade metrics on polygons of public space (hard surfaces).
-
-- tree_detection_segmentation.ipynb: exploration of tree detection + segmentation workflow using DeepForest + SAM. Only relevant for scaling up to contexts outside NL (where AHN is not available)
-
-- momepy_importance.ipynb: Exploration of using multiple centrality assessment (from momepy) to identify the most important edges in a network
-
-- 240912_Download_SolarAPI.ipynb: Example flow of SolarAPI download. You likely don't need to use this at all. 
-
-
-
-IGNORE ARCHIVE AND ANALYSIS FOLDERS
+📄 [Preprint link](#) — Coming soon!
 
 
