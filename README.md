@@ -66,13 +66,6 @@ pip install -r requirements_shade.txt
 	•	For tree detection scripts: activate segment_trees
 	•	For shade simulation & analysis: activate throwing_shade
 
-⚡️ Tip
-
-Keep environments separate to avoid conflicts. Use conda if you prefer.
-
-⸻
-
-Add both requirements_trees.txt and requirements.txt to this repository.
 
 ## ⚙️ Core Workflows — Quick How-To
 
@@ -134,12 +127,13 @@ Runs computationally heavy shadow simulations for multiple key days using a stan
 
 Processes tiles in parallel (CPU-intensive).
 
+```bash
 python code/03_process_area_gilfoyle_parallel_multiple_days.py <OSMID>
-
+```
 Example:
-
+```bash
 python code/03_process_area_gilfoyle_parallel_multiple_days.py 15419236
-
+```
 This script saves ready-to-use shadow rasters per timestep and daily averages for both "buildings only" and "buildings + trees" scenarios.
 
 NOTE: UTC for your study area has to be set manually inside the script. 
@@ -148,7 +142,9 @@ NOTE: UTC for your study area has to be set manually inside the script.
 
 ### 🚶 4. OSM2streets Sidewalk Extraction
 
-If no high-quality sidewalk polygons are available, use osm2streets (https://github.com/lukasbeuster/osm2streets) to infer sidewalks and lanes for the area of interest.
+If no high-quality sidewalk polygons are available, use [KerbSide](https://github.com/lukasbeuster/KerbSide), based on [osm2streets](https://github.com/lukasbeuster/osm2streets, to infer sidewalks and lanes for the area of interest. 
+
+This requires a separate environment, follow the instructions [here](https://github.com/lukasbeuster/KerbSide). Once installed, sidewalks can be generated using
 
 ```bash
 python code/04_sidewalk_generator.py "<Place Name>" --tile_size 0.01 --driving_side Right
