@@ -1,3 +1,4 @@
+import gpxpy
 import os
 import geopandas as gpd
 import pandas as pd
@@ -9,8 +10,9 @@ from dotenv import load_dotenv
 import hashlib
 from IPython.display import display
 import math
+from tqdm import tqdm
 
-def solarAPI_main(dataset, latitude_column, longitude_column, solar_coverage_medium, solar_coverage_high, geometry=False):
+def solarapi_request(dataset, latitude_column, longitude_column, solar_coverage_medium, solar_coverage_high, geometry=False):
     """
     Processes geographic data and interacts with SolarAPI to obtain solar potential information
     for a given set of points.
@@ -40,7 +42,7 @@ def solarAPI_main(dataset, latitude_column, longitude_column, solar_coverage_med
         and interacts with external APIs.
     """
     if geometry:
-        points_dataset = gpd.GeoDataFrame(dataset, geometry=geometry, crs="EPSG:4326")
+        points_dataset = dataset.copy()
     else:
         geometry = [Point(xy) for xy in zip(dataset[longitude_column], dataset[latitude_column])]
         points_dataset = gpd.GeoDataFrame(dataset, geometry=geometry, crs="EPSG:4326")
@@ -104,7 +106,7 @@ def solarAPI_main(dataset, latitude_column, longitude_column, solar_coverage_med
     if gdf.geometry.is_empty.any():
         print("The geometry for the region is empty or invalid.")
 
-    all_buildings = download_building_footprints(gdf, save_path)
+    all_buildings = download_building_footprints(gdf, osm_id, save_path)
 
     # Load SolarAPIMediumArea and SolarAPIHighArea
     solar_coverage_medium = gpd.read_file(solar_coverage_medium)
@@ -140,90 +142,6 @@ def solarAPI_main(dataset, latitude_column, longitude_column, solar_coverage_med
     print("Solar API download completed")
 
     return osm_id
-
-def generate_osm_id(bounds):
-    """
-    Generate a unique identifier for a bounding box using a hash function.
-    """
-    minx, miny, maxx, maxy = bounds
-    bbox_str = f"{minx}_{miny}_{maxx}_{maxy}"
-    return hashlib.md5(bbox_str.encode()).hexdigest()[:8]  # Generate an 8-character hash
-
-def save_points(points_gdf, osm_id):
-    """Save points GeoDataFrame to a GeoPackage."""
-    save_dir = f'../data/clean_data/solar/{osm_id}'
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
-    save_path = os.path.join(save_dir, f'{osm_id}_query_points.gpkg')
-    points_gdf.to_file(save_path, driver='GPKG')
-    print(f"Points saved to: {save_path}")
-
-def download_building_footprints(gdf, save_path):
-    """
-    Download building footprints (polygons only) for the geometries in the GeoDataFrame.
-    """
-    try:
-        if os.path.exists(save_path):
-            print(f"Buildings file already exists at: {save_path}")
-            return gpd.read_file(save_path)
-
-        all_building_footprints = []
-        tags = {"building": True}
-
-        for polygon in gdf.geometry:
-            if polygon.is_valid and not polygon.is_empty:
-                try:
-                    # Query OSM buildings
-                    buildings = ox.features_from_polygon(polygon, tags)
-
-                    if not buildings.empty:
-                        # --- THE FIX: Filter for only polygon geometries ---
-                        footprints = buildings[buildings.geometry.type.isin(['Polygon', 'MultiPolygon'])].copy()
-
-                        if not footprints.empty:
-                            all_building_footprints.append(footprints)
-                        else:
-                            print("No building footprints (polygons) found for a given polygon, though other building types might exist.")
-
-                except Exception as e:
-                    print(f"Could not retrieve features for a polygon: {e}")
-
-        if not all_building_footprints:
-             print("No building footprints were found for the entire area.")
-             return gpd.GeoDataFrame()
-
-        # Concatenate all found footprints into a single GeoDataFrame
-        final_gdf = gpd.GeoDataFrame(pd.concat(all_building_footprints, ignore_index=True))
-
-        # Reset CRS if lost during concat
-        if final_gdf.crs is None and all_building_footprints:
-             final_gdf.set_crs(all_building_footprints[0].crs, inplace=True)
-
-        # Clean up columns for saving
-        # Convert any list-type columns to strings to avoid saving errors
-        for col in final_gdf.columns:
-            if final_gdf[col].dtype == 'object':
-                is_list = final_gdf[col].fillna(0).apply(lambda x: isinstance(x, list))
-                if is_list.any():
-                    final_gdf[col] = final_gdf[col].astype(str)
-
-        # Keep only essential columns that exist
-        columns_to_keep = ['geometry', 'name', 'building']
-        existing_cols_to_keep = [col for col in columns_to_keep if col in final_gdf.columns]
-        final_gdf = final_gdf[existing_cols_to_keep]
-
-        # Save the GeoPackage
-        if not os.path.exists(os.path.dirname(save_path)):
-            os.makedirs(os.path.dirname(save_path))
-
-        final_gdf.to_file(save_path, driver="GPKG")
-        print(f"Success: Downloaded and saved {len(final_gdf)} building footprints to {save_path}")
-
-        return final_gdf
-
-    except Exception as e:
-        print(f"An error occurred in download_building_footprints: {e}")
-        return gpd.GeoDataFrame()
 
 def download_google_api_data(points_gdf, osm_id):
     """
@@ -267,6 +185,75 @@ def download_google_api_data(points_gdf, osm_id):
     except Exception as e:
         print(f"Error during Google API data request: {e}")
         return None
+
+def generate_osm_id(bounds):
+    """
+    Generate a unique identifier for a bounding box using a hash function.
+    """
+    minx, miny, maxx, maxy = bounds
+    bbox_str = f"{minx}_{miny}_{maxx}_{maxy}"
+    return hashlib.md5(bbox_str.encode()).hexdigest()[:8]  # Generate an 8-character hash
+
+def save_points(points_gdf, osm_id):
+    """Save points GeoDataFrame to a GeoPackage."""
+    save_dir = f'../data/clean_data/solar/{osm_id}'
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    save_path = os.path.join(save_dir, f'{osm_id}_query_points.gpkg')
+    points_gdf.to_file(save_path, driver='GPKG')
+    print(f"Points saved to: {save_path}")
+
+def download_building_footprints(gdf, osm_id, save_path):
+    """
+    Download building footprints for the geometries in the GeoDataFrame if not already saved.
+    """
+    try:
+        # Check if file already exists
+        if os.path.exists(save_path):
+            print(f"Buildings already downloaded and saved at: {save_path}")
+            return gpd.read_file(save_path)
+
+        all_buildings = gpd.GeoDataFrame()  # Initialize an empty GeoDataFrame
+        tags = {"building": True}
+
+        for polygon in gdf.geometry:
+            if polygon.is_valid and not polygon.is_empty:
+                try:
+                    # Query OSM buildings
+                    buildings = ox.features_from_polygon(polygon, tags)
+                    if buildings.empty:
+                        print("No buildings found for the given polygon.")
+                        continue
+
+                    # Convert lists to strings for saving
+                    buildings = buildings.apply(convert_lists_to_strings, axis=0)
+                    all_buildings = gpd.GeoDataFrame(pd.concat([all_buildings, buildings], ignore_index=True))
+                except Exception as e:
+                    print(f"Error querying buildings for polygon: {e}")
+
+        # Remove duplicate columns
+        duplicate_columns = all_buildings.columns[all_buildings.columns.duplicated()]
+        if not duplicate_columns.empty:
+            print(f"Duplicate columns found: {duplicate_columns}")
+            all_buildings = all_buildings.rename(columns=lambda x: f"{x}_dup" if x in duplicate_columns else x)
+
+        # Keep only essential columns
+        columns_to_keep = ['geometry', 'name', 'building']
+        all_buildings = all_buildings[columns_to_keep]
+
+        # Save the GeoPackage if any buildings were found
+        if not all_buildings.empty:
+            if not os.path.exists(os.path.dirname(save_path)):
+                os.makedirs(os.path.dirname(save_path))
+            all_buildings.to_file(save_path, driver="GPKG")
+            print(f"Success: Downloaded and saved {all_buildings.shape[0]} buildings.")
+        else:
+            print("No buildings found for the specified region.")
+
+        return all_buildings
+
+    except Exception as e:
+        print(f"Error in download_building_footprints: {e}")
 
 def adaptive_grid_from_convex_hull(points_dataset, cell_size=950, buffer_distance=50):
     """
@@ -329,3 +316,86 @@ def convert_lists_to_strings(column):
         return column.apply(lambda x: ','.join(map(str, x)) if isinstance(x, list) else x)
     else:
         return column
+
+# --- [main execution script] ---
+def main():
+    base_folder = '/mnt/SCL-NAS/breeze/data_190416'
+    # Folder paths
+    city_file_paths = {
+        'boston': {
+            'matched': f'{base_folder}/gpx-matched-bos-252570',
+            'shortest': f'{base_folder}/gpx-shortest-bos-252570'
+        },
+        'sf': {
+            'matched': f'{base_folder}/gpx-matched-sf-280623',
+            'shortest': f'{base_folder}/gpx-shortest-sf-280623'
+        }
+    }
+
+    # Storage for final results
+    city_gdfs = {}
+
+    for city in ['boston', 'sf']:
+        matched_gpx_folder = city_file_paths[city]['matched']
+
+        # List all GPX files in the folder
+        gpx_files = [os.path.join(matched_gpx_folder, f) for f in os.listdir(matched_gpx_folder) if f.endswith('.gpx')]
+
+        all_track_points = []
+
+        print(f"Processing {len(gpx_files)} GPX files for {city}...")
+
+        for gpx_path in tqdm(gpx_files):
+            try:
+                # Load the GPX file
+                with open(gpx_path, 'r') as gpx_file:
+                    gpx = gpxpy.parse(gpx_file)
+
+                # Extract filename ID
+                filename = os.path.basename(gpx_path)
+                file_id = filename.split('-')[0]
+
+                # Extract track points
+                i = 0
+                for track in gpx.tracks:
+                    for segment in track.segments:
+                        for point in segment.points:
+                            all_track_points.append({
+                                'path_id': file_id,
+                                'point_id': i,
+                                'latitude': point.latitude,
+                                'longitude': point.longitude,
+                                'time': point.time
+                            })
+                            i += 1
+
+            except Exception as e:
+                print(f"⚠️ Failed to process {gpx_path}: {e}")
+
+        # Create a GeoDataFrame
+        df = pd.DataFrame(all_track_points)
+        if not df.empty:
+            df['geometry'] = df.apply(lambda row: Point(row['longitude'], row['latitude']), axis=1)
+            gdf = gpd.GeoDataFrame(df, geometry='geometry', crs='EPSG:4326')
+        else:
+            gdf = gpd.GeoDataFrame(columns=['path_id', 'point_id', 'latitude', 'longitude', 'time', 'geometry'], crs='EPSG:4326')
+
+        # Save for each city
+        city_gdfs[city] = gdf
+
+    print("✅ Finished creating GeoDataframe for each city.")
+
+    # Now call your main solar API processing
+    for city, dataset in city_gdfs.items():
+        osmid = solarapi_request(
+            dataset,
+            'latitude', 'longitude',
+            'C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/Data/solar-api-coverage/SolarAPIMediumArea.shp',
+            'C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/Data/solar-api-coverage/SolarAPIHighArea.shp',
+            geometry=True
+        )
+        print(f"Download for {city} with osmid {osmid} is done!")
+
+# --- [Python main entry point] ---
+if __name__ == "__main__":
+    main()

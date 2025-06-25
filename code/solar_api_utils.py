@@ -1,126 +1,13 @@
 import os
 import requests
-
-
-import osmnx as ox
-import geopandas as gpd
 import numpy as np
-from shapely.geometry import Point, Polygon, MultiPolygon
-from typing import Union, List, Dict, Optional, Tuple
-import matplotlib.pyplot as plt
+from shapely.geometry import Point
+from typing import Dict, Optional
 from pyproj import CRS
 from pyproj.aoi import AreaOfInterest
 from pyproj.database import query_utm_crs_info
 
 from tqdm import tqdm
-
-
-def get_admin_area(place):
-    '''
-    Takes the placename as input and downloads the administrative area, as well as building footprints from OSM
-
-    place = str
-    '''
-    gdf = ox.geocoder.geocode_to_gdf(place)
-    osm_id = gdf.osm_id.loc[0]
-
-    # Define a function to convert lists to strings (so we can save the building geodataframe because OSM includes a list of related nodes by default)
-
-    tags = {"building": True}
-    only_geometry = gdf.geometry
-
-    # TODO: make sure that if there are multiple polygons that we append the different building footprints. Right now we're saving over, right?
-    # Handle Single Geometry: If you need to handle a specific geometry (e.g., the first one), you can extract it using gdf.geometry.iloc[0].
-
-    # Iterate over each polygon in the GeoDataFrame
-    for polygon in gdf.geometry:
-        if polygon.is_valid and isinstance(polygon, (Polygon, MultiPolygon)):
-            try:
-                # Construct the save directory path
-                save_dir = '../data/clean_data/solar/{OSMID}'
-                save_dir = save_dir.format(OSMID=osm_id)
-                file_path = f'{save_dir}/{osm_id}_buildings.gpkg'
-                
-                # Check if the buildings file already exists
-                if os.path.exists(file_path):
-                    print(f'Skipping building download: {osm_id}_buildings.gpkg already exists.')
-                    continue  # Skip the download if the file already exists
-
-                # Create the directory if it does not exist
-                if not os.path.exists(save_dir):
-                    os.makedirs(save_dir)
-                
-                # Download buildings using OSMNx
-                buildings = ox.features_from_polygon(polygon, tags)
-                
-                # Process and save the buildings data
-                buildings = buildings.apply(convert_lists_to_strings, axis=0)
-                buildings.to_file(file_path, driver='GPKG')
-                print(f'Success: Downloaded and saved {buildings.shape[0]} buildings.')
-        
-            except Exception as e:
-                print(f"Error processing polygon: {e}")
-
-    return gdf, osm_id
-
-
-def convert_lists_to_strings(column):
-    if column.dtype == 'object' and column.apply(lambda x: isinstance(x, list)).any():
-        return column.apply(lambda x: ','.join(map(str, x)) if isinstance(x, list) else x)
-    else:
-        return column
-    
-
-def generate_points_within_polygon(polygon, spacing, contains=True):
-    min_x, min_y, max_x, max_y = polygon.bounds
-    #TODO: Rethink the + spacing for within polygon
-    # x_coords = np.arange(min_x - spacing, max_x + spacing, spacing)
-    # y_coords = np.arange(min_y - spacing, max_y + spacing, spacing)
-    # x_coords = np.arange(min_x, max_x + spacing, spacing)
-    # y_coords = np.arange(min_y, max_y + spacing, spacing)
-    x_coords = np.arange(min_x, max_x, spacing)
-    y_coords = np.arange(min_y, max_y, spacing)
-    
-    points = []
-    for x in x_coords:
-        for y in y_coords:
-            point = Point(x, y)
-            if contains is True:
-                if polygon.contains(point):
-                    points.append(point)
-            else:
-                points.append(point)
-    return points
-
-def create_points_geodataframe(gdf, spacing, contains=True, osm_id=int):
-    all_points = []
-    point_ids = []
-    osm_ids = []
-    point_id_counter = 1  # Initialize a counter for unique IDs
-    
-    for idx, row in gdf.iterrows():
-        geom = row.geometry
-        osm_id = row.osm_id
-        
-        if geom.geom_type == 'Polygon':
-            points = generate_points_within_polygon(geom, spacing, contains)
-            print(f"Generated {len(points)} points for Polygon with osm_id {osm_id}")
-            all_points.extend(points)
-            point_ids.extend([f"p_{point_id_counter + i}" for i in range(len(points))])
-            osm_ids.extend([osm_id] * len(points))
-            point_id_counter += len(points)
-        elif geom.geom_type == 'MultiPolygon':
-            for poly in geom.geoms:  # Use geom.geoms to iterate over the individual Polygons
-                points = generate_points_within_polygon(poly, spacing, contains)
-                print(f"Generated {len(points)} points for MultiPolygon with osm_id {osm_id}")
-                all_points.extend(points)
-                point_ids.extend([f"p_{point_id_counter + i}" for i in range(len(points))])
-                osm_ids.extend([osm_id] * len(points))
-                point_id_counter += len(points)
-    
-    points_gdf = gpd.GeoDataFrame({'geometry': all_points, 'id': point_ids, 'osm_id': osm_ids}, crs=gdf.crs)
-    return points_gdf
-
 
 def lat_lon_to_utm_epsg(min_x, min_y, max_x, max_y):
     """
@@ -139,113 +26,7 @@ def lat_lon_to_utm_epsg(min_x, min_y, max_x, max_y):
     utm_crs = CRS.from_epsg(utm_crs_list[0].code)
     return utm_crs
 
-
-def get_query_points(gdf, spacing=900, contains=False, solar_coverage=False, solar_coverage_path=None, osm_id=int):
-    """
-    Processes a GeoDataFrame, reprojects it if necessary, generates points, and plots the result.
-
-    Args:
-        gdf (geopandas.GeoDataFrame): Input GeoDataFrame with geometries.
-        spacing (int): Spacing for point generation, default is 900 meters.
-        contains (bool): Determines whether the points must be contained within polygons, default is False.
-        solar_coverage (bool): Determines whether points should be filtered according to solarAPI availability
-        solar_coverage_path (str): path to SolarAPI coverage file
-
-    Returns:
-        geopandas.GeoDataFrame: A GeoDataFrame of generated points.
-    """
-
-    # Check if the GeoDataFrame has a CRS defined
-    if gdf.crs is None:
-        raise ValueError("Input GeoDataFrame does not have a CRS defined.")
-
-    # Reproject the GeoDataFrame to a projected CRS (e.g., UTM) if it is in a geographic CRS
-    if gdf.crs.is_geographic:
-        # Grabs the overall bounding box to calculate the appropriate UTM zone
-        bounds = gdf.bounds
-        min_x = bounds['minx'].min()
-        max_x = bounds['maxx'].max()
-        min_y = bounds['miny'].min()
-        max_y = bounds['maxy'].max()
-
-        # Convert latitude and longitude bounds to the UTM zone's EPSG code
-        utm_crs = lat_lon_to_utm_epsg(min_x, min_y, max_x, max_y)
-        projected_gdf = gdf.to_crs(utm_crs)
-        print(f'Reprojected to {utm_crs}')
-    else:
-        projected_gdf = gdf.copy()
-        print(f'CRS is already projected')
-
-    print(f"Projected CRS: {projected_gdf.crs}")
-
-    if solar_coverage:
-        # Generate the points GeoDataFrame in the projected CRS
-        points_gdf = create_points_geodataframe(projected_gdf, spacing, contains=contains, osm_id=osm_id)
-
-
-        # Step 1: Create a buffered GeoDataFrame from the projected_gdf
-        buffered_gdf = projected_gdf.copy()
-        buffered_gdf.geometry = buffered_gdf.geometry.buffer(spacing / 2)
-
-        # Step 2: Reproject the points GeoDataFrame to match the buffered CRS
-        points_gdf = points_gdf.to_crs(buffered_gdf.crs)
-
-        # Step 3: Perform a spatial join to find points within the buffered geometries
-        intersecting_points = gpd.sjoin(points_gdf, buffered_gdf, how="inner", predicate="within")
-        intersecting_points = intersecting_points.drop(['index_right', 'osm_id_right'], axis=1)
-        intersecting_points = intersecting_points.rename(columns={'osm_id_left':'osm_id'})
-
-        # Step 4: Read the solar coverage shapefile
-        solar_coverage_high = gpd.read_file(solar_coverage_path)
-
-        # Step 5: Reproject solar coverage to match the points CRS
-        solar_coverage_high.geometry = solar_coverage_high.geometry.to_crs(intersecting_points.crs)
-
-        # Step 6: Perform a spatial join to filter points within the solar coverage area
-        solarapi_points = gpd.sjoin(intersecting_points, solar_coverage_high, how='inner', predicate='within')
-
-        # Step 7: Print and plot the number of intersecting points
-        print(f"Number of intersecting points: {len(intersecting_points)}")
-
-            # Reproject the points back to the original CRS (if necessary)
-        if gdf.crs.is_geographic:
-            solarapi_points = solarapi_points.to_crs(gdf.crs)
-            
-            print(f"Reprojected points back to original CRS: {solarapi_points.crs}")
-
-        
-        # Plot the points and the boundary
-        ax = solarapi_points.plot()
-        gdf.boundary.plot(ax=ax, color='red')
-        plt.show()
-
-        return solarapi_points
-
-    else:
-        # Generate the points GeoDataFrame in the projected CRS
-        points_gdf = create_points_geodataframe(projected_gdf, spacing, contains=contains, osm_id=osm_id)
-
-                    # Reproject the points back to the original CRS (if necessary)
-        if gdf.crs.is_geographic:
-            points_gdf = points_gdf.to_crs(gdf.crs)
-            print(f"Reprojected points back to original CRS: {points_gdf.crs}")
-        
-        # Plot the points and the boundary
-        ax = points_gdf.plot()
-        gdf.boundary.plot(ax=ax, color='red')
-        plt.show()
-
-        return points_gdf
-    
-
-
-
 ##### DOWNLOADING SOLARAPI #######
-
-
-
-
-
 
 def get_solar_data(
     lat: float,
@@ -468,11 +249,11 @@ def download_file(
 
 
 def request_data(points, radiusMeters, view, requiredQuality, pixelSizeMeters,save_dir,osm_id=int):
-    # started to work on returning a dictionary with all filenames for all points, but this requires modification of get_solar_data. 
+    # started to work on returning a dictionary with all filenames for all points, but this requires modification of get_solar_data.
     # all_files_dict = {}
     for idx, row in tqdm(points.iterrows(),  total=points.shape[0]):
         #Get all important attributes from the point
-        geom = row.geometry 
+        geom = row.geometry
         osm_id = row.osm_id
         print(osm_id)
         pid = row.id
@@ -484,4 +265,3 @@ def request_data(points, radiusMeters, view, requiredQuality, pixelSizeMeters,sa
         print(out_dir)
         files = get_solar_data(lat,long,radiusMeters,view,requiredQuality,pixelSizeMeters,out_dir,osm_id,pid)
     return
-    

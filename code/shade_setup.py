@@ -17,7 +17,7 @@ except Exception as e:
 ### Shade calculation setup
 def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/', date=dt.datetime.now(),
                            intervalTime=30, final_stamp=None, start_time=None, shade_fractions=False, onetime=1, filepath_save='None', UTC=0, dst=1, useveg=0, trunkheight=25,
-                           transmissivity=20):
+                           transmissivity=20, height_str=''):
     '''Calculates spot, hourly and or daily shading for a DSM
     Needs:
     filepath_dsm = a path to a (building) dsm,
@@ -108,21 +108,7 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
             if not (vegsizex == sizex) & (vegsizey == sizey):
                 print("Error; All grids must be of same extent and resolution")
                 return
-            ## Removed the option for Trunkzone DSM. Defaults to 25%
-            # if self.dlg.checkBoxTrunkExist.isChecked():
-            #     vegdsm2 = self.layerComboManagerVEGDSM2.currentLayer()
 
-            #     if vegdsm2 is None:
-            #         QMessageBox.critical(None, "Error", "No valid trunk zone DSM selected")
-            #         return
-
-            #     # load raster
-            #     gdal.AllRegister()
-            #     provider = vegdsm2.dataProvider()
-            #     filePathOld = str(provider.dataSourceUri())
-            #     dataSet = gdal.Open(filePathOld)
-            #     vegdsm2 = dataSet.ReadAsArray().astype(float)
-            # else:
             trunkratio = trunkheight / 100.0
             vegdsm2 = vegdsm * trunkratio
 
@@ -139,40 +125,6 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
     except Exception as e:
         print(f"Error at before calculations: {e}")
 
-    ## REMOVED WALLSHADOW FUNCTIONS FOR NOW.
-    # if self.dlg.checkBoxWallsh.isChecked():
-    #     wallsh = 1
-    #     # wall height layer
-    #     whlayer = self.layerComboManagerWH.currentLayer()
-    #     if whlayer is None:
-    #             QMessageBox.critical(None, "Error", "No valid wall height raster layer is selected")
-    #             return
-    #     provider = whlayer.dataProvider()
-    #     filepath_wh= str(provider.dataSourceUri())
-    #     self.gdal_wh = gdal.Open(filepath_wh)
-    #     wheight = self.gdal_wh.ReadAsArray().astype(float)
-    #     vhsizex = wheight.shape[0]
-    #     vhsizey = wheight.shape[1]
-    #     if not (vhsizex == sizex) & (vhsizey == sizey):  # &
-    #         QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
-    #         return
-
-    #     # wall aspectlayer
-    #     walayer = self.layerComboManagerWA.currentLayer()
-    #     if walayer is None:
-    #             QMessageBox.critical(None, "Error", "No valid wall aspect raster layer is selected")
-    #             return
-    #     provider = walayer.dataProvider()
-    #     filepath_wa= str(provider.dataSourceUri())
-    #     self.gdal_wa = gdal.Open(filepath_wa)
-    #     waspect = self.gdal_wa.ReadAsArray().astype(float)
-    #     vasizex = waspect.shape[0]
-    #     vasizey = waspect.shape[1]
-    #     if not (vasizex == sizex) & (vasizey == sizey):
-    #         QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
-    #         return
-    # else:
-
     try:
         wallsh = 0
         wheight = 0
@@ -182,7 +134,6 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
             print("Error", "No output path given")
             return
         else:
-            # date = self.dlg.calendarWidget.selectedDate()
             year = date.year
             month = date.month
             day = date.day
@@ -207,7 +158,7 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
             # shadow result is a list of dictionaries for each shadowfraction interval
             shadowresult = dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem,
                                         intervalTime, final_stamp, start_time, shade_fractions, onetime, filepath_save, gdal_dsm, trans,
-                                        dst, wallsh, wheight, waspect, tile_no)
+                                        dst, wallsh, wheight, waspect, tile_no, height_str)
 
             # TODO: what do we do if this is onetime analysis
             for sh_result in shadowresult:
@@ -215,20 +166,19 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
                 time_vector = sh_result["time_vector"]
 
                 if onetime == 0:
-                    # TODO: change the shadow fraction here to also include time
-                    # so I need to change the time_vector returned by shadowfraction
                     timestr = time_vector.strftime("%Y%m%d_%H%M")
 
-                    # timestr = time_vector.strftime("%Y%m%d")
                     # Changed filepath to include the tile_id in the filename.
-                    # savestr = '/shadow_fraction_on_'
                     savestr = '_shadow_fraction_on_'
                 else:
                     timestr = time_vector.strftime("%Y%m%d_%H%M")
                     # savestr = '/Shadow_at_'
                     savestr = 'Shadow_at_'
 
-                filename = filepath_save + tile_no + savestr + timestr + '.tif'
+                if height_str != '':
+                    filename = filepath_save + tile_no + '_'+ height_str + savestr + timestr + '.tif'
+                else:
+                    filename = filepath_save + tile_no + savestr + timestr + '.tif'
 
                 print("File path trying to save at:", filename)
 
@@ -237,36 +187,9 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
     except Exception as e:
         print(f"Error in shade calc somewhere around daily shading: {e}")
 
-
-        # shfinal = shadowresult["shfinal"]
-        # time_vector = shadowresult["time_vector"]
-
-        # if onetime == 0:
-        #     # TODO: change the shadow fraction here to also include time
-        #     # so I need to change the time_vector returned by shadowfraction
-        #     if shade_fractions:
-        #         timestr = time_vector.strftime("%Y%m%d_%H%M")
-        #     else:
-        #         timestr = time_vector.strftime("%Y%m%d")
-        #     # Changed filepath to include the tile_id in the filename.
-        #     # savestr = '/shadow_fraction_on_'
-        #     savestr = '_shadow_fraction_on_'
-        # else:
-        #     timestr = time_vector.strftime("%Y%m%d_%H%M")
-        #     # savestr = '/Shadow_at_'
-        #     savestr = 'Shadow_at_'
-
-    # filename = filepath_save + tile_no + savestr + timestr + '.tif'
-
-    # print("File path trying to save at:", filename)
-
-    # ## TODO: change to saverasternd or other function
-    # saveraster(gdal_dsm, filename, shfinal)
-
-
 ############## DAILYSHADING ################
 def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem, timeInterval, final_stamp, start_time,
-                 shade_fractions, onetime, folder, gdal_data, trans, dst, wallshadow, wheight, waspect, tile_no):
+                 shade_fractions, onetime, folder, gdal_data, trans, dst, wallshadow, wheight, waspect, tile_no, height_str):
     # lon = lonlat[0]
     # lat = lonlat[1]
     try:
@@ -304,8 +227,6 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
         if onetime == 1:
             itera = 1
         else:
-            print(type(final_stamp))
-            print(type(start_time))
             # Total time difference in minutes between start_time and final_stamp
             time_diff = (final_stamp - start_time).total_seconds() / 60.0
 
@@ -391,7 +312,10 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
             timestr = time_vector.strftime("%Y%m%d_%H%M")
 
             if alt[i] > 0:
-                check_path = folder + tile_no + '_Shadow_' + timestr + '_LST.tif'
+                if height_str != '':
+                    check_path = folder + tile_no + '_'+ height_str + '_Shadow_' + timestr + '_LST.tif'
+                else:
+                    check_path = folder + tile_no + '_Shadow_' + timestr + '_LST.tif'
                 if os.path.exists(check_path):
                     print(f"Skipping calculation. Using existing shadow file: {check_path}")
 
@@ -462,7 +386,10 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
                     # vegshtot = vegshtot + sh
                     # sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, 0)
                     if onetime == 0:
-                        filename = folder + tile_no + '_Shadow_' + timestr + '_LST.tif'
+                        if height_str != '':
+                            filename = folder + tile_no + '_'+ height_str + '_Shadow_' + timestr + '_LST.tif'
+                        else:
+                            filename = folder + tile_no + '_Shadow_' + timestr + '_LST.tif'
                         ## EDITED
                         saveraster(gdal_data, filename, sh)
 
@@ -570,25 +497,21 @@ def saveraster(gdal_data, filename, raster):
     cols = gdal_data.RasterXSize
     driver = gdal.GetDriverByName("GTiff")
 
-    # ✅ Fix: Import `GDT_Float32` from GDAL
+    # Fix: Import `GDT_Float32` from GDAL
     from osgeo.gdal import GDT_Float32
 
     # ✅ Create the output raster file
     outDs = driver.Create(filename, cols, rows, 1, GDT_Float32)
     outBand = outDs.GetRasterBand(1)
 
-    # ✅ Write raster data
+    # Write raster data
     outBand.WriteArray(raster, 0, 0)
 
-    # ✅ Set NoData value
+    # Set NoData value
     outBand.SetNoDataValue(-9999)
 
-    # ✅ Flush cache (ensures data is written to disk)
     outBand.FlushCache()
 
-    # ✅ Set georeferencing (projection & transform)
     outDs.SetGeoTransform(gdal_data.GetGeoTransform())
     outDs.SetProjection(gdal_data.GetProjection())
-
-    # ✅ Fix: Close dataset properly to save changes!
-    outDs = None  # 🚀 Crucial step!
+    outDs = None

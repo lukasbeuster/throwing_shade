@@ -159,7 +159,7 @@ code/
     └── output/
         └── {OSMID}/
             ├── building_shade/
-            └── tree_shade/
+            └── combined_shade/
                 └── {tile_id}/
                     ├── {OSMID}_{tile_id}_Shadow_{DATE}_{TIME}_LST.tif
                     └── {OSMID}_{tile_id}_shadow_fraction_on_{DATE}_{TIME}.tif

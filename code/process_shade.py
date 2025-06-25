@@ -38,71 +38,169 @@ importlib.reload(shade)
 # Set exception handling
 gdal.UseExceptions()
 
-def main(dataset, osmid, unique_ID_column, raster_dir, solstice_day,
-         longitude_column, latitude_column, timestamp_column_name, dst_start, dst_end,
+import argparse
+import os
+import re
+import glob
+import json
+import importlib
+import rasterio
+from rasterio.warp import reproject, Resampling
+from rasterio.windows import from_bounds
+from rasterio.features import rasterize
+from rasterio.transform import from_origin
+from rasterio.transform import Affine
+from rasterio.transform import rowcol
+from rasterio.mask import mask
+import datetime as dt
+from osgeo import gdal, osr
+from osgeo.gdalconst import *
+import shade_setup as shade
+import numpy as np
+import geopandas as gpd
+from datetime import datetime, date, time, timedelta
+import pandas as pd
+from shapely.geometry import box
+from shapely.geometry import mapping
+
+import matplotlib.pyplot as plt
+
+from scipy.ndimage import median_filter
+from scipy.ndimage import uniform_filter
+from scipy.ndimage import gaussian_filter
+from scipy.ndimage import minimum_filter
+
+# import startinpy
+
+import concurrent.futures
+
+importlib.reload(shade)
+
+# Set exception handling
+gdal.UseExceptions()
+
+def main(dataset, osmid, unique_ID_column, raster_dir, year_configs,
+         longitude_column, latitude_column, timestamp_column_name,
          output_path, summer_params, winter_params,
-         combined_sh=False, building_sh=False, interval=30,
+         combined_sh=False, building_sh=False, interval=30, start_time=None,
          geometry=False, crs="EPSG:4326", simulate_solstice=False, bin_size=0,
-         parameters=None, buffer=0, save=False, max_workers=2, binned=False):
+         shade_parameters=None, buffer=[0], save=False, max_workers=2):
     """
-    Main driver function for the shade simulation pipeline. It processes input geospatial data,
-    runs building and/or tree shade simulations, extracts and aggregates shade metrics, and
-    exports the final dataset as a GeoJSON file.
-
-    Parameters:
-        dataset (str): Path to the input GeoJSON or shapefile dataset.
-        osmid (str): OSM ID used to locate raster directories and output structure.
-        unique_ID_column (str): Column name used to group data during final aggregation.
-        raster_dir (str): Directory path containing processed DSM raster files.
-        solstice_day (datetime): Reference date used for temporal binning.
-        longitude_column (str): Name of the longitude column in the dataset.
-        latitude_column (str): Name of the latitude column in the dataset.
-        timestamp_column_name (str): Name of the timestamp column in the dataset.
-        dst_start (datetime.date): Start date of daylight saving time.
-        dst_end (datetime.date): End date of daylight saving time.
-        output_path (str): Path to save the final processed GeoJSON file.
-        summer_params (dict): Parameter dictionary used during summer season shade simulation.
-        winter_params (dict): Parameter dictionary used during winter season shade simulation.
-        combined_sh (bool): Whether to run tree shade simulations.
-        building_sh (bool): Whether to run building shade simulations.
-        interval (int): Time interval (in minutes) to round timestamps. Default is 30.
-        geometry (bool): If True, input dataset already contains geometry.
-        crs (str): Coordinate reference system of the input dataset. Default is EPSG:4326.
-        simulate_solstice (bool): Whether to always simulate the solstice date even if no data exists for it.
-        bin_size (int): Binning radius in days around the solstice.
-        parameters (dict): Dictionary with keys:
-            - 'building_shade_step', 'tree_shade_step', 'bldg_shadow_fraction',
-              'tree_shadow_fraction', and 'hours_before' (list of float/int).
-
-    Returns:
-        GeoDataFrame: Final processed dataset with averaged shade metrics.
+    Handles multi-year processing by running the single-year pipeline for each year
+    using the corresponding solstice and DST settings. Combines the results into one.
     """
-    if parameters is None:
-        parameters = {
-            'building_shade_step': False,
-            'tree_shade_step': False,
-            'bldg_shadow_fraction': False,
-            'tree_shadow_fraction': False,
-            'hours_before': []
-        }
+    def main_single_year(year_dataset, solstice_day, dst_start, dst_end, shade_parameters):
+        """
+        Main driver function for the shade simulation pipeline. It processes input geospatial data,
+        runs building and/or tree shade simulations, extracts and aggregates shade metrics, and
+        exports the final dataset as a GeoJSON file.
 
-    main_raster(osmid, raster_dir, max_workers)
+        Parameters:
+            dataset (str): Path to the input GeoJSON or shapefile dataset.
+            osmid (str): OSM ID used to locate raster directories and output structure.
+            unique_ID_column (str): Column name used to group data during final aggregation.
+            raster_dir (str): Directory path containing processed DSM raster files.
+            solstice_day (datetime): Reference date used for temporal binning.
+            longitude_column (str): Name of the longitude column in the dataset.
+            latitude_column (str): Name of the latitude column in the dataset.
+            timestamp_column_name (str): Name of the timestamp column in the dataset.
+            dst_start (datetime.date): Start date of daylight saving time.
+            dst_end (datetime.date): End date of daylight saving time.
+            output_path (str): Path to save the final processed GeoJSON file.
+            summer_params (dict): Parameter dictionary used during summer season shade simulation.
+            winter_params (dict): Parameter dictionary used during winter season shade simulation.
+            combined_sh (bool): Whether to run combined shade simulations.
+            building_sh (bool): Whether to run building shade simulations.
+            interval (int): Time interval (in minutes) to round timestamps. Default is 30.
+            geometry (bool): If True, input dataset already contains geometry.
+            crs (str): Coordinate reference system of the input dataset. Default is EPSG:4326.
+            simulate_solstice (bool): Whether to always simulate the solstice date even if no data exists for it.
+            bin_size (int): Binning radius in days around the solstice.
+            parameters (dict): Dictionary with keys:
+                - 'building_shade_step', 'combined_shade_step', 'bldg_shadow_fraction',
+                'combined_shadow_fraction', and 'hours_before' (list of float/int).
 
-    dataset_gdf, tile_grouped_days, original_dataset = load_and_preprocess_dataset(
-        dataset, osmid, solstice_day, longitude_column, latitude_column, timestamp_column_name,
-        dst_start, dst_end, interval, geometry, crs, simulate_solstice, bin_size
+        Returns:
+            GeoDataFrame: Final processed dataset with averaged shade metrics.
+        """
+        if shade_parameters is None:
+            print("Warning: Shade parameters is empty")
+            shade_parameters = {
+                'building_shade_step': False,
+                'combined_shade_step': False,
+                'bldg_shadow_fraction': False,
+                'combined_shadow_fraction': False,
+                'hours_before': []
+            }
+
+        binned = bin_size > 0
+
+        main_raster(osmid, raster_dir, max_workers)
+
+        dataset_gdf, tile_grouped_days, original_dataset = load_and_preprocess_dataset(
+            year_dataset, osmid, solstice_day, longitude_column, latitude_column, timestamp_column_name,
+            dst_start, dst_end, interval, geometry, crs, simulate_solstice, bin_size
+        )
+
+        run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, solstice_day, summer_params, winter_params, combined_sh, building_sh, interval, start_time, max_workers)
+
+        dataset_with_shade = extract_and_merge_shade_values(dataset_gdf, osmid, shade_parameters, buffer, max_workers, binned, start_time)
+
+        dataset_with_shade = dataset_with_shade.set_crs(crs, allow_override=True)
+
+        dataset_final = aggregate_results(dataset_with_shade, original_dataset, unique_ID_column, shade_parameters, buffer)
+
+        dataset_final = dataset_final.set_crs(crs, allow_override=True)
+
+        if save:
+            dataset_final.to_file(output_path, driver="GeoJSON")
+
+        return dataset_final
+
+    save_run_parameters(
+        output_path=output_path,
+        osmid=osmid,
+        summer_params=summer_params,
+        winter_params=winter_params,
+        year_configs=year_configs,
+        sh_int=interval,
+        building_sh=building_sh,
+        combined_sh=combined_sh,
+        parameters=shade_parameters,
+        bin_size=bin_size,
+        buffer=buffer,
+        start_time=start_time
     )
 
-    run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, solstice_day, summer_params, winter_params, combined_sh, building_sh, interval, max_workers)
+    all_results = []
 
-    dataset_with_shade = extract_and_merge_shade_values(dataset_gdf, osmid, parameters, buffer, max_workers, binned, unique_ID_column)
+    for year, config in year_configs.items():
+        print(f"🔄 Processing year {year}...")
 
-    dataset_final = aggregate_results(dataset_with_shade, original_dataset, unique_ID_column, parameters)
+        # Filter input dataset for this year
+        year_data = dataset[pd.to_datetime(dataset[timestamp_column_name]).dt.year == year]
 
-    if save:
-        dataset_final.to_file(output_path, driver="GeoJSON")
+        if year_data.empty:
+            print(f"⚠️ No data for year {year}, skipping.")
+            continue
 
-    return dataset_final
+        result = main_single_year(year_data, config["solstice_day"], config["dst_start"], config["dst_end"], shade_parameters)
+
+        all_results.append(result)
+
+    # Combine all years into a single GeoDataFrame
+    if all_results:
+        final_result = pd.concat(all_results, ignore_index=True)
+        final_result = gpd.GeoDataFrame(final_result, geometry='geometry')
+        final_result = final_result.set_crs(crs, allow_override=True)
+
+        if save and output_path:
+            final_result.to_file(output_path, driver="GeoJSON")
+
+        return final_result
+    else:
+        print("❌ No results generated for any year.")
+        return None
 
 # MAIN HELPERS
 
@@ -144,8 +242,8 @@ def load_and_preprocess_dataset(dataset, osmid, solstice_day,
     )
     return dataset_gdf, tile_grouped_days, dataset_copy
 
-def run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, solstice_day,
-                          summer_params, winter_params, combined, building, interval, max_workers):
+def run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, solstice_day, summer_params,
+                          winter_params, combined, building, interval, start_time, max_workers):
     """
     Submits shade simulation jobs (building/tree) for each tile and binned date
     based on seasonal classification.
@@ -167,18 +265,19 @@ def run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, solstice_day,
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         for tile_id, dates in tile_grouped_days.items():
             tile_dataset = dataset_gdf[dataset_gdf['tile_number'] == tile_id]
-            for date_t, timestamps in dates.items():
-                subset = tile_dataset[tile_dataset['binned_date'] == date_t]
+            for sim_date, timestamps in dates.items():
+                subset = tile_dataset[tile_dataset['binned_date'] == sim_date]
                 if not subset.empty:
                     season = subset["season"].values[0]
                     params = summer_params if season == 1 else winter_params
-                    executor.submit(main_shade, osmid, tile_id, timestamps, date_t, interval, params, combined=combined, building=building)
-                elif date_t == solstice_day.date():
-                    executor.submit(main_shade, osmid, tile_id, [None, []], date_t, interval, summer_params, combined=combined, building=building)
+                    # SHADE
+                    executor.submit(main_shade, osmid, tile_id, timestamps, sim_date, start_time, interval, params, combined, building)
+                elif sim_date == solstice_day.date():
+                    executor.submit(main_shade, osmid, tile_id, [None, []], sim_date, start_time, interval, summer_params, combined, building)
                 else:
-                    raise ValueError(f"No data available for the day: {date_t}")
+                    raise ValueError(f"No data available for the day: {sim_date}")
 
-def extract_and_merge_shade_values(dataset_gdf, osmid, parameters, buffer, max_workers, binned, unique_ID_column):
+def extract_and_merge_shade_values(dataset_gdf, osmid, shade_parameters, buffer, max_workers, binned, start_time):
     """
     Extracts shade values for each timestamp-tile subset using parallel execution,
     based on specified simulation parameters.
@@ -187,8 +286,8 @@ def extract_and_merge_shade_values(dataset_gdf, osmid, parameters, buffer, max_w
         dataset_gdf (GeoDataFrame): Input dataset with assigned tiles and timestamps.
         osmid (str): OSM ID used to locate raster files.
         parameters (dict): Dict with keys:
-            - 'building_shade_step', 'tree_shade_step',
-              'bldg_shadow_fraction', 'tree_shadow_fraction',
+            - 'building_shade_step', 'combined_shade_step',
+              'bldg_shadow_fraction', 'combined_shadow_fraction',
               'hours_before' (list of float/int)
 
     Returns:
@@ -201,14 +300,9 @@ def extract_and_merge_shade_values(dataset_gdf, osmid, parameters, buffer, max_w
             tile_data = dataset_gdf[dataset_gdf["tile_number"] == tile_no]
             for timestamp in tile_data["rounded_timestamp"].unique():
                 subset = tile_data[tile_data["rounded_timestamp"] == timestamp]
-                future = executor.submit(process_subset, subset, osmid, unique_ID_column,
-                                         building_shade_step=parameters['building_shade_step'],
-                                         tree_shade_step=parameters['tree_shade_step'],
-                                         bldg_shadow_fraction=parameters['bldg_shadow_fraction'],
-                                         tree_shadow_fraction=parameters['tree_shadow_fraction'],
-                                         hours_before=parameters['hours_before'],
-                                        buffer=buffer,
-                                        binned=binned)
+                future = executor.submit(get_dataset_shaderesult, subset, osmid, shade_parameters['building_shade_step'], shade_parameters['combined_shade_step'],
+                                         shade_parameters['bldg_shadow_fraction'], shade_parameters['combined_shadow_fraction'], shade_parameters['hours_before'],
+                                         buffer, binned, start_time)
                 futures.append(future)
 
         for future in futures:
@@ -216,7 +310,7 @@ def extract_and_merge_shade_values(dataset_gdf, osmid, parameters, buffer, max_w
 
     return pd.concat(results, axis=0)
 
-def aggregate_results(dataset_with_shade, original_dataset, unique_ID_column, parameters):
+def aggregate_results(dataset_with_shade, original_dataset, unique_ID_column, shade_parameters, buffer):
     """
     Aggregates extracted shade metrics by the given unique ID column and merges
     the results back into the original dataset.
@@ -233,23 +327,27 @@ def aggregate_results(dataset_with_shade, original_dataset, unique_ID_column, pa
     shade_columns = []
     critical_columns = []  # Only columns we require to be non-NaN
 
-    if parameters['building_shade_step']:
-        shade_columns.append("building_shade")
-        critical_columns.append("building_shade")  # Required
-        shade_columns += [f"bldg_{h}_before_shadow_fraction" for h in parameters['hours_before']]
+    if shade_parameters['building_shade_step']:
+        for bf in buffer:
+            shade_columns.append(f"building_shade_buffer{bf}")
+            critical_columns.append(f"building_shade_buffer{bf}")  # Required
+            shade_columns += [f"bldg_{h}_before_shadow_fraction_buffer{bf}" for h in shade_parameters['hours_before']]
 
-    if parameters['bldg_shadow_fraction']:
-        shade_columns.append("bldg_shadow_fraction")
-        critical_columns.append("bldg_shadow_fraction")  # Required
+    if shade_parameters['bldg_shadow_fraction']:
+        for bf in buffer:
+            shade_columns.append(f"bldg_shadow_fraction_buffer{bf}")
+            critical_columns.append(f"bldg_shadow_fraction_buffer{bf}")  # Required
 
-    if parameters['tree_shade_step']:
-        shade_columns.append("tree_shade")
-        critical_columns.append("tree_shade")  # Required
-        shade_columns += [f"tree_{h}_before_shadow_fraction" for h in parameters['hours_before']]
+    if shade_parameters['combined_shade_step']:
+        for bf in buffer:
+            shade_columns.append(f"combined_shade_buffer{bf}")
+            critical_columns.append(f"combined_shade_buffer{bf}")  # Required
+            shade_columns += [f"combined_{h}_before_shadow_fraction_buffer{bf}" for h in shade_parameters['hours_before']]
 
-    if parameters['tree_shadow_fraction']:
-        shade_columns.append("tree_shadow_fraction")
-        critical_columns.append("tree_shadow_fraction")  # Required
+    if shade_parameters['combined_shadow_fraction']:
+        for bf in buffer:
+            shade_columns.append(f"combined_shadow_fraction_buffer{bf}")
+            critical_columns.append(f"combined_shadow_fraction_buffer{bf}")  # Required
 
     # Drop only if required columns are NaN — not the before_fraction columns
     dataset_cleaned = dataset_with_shade.dropna(subset=critical_columns)
@@ -260,10 +358,8 @@ def aggregate_results(dataset_with_shade, original_dataset, unique_ID_column, pa
     merged = original_dataset.merge(dataset_aggregated, on=unique_ID_column, how="inner")
     return gpd.GeoDataFrame(merged, geometry='geometry')
 
-# SHADE
-
-def main_shade(osmid, tile_id, timestamps, date_c, shade_interval=30, inputs={'utc':1, 'dst':0, 'trs':10}, start_time=None,
-               combined=False, building=False):
+def main_shade(osmid, tile_id, timestamps, sim_date, start_time, shade_interval, inputs,
+               combined, building):
     """
     Coordinates and initiates shade simulation for a specific tile by locating building and canopy DSM rasters
     and calling the `shade_processing` function with appropriate parameters.
@@ -293,14 +389,21 @@ def main_shade(osmid, tile_id, timestamps, date_c, shade_interval=30, inputs={'u
     """
     # Directory containing the raster files
     processing_dir = f"../data/clean_data/solar/{osmid}/rdy_for_processing/"
-    # processing_dir = f'../data/clean_data/solar/{osmid}/rdy_for_processing/'
 
+    # Handle start_time input flexibly
     if start_time is None:
-        if isinstance(date_c, datetime):
-            start_time = date_c.replace(hour=0, minute=0, second=0)
-        else:
-            # Assume it's a date, convert to datetime
-            start_time = datetime.combine(date_c, datetime.min.time())
+        start_time = datetime.combine(sim_date, time(0, 0))
+    elif isinstance(start_time, str):
+        # Assume format like "11:00"
+        start_time_obj = datetime.strptime(start_time, "%H:%M").time()
+        start_time = datetime.combine(sim_date, start_time_obj)
+    elif isinstance(start_time, time):
+        start_time = datetime.combine(sim_date, start_time)
+    elif isinstance(start_time, datetime):
+        # Use it directly
+        pass
+    else:
+        raise ValueError("Invalid format for start_time")
 
     building_file = [
         bldg_path for bldg_path in glob.glob(os.path.join(processing_dir, '*building_dsm.tif')) if (f"{tile_id}_" in bldg_path)
@@ -314,8 +417,7 @@ def main_shade(osmid, tile_id, timestamps, date_c, shade_interval=30, inputs={'u
 
     if identifier+"_" in canopy_file[0]:
         matched_chm_path = canopy_file[0]
-        # tile = "_".join(identifier.split('_')[-2:])
-        shade_processing(building_file[0], matched_chm_path, osmid, date_c, shade_interval, timestamps, start_time, inputs, combined, building)
+        shade_processing(building_file[0], matched_chm_path, osmid, sim_date, shade_interval, timestamps, start_time, inputs, combined, building)
     else:
         raise Exception("Wasn't able to match chm_path to building path in shade processing")
 
@@ -334,45 +436,38 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, shade_interval, t
             - final_stamp (datetime): The final timestamp to simulate.
             - intervals (list): List of intermediate datetime intervals.
         start_time (datetime.datetime): Starting time for the shade simulation window.
-        inputs (dict): Dictionary of simulation parameters, typically including:
-            - 'utc' (int): UTC offset.
-            - 'dst' (int): Daylight Saving Time offset.
-            - 'trs' (float): Transmissivity value (e.g., 10 for 10%).
+        inputs (dict): Dictionary of simulation parameters, including:
+            - 'utc', 'dst', 'trs'.
         combined (bool): If True, run tree shade simulation.
         building (bool): If True, run building shade simulation.
 
     Returns:
         None
-
-    Notes:
-        - Shade simulation is skipped for intervals with existing output files.
-        - Output files are saved to 'results/output/{osmid}/building_shade/' and
-          'results/output/{osmid}/tree_shade/' respectively.
-        - `directory_check` is used to determine which files already exist.
-        - `filter_intervals` is used to avoid redundant computation.
     """
-    def run_building_shade(inputs):
-        shade_bldg = shade.shadecalculation_setup(
-                    filepath_dsm=bldg_path,
-                    filepath_veg=matched_chm_path,
-                    tile_no=tile_no,
-                    date=date,
-                    intervalTime=shade_interval,
-                    final_stamp=final_stamp,
-                    start_time=start_time,
-                    shade_fractions=building_intervals_needed,
-                    onetime=0,
-                    filepath_save=building_directory,
-                    UTC=inputs['utc'],
-                    dst=inputs['dst'],
-                    useveg=0,
-                    trunkheight=25,
-                    # CHANGED TRANSMISSIVITY from 15 to 10 percent
-                    transmissivity=inputs['trs']
-                )
 
-    def run_tree_shade(inputs):
-        shade_veg = shade.shadecalculation_setup(
+    def run_building_shade(inputs, bldg_path, matched_chm_path, tile_no, date, shade_interval,
+                           final_stamp, start_time, building_intervals_needed, building_directory):
+        shade.shadecalculation_setup(
+            filepath_dsm=bldg_path,
+            filepath_veg=matched_chm_path,
+            tile_no=tile_no,
+            date=date,
+            intervalTime=shade_interval,
+            final_stamp=final_stamp,
+            start_time=start_time,
+            shade_fractions=building_intervals_needed,
+            onetime=0,
+            filepath_save=building_directory,
+            UTC=inputs['utc'],
+            dst=inputs['dst'],
+            useveg=0,
+            trunkheight=25,
+            transmissivity=inputs['trs']
+        )
+
+    def run_tree_shade(inputs, bldg_path, matched_chm_path, tile_no, date, shade_interval,
+                       final_stamp, start_time, tree_intervals_needed, tree_directory):
+        shade.shadecalculation_setup(
             filepath_dsm=bldg_path,
             filepath_veg=matched_chm_path,
             tile_no=tile_no,
@@ -389,7 +484,6 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, shade_interval, t
             trunkheight=25,
             transmissivity=inputs['trs']
         )
-
 
     final_stamp, intervals = timestamps[0], timestamps[1]
 
@@ -413,82 +507,92 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, shade_interval, t
     else:
         print(f"The file {matched_chm_path} does not exist.")
 
-    # Create directories
     folder_no = identifier.split('_')[-1]
     folder_no = '/' + folder_no
     tile_no = identifier
-    # tile_no = '/' + identifier
 
     building_directory = f"results/output/{osmid}/building_shade/{folder_no}/"
-    tree_directory = f"results/output/{osmid}/tree_shade/{folder_no}/"
-
-    # if shade_intervals is not empty, the return here is a list of booleans whether the file exists for each interval
-    # if it is empty it is a single boolean for the final timestamp basically
-    # TODO: Maybe should I add the final_stamp to the interval check somehow
-    building_shadow_files_exist = directory_check(building_directory, shadow_check=True, shade_intervals=all_intervals, date=date)
-    tree_shadow_files_exist = directory_check(tree_directory, shadow_check=True, shade_intervals=all_intervals, date=date)
-
-    if all_intervals:
-        # filter to only calculate intervals that don't have a file
-        building_intervals_needed, tree_intervals_needed = filter_intervals(all_intervals, building_shadow_files_exist, tree_shadow_files_exist)
-    else:
-        building_intervals_needed = False
-        tree_intervals_needed = False
+    tree_directory = f"results/output/{osmid}/combined_shade/{folder_no}/"
 
     if building:
+        building_shadow_files_exist = directory_check(
+            building_directory, shadow_check=True, shade_intervals=all_intervals, date=date
+        )
+        building_intervals_needed = (
+            filter_intervals(all_intervals, building_shadow_files_exist) if all_intervals else False
+        )
+
         print("Processing building shade...")
-        if not building_shadow_files_exist:
-            run_building_shade(inputs)
-        elif isinstance(building_shadow_files_exist, list):
-            if not all(building_shadow_files_exist):
-                run_building_shade(inputs)
+        if not building_shadow_files_exist or (
+            isinstance(building_shadow_files_exist, list) and not all(building_shadow_files_exist)
+        ):
+            run_building_shade(
+                inputs, bldg_path, matched_chm_path, tile_no, date,
+                shade_interval, final_stamp, start_time,
+                building_intervals_needed, building_directory
+            )
 
     if combined:
-        print("Processing tree shade...")
-        if not tree_shadow_files_exist:
-            run_tree_shade(inputs)
-        elif isinstance(tree_shadow_files_exist, list):
-            if not all(tree_shadow_files_exist):
-                run_tree_shade(inputs)
+        tree_shadow_files_exist = directory_check(
+            tree_directory, shadow_check=True, shade_intervals=all_intervals, date=date
+        )
+        tree_intervals_needed = (
+            filter_intervals(all_intervals, tree_shadow_files_exist) if all_intervals else False
+        )
+
+        print("Processing combined shade...")
+        if not tree_shadow_files_exist or (
+            isinstance(tree_shadow_files_exist, list) and not all(tree_shadow_files_exist)
+        ):
+            run_tree_shade(
+                inputs, bldg_path, matched_chm_path, tile_no, date,
+                shade_interval, final_stamp, start_time,
+                tree_intervals_needed, tree_directory
+            )
+
+def save_run_parameters(output_path, osmid, summer_params, winter_params, year_configs,
+                        sh_int, building_sh, combined_sh, parameters, bin_size, buffer, start_time):
+    """
+    Saves the simulation run parameters as a JSON-formatted .txt file for reproducibility.
+    """
+    script_start_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+    param_data = {
+        "script_run_start": script_start_time,
+        "osmid": osmid,
+        "summer_params": summer_params,
+        "winter_params": winter_params,
+        "year_configs": {
+            year: {
+                "solstice_day": str(cfg["solstice_day"]),
+                "dst_start": str(cfg["dst_start"]),
+                "dst_end": str(cfg["dst_end"]),
+            }
+            for year, cfg in year_configs.items()
+        },
+        "shade_interval_minutes": sh_int,
+        "building_shade": building_sh,
+        "combined_shade": combined_sh,
+        "shade_parameters": parameters,
+        "bin_size_days": bin_size,
+        "buffer_meters": buffer,
+        "shade_simulation_start_time": str(start_time) if start_time else None
+    }
+
+    # Construct file name
+    base_dir = os.path.dirname(output_path)
+    file_name = f"parameters_file_{script_start_time}.txt"
+    file_path = os.path.join(base_dir, file_name)
+
+    with open(file_path, 'w') as f:
+        json.dump(param_data, f, indent=4)
+
+    print(f"📝 Parameters saved to {file_path}")
 
 # SHADE DATA JOIN
 
-def process_subset(timestamp_data, osmid, unique_ID_column, building_shade_step=False, tree_shade_step=False,
-                   bldg_shadow_fraction=False, tree_shadow_fraction=False, hours_before=[], buffer=0,
-                   binned=False):
-    """
-    Wrapper function for processing a subset of spatial-temporal data, intended for use in parallelized workflows.
-
-    Parameters:
-        timestamp_data (GeoDataFrame): Subset of the dataset to be processed, including point geometries,
-                                       timestamps, and tile metadata.
-        osmid (str): Unique identifier used to construct raster file paths.
-        building_shade_step (bool): If True, extracts building shade values.
-        tree_shade_step (bool): If True, extracts tree shade values.
-        bldg_shadow_fraction (bool): If True, extracts building shadow fraction rasters.
-        tree_shadow_fraction (bool): If True, extracts tree shadow fraction rasters.
-        hours_before (list of int/float): List of hour values to compute time-averaged shadow fractions
-                                          before each timestamp.
-        buffer (float): Buffer distance (in meters) to apply around each point for raster extraction.
-        binned (bool): If True, uses 'binned_date' instead of direct timestamps for raster matching.
-
-    Returns:
-        GeoDataFrame: The input `timestamp_data` with additional columns for each requested shade metric.
-    """
-    return get_dataset_shaderesult(
-        timestamp_data, osmid, unique_ID_column,
-        building_shade_step=building_shade_step,
-        tree_shade_step=tree_shade_step,
-        bldg_shadow_fraction=bldg_shadow_fraction,
-        tree_shadow_fraction=tree_shadow_fraction,
-        hours_before=hours_before,
-        buffer=buffer,
-        binned=binned
-    )
-
-def get_dataset_shaderesult(dataset, osmid, unique_ID_column, building_shade_step, tree_shade_step,
+def get_dataset_shaderesult(dataset, osmid, building_shade_step, tree_shade_step,
                             bldg_shadow_fraction, tree_shadow_fraction, hours_before,
-                            buffer, binned):
+                            buffer, binned, start_time):
     """
     Extracts and appends shade-related raster values for each point in a dataset based on
     a specified timestamp and tile location.
@@ -502,9 +606,9 @@ def get_dataset_shaderesult(dataset, osmid, unique_ID_column, building_shade_ste
                                 including 'tile_number' and 'rounded_timestamp' columns.
         osmid (str): Unique identifier for the tile, used to construct file paths.
         building_shade_step (bool): If True, extracts instantaneous building shade values.
-        tree_shade_step (bool): If True, extracts instantaneous tree shade values.
+        combined_shade_step (bool): If True, extracts instantaneous combined shade values.
         bldg_shadow_fraction (bool): If True, extracts building shadow fraction raster values.
-        tree_shadow_fraction (bool): If True, extracts tree shadow fraction raster values.
+        combined_shadow_fraction (bool): If True, extracts combined shadow fraction raster values.
         hours_before (list of int/float or None): Optional list of hour values for computing average
                                                   shadow fractions prior to the timestamp.
         buffer (float): Buffer distance (in meters) around each point for raster value extraction.
@@ -527,74 +631,100 @@ def get_dataset_shaderesult(dataset, osmid, unique_ID_column, building_shade_ste
     rounded_timestamp = dataset["rounded_timestamp"].unique()[0]
     tile_number = tile_id.split("_")[-1]
 
+    # Resolve timestamp
     if binned:
         binned_date = dataset["binned_date"].unique()[0]
-        if isinstance(binned_date, date) and not isinstance(binned_date, datetime):  # Use 'date' and 'datetime' from datetime module
-            binned_date = datetime.combine(binned_date, time())  # Convert date-only to full datetime
-            binned_rounded_ts = binned_date.replace(hour=rounded_timestamp.hour, minute=rounded_timestamp.minute, second=rounded_timestamp.second)
-        else:
-            binned_rounded_ts = binned_date.replace(hour=rounded_timestamp.hour, minute=rounded_timestamp.minute, second=rounded_timestamp.second)
-
-        rounded_ts = binned_rounded_ts
-
+        if isinstance(binned_date, date) and not isinstance(binned_date, datetime):
+            binned_date = datetime.combine(binned_date, time())
+        rounded_ts = binned_date.replace(
+            hour=rounded_timestamp.hour,
+            minute=rounded_timestamp.minute,
+            second=rounded_timestamp.second,
+        )
     else:
         rounded_ts = rounded_timestamp
 
-    # Define paths for shade rasters
-    base_path = f"results/output/{osmid}"
+    # Resolve start_time
+    if start_time is not None:
+        if isinstance(start_time, str):
+            start_time = datetime.combine(rounded_ts.date(), datetime.strptime(start_time, "%H:%M").time())
+        elif isinstance(start_time, time):
+            start_time = datetime.combine(rounded_ts.date(), start_time)
 
-    building_shade_path = f"{base_path}/building_shade/{tile_number}/{osmid}_{tile_id}_Shadow_{rounded_ts.strftime('%Y%m%d_%H%M')}_LST.tif"
-    tree_shade_path = f"{base_path}/tree_shade/{tile_number}/{osmid}_{tile_id}_Shadow_{rounded_ts.strftime('%Y%m%d_%H%M')}_LST.tif"
-    bldg_shadow_fraction_path = f"{base_path}/building_shade/{tile_number}/{osmid}_{tile_id}_shadow_fraction_on_{rounded_ts.strftime('%Y%m%d_%H%M')}.tif"
-    tree_shadow_fraction_path = f"{base_path}/tree_shade/{tile_number}/{osmid}_{tile_id}_shadow_fraction_on_{rounded_ts.strftime('%Y%m%d_%H%M')}.tif"
+        if rounded_ts < start_time:
+            # Build columns and return NaNs early
+            shade_columns = []
 
-    # Initialize empty result DataFrame
-    result_df = pd.DataFrame(index=dataset.index)
+            for bf in buffer:
+                if building_shade_step:
+                    shade_columns.append(f"building_shade_buffer{bf}")
+                if tree_shade_step:
+                    shade_columns.append(f"combined_shade_buffer{bf}")
+                if bldg_shadow_fraction:
+                    shade_columns.append(f"bldg_shadow_fraction_buffer{bf}")
+                if tree_shadow_fraction:
+                    shade_columns.append(f"combined_shadow_fraction_buffer{bf}")
+                if hours_before:
+                    for hr in hours_before:
+                        assert isinstance(hr, (int, float)), "hours_before must be int/float"
+                        if tree_shade_step:
+                            shade_columns.append(f"combined_{hr}_before_shadow_fraction_buffer{bf}")
+                        if building_shade_step:
+                            shade_columns.append(f"bldg_{hr}_before_shadow_fraction_buffer{bf}")
 
-    # TODO: get building mask path and submit to extract_values_from_raster
+            return pd.concat([dataset, pd.DataFrame({col: np.nan for col in shade_columns}, index=dataset.index)], axis=1)
+
+    # Start raster extraction
+    base_path = f"results/{osmid}"
+    ts_str = rounded_ts.strftime('%Y%m%d_%H%M')
+
+    paths = {
+        "building_shade": f"{base_path}/building_shade/{tile_number}/{osmid}_{tile_id}_Shadow_{ts_str}_LST.tif",
+        "tree_shade": f"{base_path}/combined_shade/{tile_number}/{osmid}_{tile_id}_Shadow_{ts_str}_LST.tif",
+        "bldg_shadow_fraction": f"{base_path}/building_shade/{tile_number}/{osmid}_{tile_id}_shadow_fraction_on_{ts_str}.tif",
+        "tree_shadow_fraction": f"{base_path}/combined_shade/{tile_number}/{osmid}_{tile_id}_shadow_fraction_on_{ts_str}.tif",
+    }
+
     building_mask_file = [
-        bldg_path for bldg_path in glob.glob(os.path.join(f"../data/clean_data/solar/{osmid}", '*mask.tif')) if f"{tile_id}_" in bldg_path
+        b for b in glob.glob(os.path.join(f"../data/clean_data/solar/{osmid}", '*mask.tif')) if f"{tile_id}_" in b
     ]
-
     if not building_mask_file:
         raise Exception("Couldn't find building mask file to extract shade values")
-    else:
-        building_mask_path = building_mask_file[0]
+    building_mask_path = building_mask_file[0]
 
-    # Extract values if the respective shade calculations exist
+    result_df = pd.DataFrame(index=dataset.index)
+
     if building_shade_step:
-        result_df["building_shade"] = extract_values_from_raster(building_shade_path, building_mask_path, dataset, unique_ID_column, buffer=buffer)
+        for bf in buffer:
+            result_df[f"building_shade_buffer{bf}"] = extract_values_from_raster(paths["building_shade"], building_mask_path, dataset, bf)
 
     if tree_shade_step:
-        result_df["tree_shade"] = extract_values_from_raster(tree_shade_path, building_mask_path, dataset, unique_ID_column, buffer=buffer)
+        for bf in buffer:
+            result_df[f"combined_shade_buffer{bf}"] = extract_values_from_raster(paths["tree_shade"], building_mask_path, dataset, bf)
 
     if bldg_shadow_fraction:
-        result_df["bldg_shadow_fraction"] = extract_values_from_raster(bldg_shadow_fraction_path, building_mask_path, dataset, unique_ID_column, buffer=buffer)
+        for bf in buffer:
+            result_df[f"bldg_shadow_fraction_buffer{bf}"] = extract_values_from_raster(paths["bldg_shadow_fraction"], building_mask_path, dataset, bf)
 
     if tree_shadow_fraction:
-        result_df["tree_shadow_fraction"] = extract_values_from_raster(tree_shadow_fraction_path, building_mask_path, dataset, unique_ID_column, buffer=buffer)
+        for bf in buffer:
+            result_df[f"combined_shadow_fraction_buffer{bf}"] = extract_values_from_raster(paths["tree_shadow_fraction"], building_mask_path, dataset, bf)
 
     if hours_before:
-        for hr_before in hours_before:
-            # Ensure `hours_before` is a valid number
-            assert isinstance(hr_before, (int, float)), "hours_before must be an int or float"
-
+        for hr in hours_before:
+            assert isinstance(hr, (int, float)), "hours_before must be int/float"
             if tree_shade_step:
-                result_df[f"tree_{hr_before}_before_shadow_fraction"] = hours_before_shadow_fr(
-                    dataset, base_path, building_mask_path, "tree_shade", rounded_ts, tile_number, osmid, hr_before, buffer
-                )
-
+                for bf in buffer:
+                    col = f"combined_{hr}_before_shadow_fraction_buffer{bf}"
+                    result_df[col] = hours_before_shadow_fr(dataset, base_path, building_mask_path, "combined_shade", rounded_ts, tile_number, osmid, hr, bf)
             if building_shade_step:
-                result_df[f"bldg_{hr_before}_before_shadow_fraction"] = hours_before_shadow_fr(
-                    dataset, base_path, building_mask_path, "building_shade", rounded_ts, tile_number, osmid, hr_before, buffer
-                )
+                for bf in buffer:
+                    col = f"bldg_{hr}_before_shadow_fraction_buffer{bf}"
+                    result_df[col] = hours_before_shadow_fr(dataset, base_path, building_mask_path, "building_shade", rounded_ts, tile_number, osmid, hr, bf)
 
-    # Merge results back into dataset
-    dataset_final = pd.concat([dataset, result_df], axis=1)
+    return pd.concat([dataset, result_df], axis=1)
 
-    return dataset_final
-
-def extract_values_from_raster(raster_path, building_mask_path, dataset, unique_ID_column, buffer=0):
+def extract_values_from_raster(raster_path, building_mask_path, dataset, buffer):
     """
     Extracts shade (or similar raster) values at each point location in a dataset, optionally
     averaging over a surrounding buffer, and excluding areas covered by buildings.
@@ -610,7 +740,7 @@ def extract_values_from_raster(raster_path, building_mask_path, dataset, unique_
     dataset : GeoDataFrame
         GeoDataFrame containing point geometries at which to extract values.
 
-    buffer : float, optional (default = 0)
+    buffer : float
         Buffer radius in meters. If greater than 0, the average raster value
         is computed over a square window of surrounding pixels.
 
@@ -722,7 +852,7 @@ def hours_before_shadow_fr(dataset, base_path, building_mask_path, shade_type, r
         dataset (GeoDataFrame): GeoDataFrame containing the point geometries for which shadow fractions will be computed.
         base_path (str): Root directory where the shadow raster files are stored.
         building_mask_path (str): File path to a raster mask used to exclude building-covered areas when extracting values.
-        shade_type (str): Type of shade raster to use (e.g., "tree_shade" or "building_shade").
+        shade_type (str): Type of shade raster to use (e.g., "combined_shade" or "building_shade").
         rounded_timestamp (datetime.datetime): The main timestamp of interest for computing shadow coverage.
         tile_number (str): Tile ID to locate corresponding raster files.
         osmid (str): Unique identifier for the tile (used in constructing raster filenames).
@@ -789,10 +919,11 @@ def hours_before_shadow_fr(dataset, base_path, building_mask_path, shade_type, r
 
 def get_shade_files_in_range(base_path, shade_type, tile_number, osmid, start_hour, rounded_timestamp):
     """
-    Get all tree shade files in a directory within the range of start_hour and rounded_timestamp (inclusive).
+    Get all shade files in a directory within the range of start_hour and rounded_timestamp (inclusive).
 
     Parameters:
-        base_path (str): The base directory where tree shade files are stored.
+        base_path (str): The base directory where shade files are stored.
+        shade_type (str): The type of shade to get the files
         tile_number (str): The tile number for shade calculations.
         osmid (str): The unique ID for the dataset.
         start_hour (datetime): The lower bound timestamp (inclusive).
@@ -801,7 +932,6 @@ def get_shade_files_in_range(base_path, shade_type, tile_number, osmid, start_ho
     Returns:
         list: List of full file paths that fall within the specified time range.
     """
-    # Directory containing the tree shade files
     directory = f"{base_path}/{shade_type}/{tile_number}/"
 
     # Ensure directory exists
@@ -837,7 +967,7 @@ def get_closest_shade_file(base_path, shade_type, tile_number, osmid, start_hour
     If two timestamps are equidistant, choose the later one.
 
     Parameters:
-        base_path (str): The base directory where tree shade files are stored.
+        base_path (str): The base directory where shade files are stored.
         tile_number (str): The tile number for shade calculations.
         osmid (str): The unique ID for the dataset.
         start_hour (datetime): The target timestamp.
@@ -1196,7 +1326,7 @@ def assign_summer_winter(p_date, dst_start, dst_end):
     Returns:
         int: 1 if the date is during summer (DST), 0 if during winter.
     """
-    if dst_start.date() <= p_date < dst_end.date():
+    if dst_start<= p_date < dst_end:
         return 1  # Summer time
     else:
         return 0  # Winter time
@@ -1286,8 +1416,6 @@ def process_raster(path, osmid):
         # Define new file paths based on the osmid
         file_name_building = f"../data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}building_dsm.tif"
         file_name_trees = f"../data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}canopy_dsm.tif"
-        # file_name_building = f'../data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}building_dsm.tif'
-        # file_name_trees = f'../data/clean_data/solar/{osmid}/rdy_for_processing/{file_name[:-7]}canopy_dsm.tif'
 
         # List of file paths to check
         file_paths = [file_name_building, file_name_trees]
@@ -1392,7 +1520,6 @@ def process_raster(path, osmid):
             ### Filter the raw data
             ## Apply minimum filter
             filtered_data = apply_minimum_filter(dtm_raw, np.nan, size=50)
-            # filtered_data = apply_minimum_filter(filtered_data, np.nan, size=50)
             filtered_data = apply_minimum_filter(filtered_data, np.nan, size=30)
             filtered_data = apply_minimum_filter(filtered_data, np.nan, size=10)
 
@@ -1484,8 +1611,6 @@ def process_raster(path, osmid):
             file_name = path[last_slash_index + 1:]
             file_name_building = f"../data/clean_data/solar/{osmid}/rdy_for_processing/" + file_name[:-7] + "building_dsm.tif"
             file_name_trees = f"../data/clean_data/solar/{osmid}/rdy_for_processing/" + file_name[:-7] + "canopy_dsm.tif"
-            # file_name_building = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + "building_dsm.tif"
-            # file_name_trees = f'../data/clean_data/solar/{osmid}/rdy_for_processing/' + file_name[:-7] + "canopy_dsm.tif"
 
             # processing_directory = f'../data/clean_data/solar/{osmid}/rdy_for_processing/'
             processing_directory = f"../data/clean_data/solar/{osmid}/rdy_for_processing/"
@@ -1781,7 +1906,7 @@ def directory_check(directory, shadow_check=True, shade_intervals=False, date=dt
                     int_time = interval.strftime("%Y%m%d_%H%M")
                     shadow_files_interval = [f for f in shadow_files if f'shadow_fraction_on_{int_time}' in f]
                     if shadow_files_interval:
-                        print(f"File containing 'shadow_fraction_on_{int_time}' found: {shadow_files_interval}")
+                        print(f"File containing 'shadow_fraction_on_{int_time}' found")
                         shade_int_check.append(True)
                     else:
                         print(f"No files containing 'shadow_fraction_on_{int_time}' found.")
@@ -1794,23 +1919,20 @@ def directory_check(directory, shadow_check=True, shade_intervals=False, date=dt
             print(f"No files containing 'shadow_fraction_on_{timestr}' found.")
             return False  # Required files not found
 
-def filter_intervals(intervals, building_shadow_files_exist, tree_shadow_files_exist):
+def filter_intervals(intervals, shadow_files_exist):
     """
     Filters a list of time intervals to determine which intervals still require processing
-    based on the existence of building and tree shadow files.
+    based on the existence of building and combined shadow files.
 
     Parameters:
         intervals (list): A list of time interval identifiers (e.g., datetime strings or objects).
-        building_shadow_files_exist (list or bool): If a list, it must match the length of `intervals`
-            and contain booleans indicating the presence of corresponding building shadow files.
+        shadow_files_exist (list or bool): If a list, it must match the length of `intervals`
+            and contain booleans indicating the presence of corresponding shadow files.
             If False, all intervals are considered needed. If True, no intervals are needed.
-        tree_shadow_files_exist (list or bool): Same as `building_shadow_files_exist`, but for tree shadow files.
 
     Returns:
         tuple:
-            - building_intervals_needed (list or bool): List of intervals that require building shadow
-              processing, or False if none are needed.
-            - tree_intervals_needed (list or bool): List of intervals that require tree shadow
+            - intervals_needed (list or bool): List of intervals that require shadow
               processing, or False if none are needed.
 
     Raises:
@@ -1818,24 +1940,14 @@ def filter_intervals(intervals, building_shadow_files_exist, tree_shadow_files_e
         do not match the length of `intervals`.
     """
     # filter to only calculate intervals that don't have a file
-    if isinstance(building_shadow_files_exist, list):
-        assert len(intervals) == len(building_shadow_files_exist), "Directory check for the intervals is broken"
-        building_intervals_needed = [intervals[i] for i, check in enumerate(building_shadow_files_exist) if not check]
-        if len(building_intervals_needed) < 1:
-            building_intervals_needed = False
-    elif not building_shadow_files_exist:
-        building_intervals_needed = intervals
+    if isinstance(shadow_files_exist, list):
+        assert len(intervals) == len(shadow_files_exist), "Directory check for the intervals is broken"
+        intervals_needed = [intervals[i] for i, check in enumerate(shadow_files_exist) if not check]
+        if len(intervals_needed) < 1:
+            intervals_needed = False
+    elif not shadow_files_exist:
+        intervals_needed = intervals # need to simulate all
     else:
-        building_intervals_needed = False
+        intervals_needed = False # don't need to simulate any
 
-    if isinstance(tree_shadow_files_exist, list):
-        assert len(intervals) == len(tree_shadow_files_exist), "Directory check for the intervals is broken"
-        tree_intervals_needed = [intervals[i] for i, check in enumerate(tree_shadow_files_exist) if not check]
-        if len(tree_intervals_needed) < 1:
-            tree_intervals_needed = False
-    elif not tree_shadow_files_exist:
-        tree_intervals_needed = intervals
-    else:
-        tree_intervals_needed = False
-
-    return building_intervals_needed, tree_intervals_needed
+    return intervals_needed
