@@ -1,6 +1,6 @@
 # Throwing Shade: Urban Shade Simulation Pipeline
 
-**Throwing Shade** is an ongoing project for simulating and analyzing spatiotemporal urban shade from buildings and trees. It uses Solar API data, tree segmentation models, and DSM raster inputs to compute shade at the pedestrian level.
+**Throwing Shade** is an ongoing project for simulating and analyzing spatiotemporal urban shade from buildings and trees. It uses Solar API data, tree segmentation models, and DSM raster inputs to compute shade. The pipeline is an extension fo this project to automate the process of enhancing any geolocated dataset with shade data based timestamp and location
 
 ⚠️ **Contains ongoing work — _please keep forks private_**, thanks!
 
@@ -37,7 +37,7 @@ Computes tree/building shade at multiple timestamps and merges numeric shade met
 
 ### Inputs Required
 
-- A dataset (GeoJSON or shapefile) with:
+- A dataset (csv/GeoJSON/shapefile) with:
   - Latitude and longitude columns
   - A timestamp column (readable by `pd.to_datetime()`)
   - A unique ID column (e.g., `trajectory_id`)
@@ -45,6 +45,7 @@ Computes tree/building shade at multiple timestamps and merges numeric shade met
   [Google Solar API Coverage Shapefiles](https://developers.google.com/maps/documentation/solar/coverage)
 - SAM model checkpoint:
   [SAM ViT-H Checkpoint](https://github.com/facebookresearch/segment-anything#model-checkpoints)
+- Solar API Key
 
 ---
 
@@ -83,7 +84,7 @@ Generates query tiles and fetches data from the Google Solar API based on point 
 - `.env` file with a valid API key
 
 **Returns:**
-- OSM buildings
+- OSM building polygons for dataset area
 - RGB imagery
 - DSMs
 - Building mask
@@ -107,7 +108,7 @@ Uses a two-step process:
 - [SAM model checkpoint](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth)
 
 **Returns:**
-- Tree canopy masks per tile in `canopy_masks/{OSMID}/`
+- Tree canopy masks per tile in `data/clean_data/canopy_masks/{OSMID}/`
 
 **Relevant code:**
 - `tree_segmentation.py`
@@ -131,7 +132,7 @@ Simulates the impact of **building** and/or **tree** shade at all GPS points and
 
 #### 3. Merge Back into Dataset
 - Extracts raster values at GPS points (excluding areas under buildings)
-- Computes inverse shade (exposure)
+- Computes inverse raster values (exposure)
 - Averages values across each unique ID
 - Exports final GeoJSON
 

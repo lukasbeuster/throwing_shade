@@ -1,0 +1,80 @@
+# -----------------------------------------------------------------
+# Configuration for the Shade Simulation Pipeline
+# -----------------------------------------------------------------
+
+# === 1. Input and Output Paths ===
+# Path to the input dataset (GeoJSON or Shapefile)
+dataset_path: "path/to/your/input_data.geojson"
+
+# Base directory for all generated outputs.
+# The pipeline will create sub-folders inside this directory for each step.
+output_dir: "output"
+
+# === 2. Dataset Column Names ===
+# Important column names in your dataset
+columns:
+  latitude: "latitude"
+  longitude: "longitude"
+  timestamp: "TIME"
+  unique_id: "ID"
+
+# === 3. Dependency Paths ===
+# Paths to pre-downloaded resources required by the pipeline.
+dependencies:
+  solar_coverage_medium: "C:/Users/xx/solar-api-coverage/SolarAPIMediumArea.shp"
+  solar_coverage_high: "C:/Users/xx/solar-api-coverage/SolarAPIHighArea.shp"
+  sam_checkpoint: "C:/Users/xx/throwing_shade/data/clean_data/solar/sam/sam_vit_h_4b8939.pth"
+
+# === 4. Shade Simulation Parameters ===
+simulation:
+  # Interval in minutes for the shade simulation.
+  shade_interval_minutes: 30
+  building_shade: False
+  combined_shade: False
+  # Time to start simulation ('HH:MM' format). Use 'None' to start from sunrise.
+  start_time: '11:00'
+  # If you want to bin data based on dates, enter an integer bin size > 1. 0 to disable.
+  # Binning is explained in the README
+  bin_size: 0
+  simulate_solstice: True
+  # Buffer values (in meters) to calculate shade around each point.
+  buffers: [0, 1, 2, 4]
+
+# === 5. Seasonal & Timezone Parameters ===
+seasons:
+  # Seasons are defined based on daylight savings periods
+  summer:
+    utc: 1
+    dst: 0
+    tree_transmissivity: 10
+  winter:
+    utc: 0
+    dst: 0
+    tree_transmissivity: 45
+
+# Daylight Saving Time configuration for each year
+year_configs:
+  # Define daylight savings and solstice dates for the years in your dataset
+  2021:
+    solstice_day: "2021-06-21"
+    dst_start: "2021-03-28"
+    dst_end: "2021-10-31"
+  2022:
+    solstice_day: "2022-06-21"
+    dst_start: "2022-03-27"
+    dst_end: "2022-10-30"
+
+# === 6. Advanced Parameters ===
+# This is a placeholder for your 'solarAPI_main' logic, which we will refactor.
+solar_api:
+  # Define minimum number of points needed per tile to download the SolarAPI
+  # and process shade in the tile. More information in README.
+  min_points_per_tile: 1
+
+# Input what parameters you would like the model to output. Definitions in README.
+extra_outputs:
+  building_shade_step: False
+  tree_shade_step: False
+  bldg_shadow_fraction: False
+  tree_shadow_fraction: False
+  hours_before: []

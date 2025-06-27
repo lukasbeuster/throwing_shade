@@ -4,11 +4,64 @@ import pandas as pd
 from shapely.geometry import Point, box
 from shapely.ops import unary_union
 import osmnx as ox
-import solar_api_utils as sapi
+import src.solar_api_utils as sapi
 from dotenv import load_dotenv
 import hashlib
-from IPython.display import display
 import math
+from . import utils
+
+def check_coverage_logic(config):
+    """
+    Calculates required solar tiles without downloading.
+    Saves a preview map and returns information to the user.
+    """
+    print("Checking solar tile coverage...")
+    dataset = gpd.read_file(config['dataset_path'])
+
+    # --- ADAPT YOUR EXISTING LOGIC HERE ---
+    # Use the logic from solarAPI_main to determine which tiles are needed based on
+    # config['solar_api']['min_points_per_tile'] and the dataset points.
+    # Instead of downloading, just create a GeoDataFrame of the required tile boundaries.
+    longitude_column = config['columns']['longitude']
+    latitude_column =config['columns']['latitude']
+
+    geometry = [Point(xy) for xy in zip(dataset[longitude_column], dataset[latitude_column])]
+    points_dataset = gpd.GeoDataFrame(dataset, geometry=geometry, crs="EPSG:4326")
+
+    # Assuming gdf is your GeoDataFrame in EPSG:4326
+    points_dataset = points_dataset.to_crs("EPSG:32632")
+
+    hull, grid_gdf = adaptive_grid_from_convex_hull(points_dataset, buffer_distance=50, cell_size=950)
+
+    # Perform the spatial join: every row in grid_gdf is preserved, but cells with no intersecting points
+    joined = gpd.sjoin(grid_gdf, points_dataset, how="left", predicate="intersects")
+
+    # Filter out rows where "index_right" is NaN (i.e., no point was found)
+    valid_joined = joined[joined["index_right"].notna()]
+
+    # Use the indices from valid_joined to select the corresponding rows from grid_gdf
+    valid_grid_gdf = grid_gdf.loc[valid_joined.index.unique()]
+
+    # For example:
+    # tile_count = len(required_tiles_gdf)
+
+    # --- SAVE INTERMEDIATE RESULTS ---
+    output_dir = Path(config['output_dir']) / 'step1_solar_coverage'
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    preview_path = output_dir / 'coverage_preview.geojson'
+    # required_tiles_gdf.to_file(preview_path, driver='GeoJSON')
+
+    # Also save the list of tile IDs needed for the next step
+    # tile_ids = required_tiles_gdf['tile_id_column'].tolist()
+    # with open(output_dir / 'tile_list.json', 'w') as f:
+    #     json.dump(tile_ids, f)
+
+    # --- Mocked output for demonstration ---
+    tile_count = 50 # Replace with your actual calculated count
+    print(f"Calculation complete. Found {tile_count} tiles.")
+
+    return tile_count, preview_path
 
 def solarAPI_main(dataset, latitude_column, longitude_column, solar_coverage_medium, solar_coverage_high, geometry=False):
     """

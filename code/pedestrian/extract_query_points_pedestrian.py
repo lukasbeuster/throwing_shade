@@ -5,7 +5,7 @@ import pandas as pd
 from shapely.geometry import Point, box
 from shapely.ops import unary_union
 import osmnx as ox
-import solar_api_utils as sapi
+import src.solar_api_utils as sapi
 from dotenv import load_dotenv
 import hashlib
 from IPython.display import display
