@@ -94,6 +94,7 @@ def save_points(points_gdf, output_path):
     print(f"Request points saved to: {output_path}")
 
 def make_valid_grid(points_dataset, config):
+    """Makes grid based on dataset extent"""
     # generate grid
     hull, grid_gdf = adaptive_grid_from_convex_hull(points_dataset, buffer_distance=50, cell_size=950)
 
@@ -131,6 +132,9 @@ def define_request_area(grid_gdf):
     return request_area
 
 def generate_centroids(grid_gdf, osmid):
+    """Generates a SolarAPI suitable GeoDataframe for request
+    points (grid centroids)
+    """
     # Calculate the centroid for each grid cell
     grid_gdf["centroid"] = grid_gdf.geometry.centroid
 
@@ -151,6 +155,7 @@ def generate_centroids(grid_gdf, osmid):
     return centroid_gdf
 
 def get_valid_request_points(config, centroid_gdf, request_area):
+    """Checks that the request points are valid based on SolarAPI coverage"""
     # Load SolarAPIMediumArea and SolarAPIHighArea
     solar_coverage_medium = gpd.read_file(config['dependencies']['solar_coverage_medium'])
     solar_coverage_high = gpd.read_file(config['dependencies']['solar_coverage_high'])
