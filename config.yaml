@@ -29,13 +29,16 @@ dependencies:
 simulation:
   # Interval in minutes for the shade simulation.
   shade_interval_minutes: 30
+  # Input if you want to simulate shade ONLY from buildings
   building_shade: False
+  # Input if you want to simulate shade from both buildings and trees
   combined_shade: False
   # Time to start simulation ('HH:MM' format). Use 'None' to start from sunrise.
   start_time: '11:00'
-  # If you want to bin data based on dates, enter an integer bin size > 1. 0 to disable.
-  # Binning is explained in the README
+  # If you want to bin data based on timestamp, enter an integer bin size > 1. 0 to disable.
+  # Binning is explained in the README.
   bin_size: 0
+  # Choose if you want solstice to always be simulated even if not in bin. More about this in README.
   simulate_solstice: True
   # Buffer values (in meters) to calculate shade around each point.
   buffers: [0, 1, 2, 4]
@@ -65,13 +68,15 @@ year_configs:
     dst_end: "2022-10-30"
 
 # === 6. Advanced Parameters ===
-# This is a placeholder for your 'solarAPI_main' logic, which we will refactor.
 solar_api:
   # Define minimum number of points needed per tile to download the SolarAPI
   # and process shade in the tile. More information in README.
   min_points_per_tile: 1
 
-# Input what parameters you would like the model to output. Definitions in README.
+# Define maximum number of workers in parallel processing
+max_workers: 2
+
+# Choose what parameters you would like the model to output. Definitions in README.
 extra_outputs:
   building_shade_step: False
   tree_shade_step: False

@@ -5,41 +5,40 @@ import rasterio
 from rasterio.transform import from_origin
 from segment_anything import SamPredictor, sam_model_registry
 import torch
-import os
+from pathlib import Path
 
-def tree_segment_main(osmid, sam_checkpoint):
+def run_segmentation(config, osmid):
     # Define the folder path and osmid
-    folder_path = f"../data/clean_data/solar/{osmid}"
-
-    # List files in the folder and count those containing 'dsm' in their name
-    dsm_files = [f for f in os.listdir(folder_path) if 'dsm' in f.lower()]
-
-    no_of_tiles = len(dsm_files)
+    folder_path = Path(config['output_dir']) / f"step2_solar_data/{osmid}"
 
     # Load the DeepForest model
     model = main.deepforest()
     model.use_release()
 
+    # Load SAM model
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model_type = "vit_h"
+
+    sam = sam_model_registry[model_type](checkpoint=config["sam_checkpoint"])
+    sam.to(device=device)
+    predictor = SamPredictor(sam)
+
+    # List files in the folder and count those containing 'dsm' in their name
+    rgb_files = sorted(list(folder_path.glob("*_rgb.tif")))
+    no_of_tiles = len(rgb_files)
+
     for tile_no in range(no_of_tiles):
         # get the rgb raster for the tile number
-        rgb_file = [f for f in os.listdir(folder_path) if ('rgb' in f.lower()) & (f"p_{tile_no}_" in f.lower())]
+        rgb_file = [p for p in rgb_files if f"p_{tile_no}_" in p.lower()]
 
         # Load the image and predict bounding boxes using DeepForest
-        raster_path = f"../data/clean_data/solar/{osmid}/" + rgb_file[0]
+        raster_path = folder_path / rgb_file[0]
 
-        image = cv2.imread(raster_path)
+        image = cv2.imread(str(raster_path))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         # predicted_mask = model.predict_tile(raster_path, return_plot=False, patch_size=300, patch_overlap=0.25)
         predicted_mask = model.predict_tile(raster_path, return_plot=False, patch_size=800, patch_overlap=0.25)
-
-        # Load the SAM model
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        model_type = "vit_h"
-
-        sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
-        sam.to(device=device)
-        predictor = SamPredictor(sam)
 
         # Set the image for segmentation
         predictor.set_image(image)
@@ -62,10 +61,10 @@ def tree_segment_main(osmid, sam_checkpoint):
                 final_mask[mask] = 255  # Assuming binary segmentation, 255 for foreground
 
         # Define output path
-        output_path = f"../data/clean_data/canopy_masks/{osmid}/" + rgb_file[0][:-4] + "_segmented.tif"
+        output_path = Path(config['output_dir']) / f"step3_segmented_trees/{osmid}/{rgb_file[0][:-4]}_segmented.tif"
 
         # Ensure the directory exists before saving
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Open source raster to get metadata
         with rasterio.open(raster_path) as src:
