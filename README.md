@@ -1,7 +1,7 @@
 # Throwing Shade
 
 **Throwing Shade** is an ongoing research project focused on high-resolution shade simulation and analysis to support urban climate adaptation and heat stress mitigation.  
-This repository contains the core code, workflows, and data structure supporting the analyses presented in our manuscript submitted to *Nature Communications*.  
+This repository contains the core code, workflows, and data structure supporting the analyses presented in our manuscript submitted to *npj Urban Sustainability*.  
 👉 [Read the preprint for full details](#)  *(TODO: add link)*.
 
 ---
