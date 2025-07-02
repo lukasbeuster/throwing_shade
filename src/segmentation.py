@@ -19,7 +19,7 @@ def run_segmentation(config, osmid):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model_type = "vit_h"
 
-    sam = sam_model_registry[model_type](checkpoint=config["sam_checkpoint"])
+    sam = sam_model_registry[model_type](checkpoint=config['dependencies']['sam_checkpoint'])
     sam.to(device=device)
     predictor = SamPredictor(sam)
 

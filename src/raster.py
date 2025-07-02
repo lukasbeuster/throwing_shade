@@ -89,35 +89,41 @@ def process_raster(config, path, osmid):
 
 # --- Internal Helper Functions ---
 
+# In src/raster.py, replace the existing _prepare_masks function
+
 def _prepare_masks(config, osmid, dsm_data, dsm_crs, dsm_bounds, tile_stem, dsm_meta):
     """
     Loads and combines building and canopy masks to create analysis masks.
     """
-    # Load Canopy Height Model (CHM) mask from segmentation step
-    chm_mask_template = config['paths']['chm_mask_template']
-    chm_mask_file = Path(config["output_dir"]) / chm_mask_template.format(osmid=osmid, tile_name=tile_stem)
+    output_dir = Path(config["output_dir"])
 
-    if chm_mask_file.exists():
-        with rasterio.open(chm_mask_file) as chm_src:
+    # Load Canopy Height Model (CHM) mask from segmentation step
+    chm_mask_path = output_dir / f"step3_segmentation/{osmid}/{tile_stem}_rgb_segmented.tif"
+
+    if chm_mask_path.exists():
+        with rasterio.open(chm_mask_path) as chm_src:
             chm_mask = chm_src.read(1).astype(bool)
         canopy_dsm = np.where(chm_mask, dsm_data, np.nan)
     else:
-        print(f"Warning: CHM mask not found at {chm_mask_file}. Canopy DSM will be empty.")
+        print(f"Warning: CHM mask not found at {chm_mask_path}. Canopy DSM will be empty.")
         chm_mask = np.zeros_like(dsm_data, dtype=bool)
         canopy_dsm = np.full_like(dsm_data, np.nan, dtype=float)
 
     # Load building mask from original solar data
-    mask_path_template = config['paths']['solar_data_input'] + '/{tile_stem}_mask.tif'
-    mask_path = Path(config['output_dir']) / mask_path_template.format(osmid=osmid, tile_stem=tile_stem)
+    mask_path = output_dir / f"step2_solar_data/{osmid}/{tile_stem}_mask.tif"
     with rasterio.open(mask_path) as src:
         bldg_mask = src.read(1).astype(bool)
 
     # Load and rasterize OSM building footprints
     dsm_bbox_gdf = gpd.GeoDataFrame({'geometry': [box(*dsm_bounds)]}, crs=dsm_crs)
-    buildings_path = Path(config['output_dir']) / config['paths']['buildings_gpkg'].format(osmid=osmid)
+    buildings_path = output_dir / f"step1_solar_coverage/{osmid}_buildings.gpkg"
     buildings = gpd.read_file(str(buildings_path), mask=dsm_bbox_gdf)
 
     if not buildings.empty:
+        # Reproject buildings to match DSM CRS if they don't already
+        if buildings.crs != dsm_crs:
+            buildings = buildings.to_crs(dsm_crs)
+
         osm_bldg_mask = rasterize(
             ((mapping(geom.buffer(1.5)), 1) for geom in buildings.geometry),
             out_shape=dsm_data.shape,

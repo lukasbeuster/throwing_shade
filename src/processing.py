@@ -929,10 +929,11 @@ def process_dataset(dataset, year, osmid, config):
     dataset_copy = dataset.copy()
 
     # Convert DataFrame to GeoDataFrame
-    dataset_copy["geometry"] = gpd.points_from_xy(dataset_copy[config['columns']['longitude']], dataset_copy[dataset_copy[config['columns']['latitude']]])
+    dataset_copy["geometry"] = gpd.points_from_xy(dataset_copy[config['columns']['longitude']], dataset_copy[config['columns']['latitude']])
     df_gdf = gpd.GeoDataFrame(dataset_copy, geometry="geometry", crs="EPSG:32631")
 
-    raster_files = glob.glob(Path(config["output_dir"]) / f"step4_raster_processing/{osmid}", '*building_dsm.tif')
+    raster_dir = Path(config["output_dir"]) / f"step4_raster_processing/{osmid}"
+    raster_files = list(raster_dir.glob('*building_dsm.tif'))
 
     # Extract tile footprints from raster files
     raster_tiles = []
@@ -980,7 +981,7 @@ def process_dataset(dataset, year, osmid, config):
     tile_grouped_days, modified_dataset = bin_data(df_gdf, config, solstice_day)
 
     modified_dataset["season"] = modified_dataset["binned_date"].apply(
-    lambda date: assign_summer_winter(date, datetime.fromisoformat(config['year_configs'][year]['dst_start']).date(), datetime(config['year_configs'][year]['dst_end']).date())
+    lambda date: assign_summer_winter(date, datetime.fromisoformat(config['year_configs'][year]['dst_start']).date(), datetime.fromisoformat(config['year_configs'][year]['dst_end']).date())
     )
 
     modified_dataset = modified_dataset.reset_index()
