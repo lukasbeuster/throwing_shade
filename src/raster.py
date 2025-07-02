@@ -62,7 +62,7 @@ def process_raster(config, path, osmid):
 
         # 2. Prepare all necessary masks (buildings, trees)
         combined_bldg_tree_mask, combined_building_mask, canopy_dsm = _prepare_masks(
-            config, osmid, dsm_data, dsm_crs, dsm_bounds, tile_stem
+            config, osmid, dsm_data, dsm_crs, dsm_bounds, tile_stem, dsm_meta
         )
 
         # 3. Create Digital Terrain Model (DTM) by interpolating ground points
@@ -89,7 +89,7 @@ def process_raster(config, path, osmid):
 
 # --- Internal Helper Functions ---
 
-def _prepare_masks(config, osmid, dsm_data, dsm_crs, dsm_bounds, tile_stem):
+def _prepare_masks(config, osmid, dsm_data, dsm_crs, dsm_bounds, tile_stem, dsm_meta):
     """
     Loads and combines building and canopy masks to create analysis masks.
     """
