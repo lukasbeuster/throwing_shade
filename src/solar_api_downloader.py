@@ -1,7 +1,5 @@
 import os
 import requests
-import numpy as np
-from shapely.geometry import Point
 from typing import Dict, Optional
 from pyproj import CRS
 from pyproj.aoi import AreaOfInterest

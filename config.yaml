@@ -83,3 +83,7 @@ extra_outputs:
   bldg_shadow_fraction: False
   tree_shadow_fraction: False
   hours_before: []
+
+# === 7. Results ===
+# Save output dataset with shade results?
+save: True

@@ -10,9 +10,11 @@ from shapely.ops import unary_union
 import osmnx as ox
 from dotenv import load_dotenv
 
-import src.solar_api_utils as sapi
+import src.solar_api_downloader as sapi
 
-def check_coverage_logic(config):
+## MAIN
+
+def check_coverage(config):
     """
     Calculates required solar tiles without downloading.
     Saves a preview map and returns information to the user.
@@ -45,7 +47,7 @@ def check_coverage_logic(config):
 
     return tile_count, preview_path
 
-def download_data_logic(config, preview_path):
+def download_data(config, preview_path):
     """
     Downloads the data for the tiles identified in the check_coverage step.
     """
@@ -79,6 +81,8 @@ def download_data_logic(config, preview_path):
     print("Download finished.")
     # This function should return the 'osmid' or a similar identifier for the next step.
     return osmid
+
+## HELPERS
 
 def generate_osm_id(bounds):
     """
