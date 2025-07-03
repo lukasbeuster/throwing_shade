@@ -543,11 +543,11 @@ def get_dataset_shaderesult(dataset, osmid, binned, config):
             if config['extra_outputs']['tree_shade_step']:
                 for bf in config['simulation']['buffers']:
                     col = f"combined_{hr}_before_shadow_fraction_buffer{bf}"
-                    result_df[col] = hours_before_shadow_fr(dataset, base_path, building_mask_path, "combined_shade", rounded_ts, tile_number, osmid, hr, bf)
+                    result_df[col] = hours_before_shadow_fr(dataset, base_path, building_mask_path, "combined_shade", rounded_ts, tile_number, osmid, hr, bf, crop_pixels)
             if config['extra_outputs']['building_shade_step']:
                 for bf in config['simulation']['buffers']:
                     col = f"bldg_{hr}_before_shadow_fraction_buffer{bf}"
-                    result_df[col] = hours_before_shadow_fr(dataset, base_path, building_mask_path, "building_shade", rounded_ts, tile_number, osmid, hr, bf)
+                    result_df[col] = hours_before_shadow_fr(dataset, base_path, building_mask_path, "building_shade", rounded_ts, tile_number, osmid, hr, bf, crop_pixels)
 
     return pd.concat([dataset, result_df], axis=1)
 
@@ -645,7 +645,7 @@ def extract_values_from_raster(raster_path, building_mask_path, dataset, buffer,
 
     return values
 
-def hours_before_shadow_fr(dataset, base_path, building_mask_path, shade_type, rounded_timestamp, tile_number, osmid, hours_before, buffer):
+def hours_before_shadow_fr(dataset, base_path, building_mask_path, shade_type, rounded_timestamp, tile_number, osmid, hours_before, buffer, crop_pixels):
     """
     Computes the average shadow fraction for each point in the dataset by aggregating shadow data
     from raster files over a specified number of hours prior to a given timestamp.
