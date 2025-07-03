@@ -610,21 +610,21 @@ def extract_values_from_raster(raster_path, building_mask_path, dataset, buffer)
                 raster_row, raster_col = rowcol(raster_transform, x, y)
                 building_row, building_col = rowcol(building_transform, x, y)
             except Exception as e:
-                print(f"⚠️ Error converting coordinates for RECORD: {e}")
+                print(f"⚠️ Error converting coordinates: {e}")
                 continue
 
             # Check bounds before accessing raster/building arrays
             if not (0 <= raster_row < raster_data.shape[0] and 0 <= raster_col < raster_data.shape[1]):
-                print(f"❌ Raster index out of bounds for RECORD")
+                print(f"❌ Raster index out of bounds")
                 continue
             if not (0 <= building_row < building_mask.shape[0] and 0 <= building_col < building_mask.shape[1]):
-                print(f"❌ Building mask index out of bounds for RECORD")
+                print(f"❌ Building mask index out of bounds")
                 continue
 
             if buffer == 0:
                 bm_value = building_mask[building_row, building_col]
                 if bm_value == 1:
-                    print(f"🚫 Point on building — RECORD:")
+                    print(f"🚫 Point on building")
                     values[idx] = np.nan
                 else:
                     val = raster_data[raster_row, raster_col]
@@ -657,7 +657,7 @@ def extract_values_from_raster(raster_path, building_mask_path, dataset, buffer)
                 )
                 valid_vals = filtered[~np.isnan(filtered)]
                 if valid_vals.size == 0:
-                    print(f"⚠️ Empty window after masking — RECORD:")
+                    print(f"⚠️ Empty window after masking")
                     values[idx] = np.nan
                 else:
                     values[idx] = np.nanmean(valid_vals)
@@ -700,12 +700,8 @@ def hours_before_shadow_fr(dataset, base_path, building_mask_path, shade_type, r
     # Compute the starting timestamp based on hours_before
     start_hour = rounded_timestamp - timedelta(hours=hours_before)  # Ensure `hours_before` supports floats
 
-    # print(f"rounded timestamp: {rounded_timestamp}")
-
     # Get the earliest available shadow file timestamp for the given day
     first_shade_time = get_earliest_timestamp(f"{base_path}/{shade_type}/{tile_number}", rounded_timestamp)
-
-    # print(f"first shade timestamp: {first_shade_time}")
 
     if first_shade_time is None:
         raise Exception("There are no shade files in the directory for this date")
@@ -782,7 +778,6 @@ def get_shade_files_in_range(base_path, shade_type, tile_number, osmid, start_ho
 
                 # Check if the timestamp is within the range (inclusive)
                 if start_hour <= file_timestamp <= rounded_timestamp:
-                    # print(f"Start hour: {start_hour}, file timstamp: {file_timestamp}, rounded timestamp: {rounded_timestamp}")
                     valid_files.append(os.path.join(directory, filename))
 
     return sorted(valid_files)  # Return sorted list of file paths
