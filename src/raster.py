@@ -21,7 +21,7 @@ def raster_processing_main(config, osmid):
     raster_files = list(raster_dir.glob('*dsm.tif'))
 
     print(f"Found {len(raster_files)} raster files to process.")
-    max_workers = config.get('max_workers', 2) # Use .get for a safe default
+    max_workers = config.get('max_workers', 2)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(process_raster, config, file_path, osmid) for file_path in raster_files]
@@ -88,8 +88,6 @@ def process_raster(config, path, osmid):
         # raise e
 
 # --- Internal Helper Functions ---
-
-# In src/raster.py, replace the existing _prepare_masks function
 
 def _prepare_masks(config, osmid, dsm_data, dsm_crs, dsm_bounds, tile_stem, dsm_meta):
     """
@@ -168,7 +166,7 @@ def _interpolate_dtm(dtm_raw, dsm_meta):
     )
     grid_coords = np.vstack([grid_x.ravel(), grid_y.ravel()]).T
 
-    interpolated_values = dt.interpolate_laplace(grid_coords)
+    interpolated_values = dt.interpolate({"method": "Laplace"}, grid_coords)
     interpolated_dtm = interpolated_values.reshape(dsm_meta['height'], dsm_meta['width'])
 
     # Apply post-interpolation filter
