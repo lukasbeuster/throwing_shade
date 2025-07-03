@@ -4,7 +4,7 @@
 
 # === 1. Input and Output Paths ===
 # Path to the input dataset (GeoJSON or Shapefile)
-dataset_path: "path/to/your/input_data.geojson"
+dataset_path: "data/sample/pipeline_sample_dataset.csv"
 
 # Base directory for all generated outputs.
 # The pipeline will create sub-folders inside this directory for each step.
@@ -21,37 +21,37 @@ columns:
 # === 3. Dependency Paths ===
 # Paths to pre-downloaded resources required by the pipeline.
 dependencies:
-  solar_coverage_medium: "C:/Users/xx/solar-api-coverage/SolarAPIMediumArea.shp"
-  solar_coverage_high: "C:/Users/xx/solar-api-coverage/SolarAPIHighArea.shp"
-  sam_checkpoint: "C:/Users/xx/throwing_shade/data/clean_data/solar/sam/sam_vit_h_4b8939.pth"
+  solar_coverage_medium: "C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/Data/solar-api-coverage/SolarAPIMediumArea.shp"
+  solar_coverage_high: "C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/Data/solar-api-coverage/SolarAPIHighArea.shp"
+  sam_checkpoint: "data/clean_data/solar/sam/sam_vit_h_4b8939.pth"
 
 # === 4. Shade Simulation Parameters ===
 simulation:
   # Interval in minutes for the shade simulation.
   shade_interval_minutes: 30
   # Input if you want to simulate shade ONLY from buildings
-  building_shade: False
+  building_shade: True
   # Input if you want to simulate shade from both buildings and trees
-  combined_shade: False
+  combined_shade: True
   # Time to start simulation ('HH:MM' format). Use 'None' to start from sunrise.
-  start_time: '11:00'
+  start_time: None
   # If you want to bin data based on timestamp, enter an integer bin size > 1. 0 to disable.
   # Binning is explained in the README.
   bin_size: 0
   # Choose if you want solstice to always be simulated even if not in bin. More about this in README.
-  simulate_solstice: True
+  simulate_solstice: False
   # Buffer values (in meters) to calculate shade around each point.
-  buffers: [0, 1, 2, 4]
+  buffers: [0, 1, 2]
 
 # === 5. Seasonal & Timezone Parameters ===
 seasons:
   # Seasons are defined based on daylight savings periods
   summer:
-    utc: 1
+    utc: 2
     dst: 0
     tree_transmissivity: 10
   winter:
-    utc: 0
+    utc: 1
     dst: 0
     tree_transmissivity: 45
 
@@ -78,11 +78,11 @@ max_workers: 2
 
 # Choose what parameters you would like the model to output. Definitions in README.
 extra_outputs:
-  building_shade_step: False
-  tree_shade_step: False
-  bldg_shadow_fraction: False
-  tree_shadow_fraction: False
-  hours_before: []
+  building_shade_step: True
+  tree_shade_step: True
+  bldg_shadow_fraction: True
+  tree_shadow_fraction: True
+  hours_before: [2]
 
 # === 7. Results ===
 # Save output dataset with shade results?

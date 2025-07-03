@@ -186,9 +186,12 @@ def get_valid_request_points(config, centroid_gdf, request_area):
     if all_points_valid:
         print(f"All points within SolarAPI coverage: {all_points_valid}")
     else:
-        raise Exception("Not all points are within SolarAPI coverage")
+        # This is not an error, just a filter. Let's change the message.
+        print(f"Filtering to {valid_points.sum()} points within SolarAPI coverage.")
 
-    return valid_points
+    valid_centroids_gdf = centroid_gdf[valid_points]
+    
+    return valid_centroids_gdf
 
 def download_building_footprints(gdf, save_path):
     """
