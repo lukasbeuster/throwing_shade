@@ -135,26 +135,38 @@ def define_request_area(grid_gdf):
         print("The geometry for the region is empty or invalid.")
     return request_area
 
-def generate_centroids(grid_gdf, osmid):
-    """Generates a SolarAPI suitable GeoDataframe for request
-    points (grid centroids)
-    """
-    # Calculate the centroid for each grid cell
-    grid_gdf["centroid"] = grid_gdf.geometry.centroid
+# In src/solar.py
 
-    # Create a new GeoDataFrame for the centroids
-    centroid_gdf = gpd.GeoDataFrame(grid_gdf.drop(columns="geometry"),
+def generate_centroids(grid_gdf, osmid):
+    """
+    Generates a SolarAPI suitable GeoDataframe for request
+    points (grid centroids), ensuring accurate calculation by using a
+    projected CRS.
+    """
+    # Save the original geographic CRS to convert back to later
+    original_crs = grid_gdf.crs
+
+    # Re-project to a projected CRS suitable for distance calculations (e.g., Web Mercator)
+    projected_gdf = grid_gdf.to_crs("EPSG:3857")
+
+    # Calculate the centroid on the ACCURATE projected data
+    projected_gdf["centroid"] = projected_gdf.geometry.centroid
+
+    # Create the new GeoDataFrame using the projected data
+    centroid_gdf = gpd.GeoDataFrame(projected_gdf.drop(columns="geometry"),
                                     geometry="centroid",
-                                    crs=grid_gdf.crs)
+                                    crs="EPSG:3857")
+
+    # The rest of your function remains the same, but now it operates on the new centroid_gdf
     centroid_gdf = centroid_gdf.rename(columns={"centroid": "geometry"})
     centroid_gdf.set_geometry("geometry", inplace=True)
 
-    # prepare centroid dataframe for download
-    centroid_gdf = centroid_gdf.reset_index()
-    centroid_gdf = centroid_gdf.drop(['index'], axis=1)
+    centroid_gdf = centroid_gdf.reset_index(drop=True)
     centroid_gdf['osm_id'] = osmid
     centroid_gdf['id'] = 'p_'+ centroid_gdf.index.astype(str)
-    centroid_gdf = centroid_gdf.to_crs(4326)
+
+    # Project back to the original geographic CRS (WGS84) for the Solar API
+    centroid_gdf = centroid_gdf.to_crs(original_crs)
 
     return centroid_gdf
 
@@ -170,9 +182,7 @@ def get_valid_request_points(config, centroid_gdf, request_area):
 
     # Generate the medium and high boundaries
     medium_boundary = solar_coverage_medium.geometry.union_all()
-    print("Medium Union")
     high_boundary = solar_coverage_high.geometry.union_all()
-    print("High Union")
 
     # Check if centroids are within the medium or high boundary
     inside_medium = centroid_gdf.geometry.within(medium_boundary)
@@ -190,7 +200,7 @@ def get_valid_request_points(config, centroid_gdf, request_area):
         print(f"Filtering to {valid_points.sum()} points within SolarAPI coverage.")
 
     valid_centroids_gdf = centroid_gdf[valid_points]
-    
+
     return valid_centroids_gdf
 
 def download_building_footprints(gdf, save_path):
