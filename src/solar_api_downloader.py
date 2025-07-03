@@ -258,8 +258,5 @@ def request_data(points, radiusMeters, view, requiredQuality, pixelSizeMeters,sa
         print(pid)
         lat, long = geom.y, geom.x
 
-        # Modify save directory:
-        out_dir = save_dir.format(OSMID=osm_id)
-        print(out_dir)
-        files = get_solar_data(lat,long,radiusMeters,view,requiredQuality,pixelSizeMeters,out_dir,osm_id,pid)
+        files = get_solar_data(lat,long,radiusMeters,view,requiredQuality,pixelSizeMeters,save_dir,osm_id,pid)
     return
