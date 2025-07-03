@@ -492,20 +492,18 @@ def dectime_to_timevec(dectime):
 
 def saveraster(gdal_data, filename, raster):
     from osgeo.gdal import GDT_Float32
-
     rows = gdal_data.RasterYSize
     cols = gdal_data.RasterXSize
     driver = gdal.GetDriverByName("GTiff")
-
-    # Fix: Import `GDT_Float32` from GDAL
-    from osgeo.gdal import GDT_Float32
 
     # ✅ Create the output raster file
     outDs = driver.Create(filename, cols, rows, 1, GDT_Float32)
     outBand = outDs.GetRasterBand(1)
 
+    flipped_raster = 1 - raster
+
     # Write raster data
-    outBand.WriteArray(raster, 0, 0)
+    outBand.WriteArray(flipped_raster, 0, 0)
 
     # Set NoData value
     outBand.SetNoDataValue(-9999)
