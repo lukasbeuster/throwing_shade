@@ -39,6 +39,12 @@ def run_shade_processing(config, osmid, year, year_data):
 
     dataset_gdf, tile_grouped_days, original_dataset = process_dataset(year_data, year, osmid, config)
 
+    if tile_grouped_days is None:
+        # Create an empty GeoDataFrame with a specified CRS
+        empty_gdf = gpd.GeoDataFrame(geometry=[], crs="EPSG:4326")
+        print(f"User Warning: The dataset result for year {year} is empty. Make sure dataset geometry overlaps with processed rasters in step 4")
+        return empty_gdf
+
     run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, year, config)
 
     dataset_with_shade = extract_and_merge_shade_values(dataset_gdf, osmid, binned, config)
@@ -52,25 +58,6 @@ def run_shade_processing(config, osmid, year, year_data):
     return dataset_final
 
 # MAIN HELPERS
-
-def load_and_preprocess_dataset(dataset, osmid, config):
-    """
-    Loads the raw spatial dataset, assigns DSM tiles and rounded timestamps,
-    and bins data temporally based on proximity to a solstice date.
-
-    Parameters:
-        dataset_path (str): Path to the input dataset (GeoJSON or shapefile).
-        osmid (str): OSM ID used for locating the DSM raster directory.
-
-    Returns:
-        tuple:
-            - GeoDataFrame: Preprocessed dataset with tile and time bin assignment.
-            - dict: Mapping of tiles to binned timestamps for shade simulation.
-            - GeoDataFrame: Original unmodified dataset for merging at the end.
-    """
-    dataset_copy = dataset.copy()
-    dataset_gdf, tile_grouped_days = process_dataset(dataset_copy, osmid, config)
-    return dataset_gdf, tile_grouped_days, dataset_copy
 
 def run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, year, config):
     """
@@ -470,8 +457,10 @@ def get_dataset_shaderesult(dataset, osmid, binned, config):
     else:
         rounded_ts = rounded_timestamp
 
+    start_time = config['simulation']['start_time']
+
     # Resolve start_time
-    if start_time is not None:
+    if start_time != 'None':
         if isinstance(start_time, str):
             start_time = datetime.combine(rounded_ts.date(), datetime.strptime(start_time, "%H:%M").time())
         elif isinstance(start_time, time):
@@ -900,12 +889,6 @@ def process_dataset(dataset, year, osmid, config):
         - The `tile_number` column is added to associate each point with a raster tile.
         - Timestamp binning and seasonal assignment support downstream shading simulations.
     """
-    dataset_copy = dataset.copy()
-
-    # Convert DataFrame to GeoDataFrame
-    dataset_copy["geometry"] = gpd.points_from_xy(dataset_copy[config['columns']['longitude']], dataset_copy[config['columns']['latitude']])
-    df_gdf = gpd.GeoDataFrame(dataset_copy, geometry="geometry", crs="EPSG:32631")
-
     raster_dir = Path(config["output_dir"]) / f"step4_raster_processing/{osmid}"
     raster_files = list(raster_dir.glob('*building_dsm.tif'))
 
@@ -930,6 +913,12 @@ def process_dataset(dataset, year, osmid, config):
     # Convert raster tile footprints to a GeoDataFrame
     tiles_gdf = gpd.GeoDataFrame(raster_tiles, crs=raster_crs)
 
+    dataset_copy = dataset.copy()
+
+    # Convert DataFrame to GeoDataFrame
+    dataset_copy["geometry"] = gpd.points_from_xy(dataset_copy[config['columns']['longitude']], dataset_copy[config['columns']['latitude']])
+    df_gdf = gpd.GeoDataFrame(dataset_copy, geometry="geometry", crs="EPSG:4326")
+
     # Reproject points to match raster CRS
     df_gdf = df_gdf.to_crs(raster_crs)
 
@@ -940,6 +929,8 @@ def process_dataset(dataset, year, osmid, config):
     df_gdf.drop(columns=["index_right"], inplace=True, errors="ignore")
 
     df_gdf = df_gdf.dropna(subset=["tile_number"])
+
+    print(f"Number of rows left: {df_gdf.shape[0]}")
 
     timestamp_column = config['columns']['timestamp']
 
@@ -953,6 +944,9 @@ def process_dataset(dataset, year, osmid, config):
     df_gdf["diff_solstice_day"] = df_gdf["rounded_timestamp"].dt.date - solstice_day.date()
 
     tile_grouped_days, modified_dataset = bin_data(df_gdf, config, solstice_day)
+
+    if tile_grouped_days is None:
+        return (None, None, None)
 
     modified_dataset["season"] = modified_dataset["binned_date"].apply(
     lambda date: assign_summer_winter(date, datetime.fromisoformat(config['year_configs'][year]['dst_start']).date(), datetime.fromisoformat(config['year_configs'][year]['dst_end']).date())
@@ -1085,6 +1079,9 @@ def bin_data(dataset_gdf, config, solstice_day):
 
             grouped_days, filtered_rows_added = add_date_timestamp(grouped_days, last_calc_date, filtered_rows, filtered_rows)
             results.append(filtered_rows_added)
+
+    if not results:
+        return (None, None)
 
     # **Step 3: Merge all binned results efficiently**
     final_modified_dataset = pd.concat(results, ignore_index=True)

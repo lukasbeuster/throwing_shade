@@ -356,7 +356,7 @@ All pipeline parameters are controlled in `config.yaml`.
 | :--- | :--- | :--- |
 | `dataset_path` | `Input and Output Paths` | Path to your input csv, GeoJSON or Shapefile with longitude and latitude columns. |
 | `output_dir` | `Input and Output Paths` | The base directory where all results will be saved. |
-| `columns` | `Dataset Column Names`| Maps the required column names (`latitude`, `longitude`, etc.) to the names in your dataset. |
+| `columns` | `Dataset Column Names`| Maps the required column names (`latitude`, `longitude`, etc.) to the names in your dataset. Longitude and latitude has to be in decimal degrees. |
 | `dependencies` | `Dependency Paths`| Paths to essential files like the SAM model checkpoint and Solar API coverage shapefiles. |
 | `simulation` | `Shade Simulation Parameters`| Controls the core simulation settings like shade interval, buffer sizes, and whether to include building/tree shade. |
 | `year_configs` | `Daylight Saving Time`| **Crucial for accuracy.** Define the start and end dates of DST for each year present in your data. |
