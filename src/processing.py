@@ -914,7 +914,7 @@ def process_dataset(dataset, year, osmid, config):
     raster_crs = None  # Store the raster CRS
 
     for raster_path in raster_files:
-        match = re.search(r"p_\d+", raster_path)  # Extract tile number like 'p_0'
+        match = re.search(r"p_\d+", str(raster_path))  # Extract tile number like 'p_0'
         if match:
             tile_number = match.group(0)
             with rasterio.open(raster_path) as src:

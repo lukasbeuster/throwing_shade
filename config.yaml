@@ -39,7 +39,7 @@ simulation:
   # Binning is explained in the README.
   bin_size: 0
   # Choose if you want solstice to always be simulated even if not in bin. More about this in README.
-  simulate_solstice: False
+  simulate_solstice: True
   # Buffer values (in meters) to calculate shade around each point.
   buffers: [0, 1, 2]
 
