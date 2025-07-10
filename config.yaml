@@ -21,9 +21,9 @@ columns:
 # === 3. Dependency Paths ===
 # Paths to pre-downloaded resources required by the pipeline.
 dependencies:
-  solar_coverage_medium: "C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/Data/solar-api-coverage/SolarAPIMediumArea.shp"
-  solar_coverage_high: "C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/Data/solar-api-coverage/SolarAPIHighArea.shp"
-  sam_checkpoint: "data/clean_data/solar/sam/sam_vit_h_4b8939.pth"
+  solar_coverage_medium: "/solar-api-coverage/SolarAPIMediumArea.shp"
+  solar_coverage_high: "/solar-api-coverage/SolarAPIHighArea.shp"
+  sam_checkpoint: "data/sam_vit_h_4b8939.pth"
 
 # === 4. Seasonal & Timezone Parameters ===
 seasons:
