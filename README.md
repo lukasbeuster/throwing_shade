@@ -8,7 +8,7 @@ This project is structured as a powerful Command-Line Interface (CLI) that guide
 
 ⚠️ **Contains ongoing work**
 
-Please report bugs, suggest improvements and give feedback in the form [here]()!
+Please report bugs, suggest improvements and give feedback in the form [here](https://docs.google.com/forms/d/e/1FAIpQLSeT1n7mWViNFB5IKgAt-cFujYCxFqdH0tRDy9AEvzQlUAN5-A/viewform?usp=dialog)!
 
 -----
 
@@ -27,7 +27,7 @@ Please report bugs, suggest improvements and give feedback in the form [here]()!
 
 The pipeline is broken down into five distinct, sequential steps, each run by a simple command. This modular approach allows you to inspect the output of each stage and re-run steps with different parameters without starting from scratch.
 
-  1.  **`check`**: Analyzes your dataset and determines the geographic tiles needed for the analysis.
+1\.  **`check`**: Analyzes your dataset and determines the geographic tiles needed for the analysis.
 2\.  **`download`**: Fetches all raw data (DSMs, imagery, building footprints) for the selected tiles.
 3\.  **`segment`**: Runs the AI model to identify trees and create canopy masks.
 4\.  **`process-rasters`**: A heavy-lifting step that processes the raw DSMs into analysis-ready terrain and canopy models.
@@ -93,6 +93,7 @@ Download the Solar API coverage shapefiles and Segment Anything Model.
       * `shade_interval_minutes` (int): The frequency of shade simulation in minutes. Default is 30 minutes.
       * `combined_shade`, `building_shade` (Boolean): Control whether to simulate combined and/or building shade. Combined shade is shade from both buildings and trees.
       * `start_time` (str): Can provide a start time in the 'HH:MM' format if you don't want to simulate from sunrise to timestamp.
+      * `bin_size` (int): The bin size parameter can be used if the dataset is very large and the computation will take too much time. It is defined as an integer number of days for setting a maximum difference in number of days from point timestamp to simulation date.
 
 -----
 
@@ -110,7 +111,7 @@ python pipeline.py --help
 
 ### Step 1: Check Coverage (Interactive)
 
-This crucial first step analyzes your dataset and shows you which geographic tiles you need to download. It allows you to adjust the density of points required per tile, giving you control over the cost and scope of your analysis. Solar API quotas and pricing can be checked [here](https://mapsplatform.google.com/pricing/?_gl=1*14kp531*_ga*NzgzMjQ1MzIyLjE3NDQ3OTI2MzM.*_ga_NRWSTWS78N*czE3NTE1NDcxOTEkbzEkZzEkdDE3NTE1NDgwNjgkajQ1JGwwJGgw&utm_experiment=13102542) under Solar API Data Layers.
+This crucial first step analyzes your dataset and shows you which geographic tiles you need to download. It allows you to adjust the density of points required per tile, giving you control over the cost and scope of your analysis. Solar API quotas and pricing can be checked [here](https://mapsplatform.google.com/pricing/?_gl=1*14kp531*_ga*NzgzMjQ1MzIyLjE3NDQ3OTI2MzM.*_ga_NRWSTWS78N*czE3NTE1NDcxOTEkbzEkZzEkdDE3NTE1NDgwNjgkajQ1JGwwJGgw&utm_experiment=13102542) under Solar API Data Layers. For small and low spread datasets, first try with minimum number of points as 1.
 
 ```bash
 python pipeline.py check --min-points 10
@@ -180,33 +181,46 @@ All pipeline parameters are controlled in `config.yaml`.
 | `output_dir` | `Input and Output Paths` | The base directory where all results will be saved. |
 | `columns` | `Dataset Column Names`| Maps the required column names (`latitude`, `longitude`, etc.) to the names in your dataset. Longitude and latitude has to be in decimal degrees. |
 | `dependencies` | `Dependency Paths`| Paths to essential files like the SAM model checkpoint and Solar API coverage shapefiles. |
-| `simulation` | `Shade Simulation Parameters`| Controls the core simulation settings like shade interval, buffer sizes, and whether to include building/tree shade. |
+| `simulation` | `Shade Simulation Parameters`| Controls the core simulation settings like shade interval, buffer sizes, and whether to include building/combined shade. |
 | `year_configs` | `Daylight Saving Time`| **Crucial for accuracy.** Define the start and end dates of DST for each year present in your data. |
 
 ## Folder Structure
 
 ```
-code/
-└── (All scripts etc.)
-└── results/
-    └── output/
-        └── {OSMID}/
-            ├── building_shade/
-            └── combined_shade/
-                └── {tile_id}/
-                    ├── {OSMID}_{tile_id}_Shadow_{DATE}_{TIME}_LST.tif
-                    └── {OSMID}_{tile_id}_shadow_fraction_on_{DATE}_{TIME}.tif
-data/
-└── clean_data/
-    ├── solar/
-    │   └── {OSMID}/
-    │       ├── raw downloads
-    │       └── rdy_for_processing/
-    │           ├── {OSMID}_{tile_id}_{DATE}_building_dsm.tif
-    │           └── {OSMID}_{tile_id}_{DATE}_canopy_dsm.tif
-    └── canopy_masks/
-        └── {OSMID}/
-            └── segmented RGB files
+pipeline.py
+│
+config.yaml
+│
+src/
+├── (All scripts etc.)
+├── .env file
+│
+output_directory/
+├── step1_solar_coverage/
+│   ├── coverage_previews/
+│   │   ├── coverage_preview_{number_of_tiles}_tiles.geojson
+│   └── {OSMID}/
+│       ├── OSM building polygons
+│       └── query points for SolarAPI
+├── step2_solar_data/
+│   └── {OSMID}/
+│        └── solar data rasters
+├── step3_segmentation/
+│   └── {OSMID}/
+│       └── segmented RGB files
+├── step4_raster_processing/
+│   └── {OSMID}/
+│       └── processed DTM and CHM rasters
+├── step5_shade_results/
+│   └── {OSMID}/
+│       ├── building_shade/
+│       └── combined_shade/
+│           └── {tile_id}/
+│               ├── {OSMID}_{tile_id}_Shadow_{DATE}_{TIME}_LST.tif
+│               └── {OSMID}_{tile_id}_shadow_fraction_on_{DATE}_{TIME}.tif
+└── step6_final_result/
+    └── {OSMID}/
+        └── final shad eenhanced dataset
 ```
 
 ## License
