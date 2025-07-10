@@ -23,7 +23,7 @@ def raster_processing_main(config, osmid):
     print(f"Found {len(raster_files)} raster files to process.")
     max_workers = config.get('max_workers', 2)
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(process_raster, config, file_path, osmid) for file_path in raster_files]
         for future in concurrent.futures.as_completed(futures):
             try:

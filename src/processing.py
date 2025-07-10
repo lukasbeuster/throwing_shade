@@ -75,7 +75,7 @@ def run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, year, config):
     summer_params = config['seasons']['summer']
     winter_params = config['seasons']['winter']
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=config['max_workers']) as executor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=config['max_workers']) as executor:
         for tile_id, dates in tile_grouped_days.items():
             tile_dataset = dataset_gdf[dataset_gdf['tile_number'] == tile_id]
             for sim_date, timestamps in dates.items():
@@ -107,7 +107,7 @@ def extract_and_merge_shade_values(dataset_gdf, osmid, binned, config):
         DataFrame: Concatenated results of all processed subsets with shade metrics.
     """
     results = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=config['max_workers']) as executor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=config['max_workers']) as executor:
         futures = []
         for tile_no in dataset_gdf["tile_number"].unique():
             tile_data = dataset_gdf[dataset_gdf["tile_number"] == tile_no]

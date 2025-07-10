@@ -104,6 +104,16 @@ Download the Solar API coverage shapefiles and Segment Anything Model.
     * `seasons`:
       * `summer` (dict): Input the tree transmissivity % (TRS) for the summer period (daylight savings period). DO NOT change the DST value from 0. A good default for TRS is 10% for summer.
       * `winter` (dict): Input the tree transmissivity for the winter period (daylight savings period). DO NOT change the DST value from 0. A good default for TRS is 45-50% in winter.
+    * `solar_api`:
+      * `min_points_per_tile` (int): Choose minimum number of points required per tile for it to be included in the analysis and download the Solar API layers.
+    * `max_workers` (int): Maximum number of CPU cores to use for parallel processing.
+    * `extra_outputs`:
+      * `building_shade_step` (boolean): Put True if you want the building shade value at the point timestamp as an output parameter, False otherwise.
+      * `tree_shade_step` (boolean): Put True if you want the combined shade value at the point timestamp as an output parameter, False otherwise.
+      * `bldg_shadow_fraction` (boolean): Put True if you want the accumulated building shade value until the point timestamp as an output parameter, False otherwise.
+      * `tree_shadow_fraction` (boolean): Put True if you want the accumulated combined shade value until the point timestamp as an output parameter, False otherwise.
+      * `hours_before` (list): Input list of integers to have the cumulative shade in the x hours before point timestamp as an output parameter. Otherwise put [].
+
 
 -----
 
@@ -208,7 +218,7 @@ src/
 output_directory/
 ├── step1_solar_coverage/
 │   ├── coverage_previews/
-│   │   ├── coverage_preview_{number_of_tiles}_tiles.geojson
+│   │   └── coverage_preview_{number_of_tiles}_tiles.geojson
 │   └── {OSMID}/
 │       ├── OSM building polygons
 │       └── query points for SolarAPI
@@ -235,4 +245,4 @@ output_directory/
 
 ## Cite
 
-----
+Ozberkman, D., van Selm, M., Venverloo, T., and Beuster, L.: Sun Blocked: Integrating Shade into Urban Climate Assessments, 12th International Conference on Urban Climate, Rotterdam, The Netherlands, 7–11 Jul 2025, ICUC12-797, https://doi.org/10.5194/icuc12-797, 2025.
