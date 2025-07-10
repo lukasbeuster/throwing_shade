@@ -25,25 +25,7 @@ dependencies:
   solar_coverage_high: "C:/Users/Dila Ozberkman/Desktop/AMS Research/Urban Shade/Data/solar-api-coverage/SolarAPIHighArea.shp"
   sam_checkpoint: "data/clean_data/solar/sam/sam_vit_h_4b8939.pth"
 
-# === 4. Shade Simulation Parameters ===
-simulation:
-  # Interval in minutes for the shade simulation.
-  shade_interval_minutes: 30
-  # Input if you want to simulate shade ONLY from buildings
-  building_shade: True
-  # Input if you want to simulate shade from both buildings and trees
-  combined_shade: True
-  # Time to start simulation ('HH:MM' format). Use 'None' to start from sunrise.
-  start_time: None
-  # If you want to bin data based on timestamp, enter an integer bin size > 1. 0 to disable.
-  # Binning is explained in the README.
-  bin_size: 0
-  # Choose if you want solstice to always be simulated even if not in bin. More about this in README.
-  simulate_solstice: True
-  # Buffer values (in meters) to calculate shade around each point.
-  buffers: [0, 1, 2]
-
-# === 5. Seasonal & Timezone Parameters ===
+# === 4. Seasonal & Timezone Parameters ===
 seasons:
   # Seasons are defined based on daylight savings periods
   summer:
@@ -67,10 +49,28 @@ year_configs:
     dst_start: "2022-03-27"
     dst_end: "2022-10-30"
 
-# === 6. Advanced Parameters ===
+# === 5. Shade Simulation Parameters - OPTIONAL ===
+simulation:
+  # Interval in minutes for the shade simulation.
+  shade_interval_minutes: 30
+  # Input if you want to simulate shade ONLY from buildings
+  building_shade: True
+  # Input if you want to simulate shade from both buildings and trees
+  combined_shade: True
+  # Time to start simulation ('HH:MM' format). Use 'None' to start from sunrise.
+  start_time: None
+  # If you want to bin data based on timestamp, enter an integer bin size > 1. 0 to disable.
+  # Binning is explained in the README.
+  bin_size: 0
+  # Choose if you want solstice to always be simulated even if not in bin. More about this in README.
+  simulate_solstice: True
+  # Buffer values (in meters) to calculate shade around each point.
+  buffers: [0, 1, 2]
+
+# === 6. Advanced Parameters - OPTIONAL ===
 solar_api:
   # Define minimum number of points needed per tile to download the SolarAPI
-  # and process shade in the tile. More information in README.
+  # and process shade in the tile. Can also be defined in the CLI. More information in README.
   min_points_per_tile: 1
 
 # Define maximum number of workers in parallel processing

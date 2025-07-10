@@ -27,11 +27,11 @@ Please report bugs, suggest improvements and give feedback in the form [here](ht
 
 The pipeline is broken down into five distinct, sequential steps, each run by a simple command. This modular approach allows you to inspect the output of each stage and re-run steps with different parameters without starting from scratch.
 
-1\.  **`check`**: Analyzes your dataset and determines the geographic tiles needed for the analysis.
-2\.  **`download`**: Fetches all raw data (DSMs, imagery, building footprints) for the selected tiles.
-3\.  **`segment`**: Runs the AI model to identify trees and create canopy masks.
-4\.  **`process-rasters`**: A heavy-lifting step that processes the raw DSMs into analysis-ready terrain and canopy models.
-5\.  **`process-shade`**: The final step, which runs the shade simulation and merges the results back into your original dataset.
+1.  **`check`**: Analyzes your dataset and determines the geographic tiles needed for the analysis.
+2.  **`download`**: Fetches all raw data (DSMs, imagery, building footprints) for the selected tiles.
+3.  **`segment`**: Runs the AI model to identify trees and create canopy masks.
+4.  **`process-rasters`**: A heavy-lifting step that processes the raw DSMs into analysis-ready terrain and canopy models.
+5.  **`process-shade`**: The final step, which runs the shade simulation and merges the results back into your original dataset.
 
 ## 🚀 Getting Started
 
@@ -87,13 +87,23 @@ Download the Solar API coverage shapefiles and Segment Anything Model.
       * `dataset_path`: The full path to your input data file.
       * `dependencies`: The full paths to your Solar API coverage shapefiles and the SAM model checkpoint.
       * `columns`: The column names matching the required columns.
+      * `seasons`:
+        * `summer` (dict): Input the UTC for the summer period (daylight savings period). DO NOT change the DST value from 0.
+        * `winter` (dict): Input the UTC for the winter period (not daylight savings period). DO NOT change the DST value from 0.
+      * `year_configs`:
+        * `year` (dict): For each timestamp year present in the dataset input the solstice day, the daylight savings start and end date in the form "yyyy-mm-dd".
 
-    **Rest of the parameters:**
+    **Other parameters:**
     * `simulation`:
       * `shade_interval_minutes` (int): The frequency of shade simulation in minutes. Default is 30 minutes.
       * `combined_shade`, `building_shade` (Boolean): Control whether to simulate combined and/or building shade. Combined shade is shade from both buildings and trees.
       * `start_time` (str): Can provide a start time in the 'HH:MM' format if you don't want to simulate from sunrise to timestamp.
       * `bin_size` (int): The bin size parameter can be used if the dataset is very large and the computation will take too much time. It is defined as an integer number of days for setting a maximum difference in number of days from point timestamp to simulation date.
+      * `simulate_solstice` (boolean): Choose whether to simulate solstice day even if not necessary for the dataset timestamps. It can act as a good reference point.
+      * `buffers` (list): List of buffer values for extracting the shade results around each data point. Since shade simulation is very location sensitive, depending on the location accuracy can use a buffer. For no buffer, input '[0]'.
+    * `seasons`:
+      * `summer` (dict): Input the tree transmissivity % (TRS) for the summer period (daylight savings period). DO NOT change the DST value from 0. A good default for TRS is 10% for summer.
+      * `winter` (dict): Input the tree transmissivity for the winter period (daylight savings period). DO NOT change the DST value from 0. A good default for TRS is 45-50% in winter.
 
 -----
 
@@ -222,10 +232,6 @@ output_directory/
     └── {OSMID}/
         └── final shade enhanced dataset
 ```
-
-## License
-
-----
 
 ## Cite
 
