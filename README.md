@@ -220,7 +220,7 @@ output_directory/
 │               └── {OSMID}_{tile_id}_shadow_fraction_on_{DATE}_{TIME}.tif
 └── step6_final_result/
     └── {OSMID}/
-        └── final shad eenhanced dataset
+        └── final shade enhanced dataset
 ```
 
 ## License
@@ -228,3 +228,5 @@ output_directory/
 ----
 
 ## Cite
+
+----
