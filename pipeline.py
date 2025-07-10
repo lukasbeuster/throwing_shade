@@ -77,7 +77,7 @@ def check(config, min_points, yes):
 
     # Save the path to the preview file for the next step
     output_dir = Path(cfg['output_dir'])
-    
+
     # By setting fresh_start=True, we signal the beginning of a new run.
     save_run_info(output_dir, {'preview_path': str(preview_path)}, fresh_start=True)
 
@@ -192,7 +192,7 @@ def process_shade(config):
         final_dataset = gpd.GeoDataFrame(final_dataset, geometry='geometry')
 
         # Add a placeholder for your final output path in config if needed
-        final_output_dir = output_dir / f"step5_final_results/{osmid}"
+        final_output_dir = output_dir / f"step6_final_result/{osmid}"
         final_output_dir.mkdir(parents=True, exist_ok=True)
         final_output_path = final_output_dir / "shaded_dataset.geojson"
 

@@ -176,9 +176,9 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
                     savestr = 'Shadow_at_'
 
                 if height_str != '':
-                    filename = filepath_save + tile_no + '_'+ height_str + savestr + timestr + '.tif'
+                    filename = filepath_save + '/' + tile_no + '_'+ height_str + savestr + timestr + '.tif'
                 else:
-                    filename = filepath_save + tile_no + savestr + timestr + '.tif'
+                    filename = filepath_save + '/' + tile_no + savestr + timestr + '.tif'
 
                 print("File path trying to save at:", filename)
 
@@ -313,9 +313,9 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
 
             if alt[i] > 0:
                 if height_str != '':
-                    check_path = folder + tile_no + '_'+ height_str + '_Shadow_' + timestr + '_LST.tif'
+                    check_path = folder + '/' + tile_no + '_'+ height_str + '_Shadow_' + timestr + '_LST.tif'
                 else:
-                    check_path = folder + tile_no + '_Shadow_' + timestr + '_LST.tif'
+                    check_path = folder + '/' + tile_no + '_Shadow_' + timestr + '_LST.tif'
                 if os.path.exists(check_path):
                     print(f"Skipping calculation. Using existing shadow file: {check_path}")
 
@@ -357,7 +357,7 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
                                                                                                 dirwalls * np.pi / 180.)
                         sh = sh - (1 - vegsh) * (1 - psi)
                         if onetime == 0:
-                            filenamewallshve = folder + '/Facadeshadow_fromvegetation_' + timestr + '_LST.tif'
+                            filenamewallshve = folder + '/'+ '/Facadeshadow_fromvegetation_' + timestr + '_LST.tif'
                             saveraster(gdal_data, filenamewallshve, wallshve)
                     else:
                         sh, wallsh, _, _, _ = shadow.shadowingfunction_wallheight_13(dsm, azi[i], alt[i], scale,
@@ -365,9 +365,9 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
                         # shtot = shtot + sh
 
                     if onetime == 0:
-                        filename = folder + '/Shadow_ground_' + timestr + '_LST.tif'
+                        filename = folder + '/'+ '/Shadow_ground_' + timestr + '_LST.tif'
                         saveraster(gdal_data, filename, sh)
-                        filenamewallsh = folder + '/Facadeshadow_frombuilding_' + timestr + '_LST.tif'
+                        filenamewallsh = folder + '/'+ '/Facadeshadow_frombuilding_' + timestr + '_LST.tif'
                         saveraster(gdal_data, filenamewallsh, wallsh)
 
 
@@ -387,9 +387,9 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
                     # sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, 0)
                     if onetime == 0:
                         if height_str != '':
-                            filename = folder + tile_no + '_'+ height_str + '_Shadow_' + timestr + '_LST.tif'
+                            filename = folder + '/' + tile_no + '_'+ height_str + '_Shadow_' + timestr + '_LST.tif'
                         else:
-                            filename = folder + tile_no + '_Shadow_' + timestr + '_LST.tif'
+                            filename = folder + '/' + tile_no + '_Shadow_' + timestr + '_LST.tif'
                         ## EDITED
                         saveraster(gdal_data, filename, sh)
 

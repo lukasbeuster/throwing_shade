@@ -35,7 +35,7 @@ def run_shade_processing(config, osmid, year, year_data):
     Returns:
         GeoDataFrame: Final processed dataset with averaged shade metrics.
     """
-    binned = config['simulation']['bin_size'] > 0
+    binned = int(config['simulation']['bin_size']) > 0
 
     dataset_gdf, tile_grouped_days, original_dataset = process_dataset(year_data, year, osmid, config)
 
@@ -45,7 +45,7 @@ def run_shade_processing(config, osmid, year, year_data):
         print(f"User Warning: The dataset result for year {year} is empty. Make sure dataset geometry overlaps with processed rasters in step 4")
         return empty_gdf
 
-    run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, year, config)
+    # run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, year, config)
 
     dataset_with_shade = extract_and_merge_shade_values(dataset_gdf, osmid, binned, config)
 
@@ -203,7 +203,7 @@ def main_shade(osmid, tile_id, timestamps, sim_date, inputs, config):
     start_time = config['simulation']['start_time']
 
     # Handle start_time input flexibly
-    if start_time is None:
+    if start_time == 'None':
         start_time = datetime.combine(sim_date, time(0, 0))
     elif isinstance(start_time, str):
         # Assume format like "11:00"
@@ -270,12 +270,12 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, timestamps, start
             start_time=start_time,
             shade_fractions=building_intervals_needed,
             onetime=0,
-            filepath_save=building_directory,
+            filepath_save=str(building_directory),
             UTC=inputs['utc'],
             dst=inputs['dst'],
             useveg=0,
             trunkheight=25,
-            transmissivity=inputs['trs']
+            transmissivity=inputs['tree_transmissivity']
         )
 
     def run_tree_shade(inputs, bldg_path, matched_chm_path, tile_no, date, shade_interval,
@@ -290,12 +290,12 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, timestamps, start
             start_time=start_time,
             shade_fractions=tree_intervals_needed,
             onetime=0,
-            filepath_save=tree_directory,
+            filepath_save=str(tree_directory),
             UTC=inputs['utc'],
             dst=inputs['dst'],
             useveg=1,
             trunkheight=25,
-            transmissivity=inputs['trs']
+            transmissivity=inputs['tree_transmissivity']
         )
 
     final_stamp, intervals = timestamps[0], timestamps[1]
@@ -321,11 +321,13 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, timestamps, start
         print(f"The file {matched_chm_path} does not exist.")
 
     folder_no = identifier.split('_')[-1]
-    folder_no = '/' + folder_no
+    folder_no = folder_no
     tile_no = identifier
 
-    building_directory = Path(config['output_dir']) / f"step5_shade_results/{osmid}/building_shade/{folder_no}/"
-    tree_directory = Path(config['output_dir']) / f"step5_shade_results/{osmid}/combined_shade/{folder_no}/"
+    building_directory = Path(config['output_dir']) / f"step5_shade_results/{osmid}/building_shade/{folder_no}"
+    tree_directory = Path(config['output_dir']) / f"step5_shade_results/{osmid}/combined_shade/{folder_no}"
+
+    print(building_directory)
 
     shade_interval = config['simulation']['shade_interval_minutes']
 
@@ -342,7 +344,7 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, timestamps, start
             isinstance(building_shadow_files_exist, list) and not all(building_shadow_files_exist)
         ):
             run_building_shade(
-                inputs, bldg_path, matched_chm_path, tile_no, date,
+                inputs, str(bldg_path), str(matched_chm_path), tile_no, date,
                 shade_interval, final_stamp, start_time,
                 building_intervals_needed, building_directory
             )
@@ -360,7 +362,7 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, timestamps, start
             isinstance(tree_shadow_files_exist, list) and not all(tree_shadow_files_exist)
         ):
             run_tree_shade(
-                inputs, bldg_path, matched_chm_path, tile_no, date,
+                inputs, str(bldg_path), str(matched_chm_path), tile_no, date,
                 shade_interval, final_stamp, start_time,
                 tree_intervals_needed, tree_directory
             )
@@ -672,7 +674,8 @@ def hours_before_shadow_fr(dataset, base_path, building_mask_path, shade_type, r
     first_shade_time = get_earliest_timestamp(f"{base_path}/{shade_type}/{tile_number}", rounded_timestamp)
 
     if first_shade_time is None:
-        raise Exception("There are no shade files in the directory for this date")
+        print("There are no shade files in the directory for this date. Assigning NaNs.")
+        return np.full(len(dataset), np.nan)
 
     if start_hour < first_shade_time:
         print("Start_hour is earlier than the first available shade file — assigning NaNs.")
@@ -822,6 +825,10 @@ def get_earliest_timestamp(directory, date_obj):
 
     timestamps = []
 
+    if not os.path.exists(directory):
+        print(f"Shade directory {directory} doesn't exist. Skipping extraction.")
+        return None
+
     for filename in os.listdir(directory):
         if filename.endswith(".tif") and not filename.endswith(".tif.ovr"):  # Ensure only `.tif` files, exclude `.tif.ovr`
             match = pattern.match(filename)
@@ -929,8 +936,6 @@ def process_dataset(dataset, year, osmid, config):
     df_gdf.drop(columns=["index_right"], inplace=True, errors="ignore")
 
     df_gdf = df_gdf.dropna(subset=["tile_number"])
-
-    print(f"Number of rows left: {df_gdf.shape[0]}")
 
     timestamp_column = config['columns']['timestamp']
 
