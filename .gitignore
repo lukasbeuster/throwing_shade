@@ -7,6 +7,7 @@
 .thermal_drift
 .DS_Store
 .env
+scr/.env
 *.log
 nohup.out
 /code/logs/
