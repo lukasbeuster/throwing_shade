@@ -1,0 +1,13 @@
+/results
+/data
+/code/cache
+/code/__pycache__
+/code/lightning_logs
+/code/temp.DS_Store
+.thermal_drift
+.DS_Store
+.env
+*.log
+nohup.out
+/code/logs/
+.tmp/
