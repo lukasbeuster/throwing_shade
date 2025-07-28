@@ -2,7 +2,9 @@
 
 **Throwing Shade** is an ongoing research project focused on high-resolution shade simulation and analysis to support urban climate adaptation and heat stress mitigation.  
 This repository contains the core code, workflows, and data structure supporting the analyses presented in our manuscript submitted to *npj Urban Sustainability*.  
-👉 [Read the preprint for full details](#)  *(TODO: add link)*.
+👉 [Read the preprint for full details](https://doi.org/10.21203/rs.3.rs-6966874/v1).
+
+You'll find the expanded pipeline referenced in _"Sun Blocked: Integrating Shade into Urban Climate Assessments"_, which adds the functionality to add shade information to your geo/time-referenced data [here](https://github.com/lukasbeuster/throwing_shade/tree/feature/cli-refactor).
 
 ---
 
