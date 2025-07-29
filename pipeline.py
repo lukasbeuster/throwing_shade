@@ -49,6 +49,46 @@ def save_run_info(output_dir: Path, data: dict, fresh_start: bool = False):
     with open(run_info_path, 'w') as f:
         json.dump(existing_data, f, indent=4)
 
+
+# --- Flexible Dataset Loader ---
+def load_dataset_flexibly(config):
+    """Loads a dataset (CSV, Parquet, Pickle, GeoJSON, etc.) into a GeoDataFrame."""
+    dataset_path = config['dataset_path']
+    lon_col = config['columns']['longitude']
+    lat_col = config['columns']['latitude']
+
+    # Determine CRS settings
+    input_crs = config.get('input_crs', 'EPSG:4326')
+
+    # Load data into GeoDataFrame regardless of format
+    suffix = Path(dataset_path).suffix.lower()
+    if suffix == '.csv':
+        df = pd.read_csv(dataset_path)
+        gdf = gpd.GeoDataFrame(
+            df,
+            geometry=gpd.points_from_xy(df[lon_col], df[lat_col]),
+            crs=input_crs
+        )
+    elif suffix in ('.pkl', '.pickle'):
+        df = pd.read_pickle(dataset_path)
+        gdf = gpd.GeoDataFrame(
+            df,
+            geometry=gpd.points_from_xy(df[lon_col], df[lat_col]),
+            crs=input_crs
+        )
+    elif suffix == '.parquet':
+        df = pd.read_parquet(dataset_path)
+        gdf = gpd.GeoDataFrame(
+            df,
+            geometry=gpd.points_from_xy(df[lon_col], df[lat_col]),
+            crs=input_crs
+        )
+    else:
+        # GeoJSON, GPKG, shapefiles, etc.
+        gdf = gpd.read_file(dataset_path)
+
+    return gdf.to_crs(output_crs)
+
 # --- The Main CLI Group ---
 
 @click.group()
@@ -166,10 +206,16 @@ def process_shade(config):
 
     click.echo(f"--- Running Step 5: Final Shade Processing for Run ID: {osmid} ---")
 
-    # The CLI script is now responsible for loading the main dataset and looping through years
-    dataset = gpd.read_file(cfg['dataset_path'])
+    # Load dataset flexibly based on file format
+    dataset = load_dataset_flexibly(cfg)
     timestamp_col = cfg['columns']['timestamp']
-    dataset[timestamp_col] = pd.to_datetime(dataset[timestamp_col])
+    dataset[timestamp_col] = pd.to_datetime(dataset[timestamp_col], errors='coerce')
+    
+    n_invalid = dataset[timestamp_col].isna().sum()
+    print(f"{n_invalid} rows failed to parse timestamps and became NaT")
+
+    # Drop the bad ones before analysis
+    dataset = dataset[timestamp_col].dropna()
 
     all_year_results = []
 
