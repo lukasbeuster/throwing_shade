@@ -21,3 +21,6 @@ Shapely==2.1.1
 startinpy==0.12.1
 torch==2.6.0
 tqdm==4.67.1
+
+ipykernel
+jupyter
