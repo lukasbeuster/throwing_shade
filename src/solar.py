@@ -20,16 +20,45 @@ def check_coverage(config):
     Saves a preview map and returns information to the user.
     """
     print("Checking solar tile coverage...")
-    # read
-    dataset = gpd.read_file(config['dataset_path'])
+    dataset_path = config['dataset_path']
+    lon_col = config['columns']['longitude']
+    lat_col = config['columns']['latitude']
 
-    # create gdf
-    longitude_column = config['columns']['longitude']
-    latitude_column =config['columns']['latitude']
-    geometry = [Point(xy) for xy in zip(dataset[longitude_column], dataset[latitude_column])]
-    points_dataset = gpd.GeoDataFrame(dataset, geometry=geometry, crs="EPSG:4326")
-    points_dataset = points_dataset.to_crs("EPSG:32632")
+    # Determine CRS settings
+    input_crs = config.get('input_crs', 'EPSG:4326')
+    output_crs = config.get('output_crs', 'EPSG:32632')
 
+    # Load data into GeoDataFrame regardless of format
+    suffix = Path(dataset_path).suffix.lower()
+    if suffix == '.csv':
+        df = pd.read_csv(dataset_path)
+        gdf = gpd.GeoDataFrame(
+            df,
+            geometry=gpd.points_from_xy(df[lon_col], df[lat_col]),
+            crs=input_crs
+        )
+    elif suffix in ('.pkl', '.pickle'):
+        df = pd.read_pickle(dataset_path)
+        gdf = gpd.GeoDataFrame(
+            df,
+            geometry=gpd.points_from_xy(df[lon_col], df[lat_col]),
+            crs=input_crs
+        )
+    elif suffix == ('.parquet'):
+        df = pd.read_parquet(dataset_path)
+        gdf = gpd.GeoDataFrame(
+            df,
+            geometry=gpd.points_from_xy(df[lon_col], df[lat_col]),
+            crs=input_crs
+        )
+    else:
+        # GeoJSON, GPKG, shapefiles, etc.
+        gdf = gpd.read_file(dataset_path)
+
+    # Reproject to output CRS
+    points_dataset = gdf.to_crs(output_crs)
+
+    # Now run your existing grid logic:
     valid_grid_gdf_filtered = make_valid_grid(points_dataset, config)
 
     # calculate the number of tiles to downlaod
