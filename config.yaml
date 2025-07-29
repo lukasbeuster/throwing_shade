@@ -4,11 +4,11 @@
 
 # === 1. Input and Output Paths ===
 # Path to the input dataset (GeoJSON, GPKG, Shapefile or CSV)
-dataset_path: "data/sample/pipeline_sample_dataset.csv"
+dataset_path: "data/raw_data/breeze/thermal_drift_data/bos/back_bay_exclusive_trackpoints.parquet"
 
 # Base directory for all generated outputs.
 # The pipeline will create sub-folders inside this directory for each step.
-output_dir: "/results/output"
+output_dir: "results/output"
 
 # === 2. Dataset Column Names ===
 # Important column names in your dataset
@@ -21,8 +21,8 @@ columns:
 # === 3. Dependency Paths ===
 # Paths to pre-downloaded resources required by the pipeline.
 dependencies:
-  solar_coverage_medium: "/data/clean_data/solar-api-coverage-exp/SolarAPIMediumArea.shp"
-  solar_coverage_high: "/data/clean_data/solar-api-coverage-exp/SolarAPIHighArea.shp"
+  solar_coverage_medium: "data/clean_data/solar-api-coverage-exp/SolarAPIMediumArea.shp"
+  solar_coverage_high: "data/clean_data/solar-api-coverage-exp/SolarAPIHighArea.shp"
   sam_checkpoint: "data/sam_vit_h_4b8939.pth"
 
 # === 4. Seasonal & Timezone Parameters ===
