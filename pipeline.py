@@ -87,7 +87,7 @@ def load_dataset_flexibly(config):
         # GeoJSON, GPKG, shapefiles, etc.
         gdf = gpd.read_file(dataset_path)
 
-    return gdf.to_crs(output_crs)
+    return gdf
 
 # --- The Main CLI Group ---
 
