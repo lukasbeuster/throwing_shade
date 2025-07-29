@@ -3,43 +3,51 @@
 # -----------------------------------------------------------------
 
 # === 1. Input and Output Paths ===
-# Path to the input dataset (GeoJSON or Shapefile)
+# Path to the input dataset (GeoJSON, GPKG, Shapefile or CSV)
 dataset_path: "data/sample/pipeline_sample_dataset.csv"
 
 # Base directory for all generated outputs.
 # The pipeline will create sub-folders inside this directory for each step.
-output_dir: "output"
+output_dir: "/results/output"
 
 # === 2. Dataset Column Names ===
 # Important column names in your dataset
 columns:
   latitude: "latitude"
   longitude: "longitude"
-  timestamp: "TIME"
-  unique_id: "ID"
+  timestamp: "time"
+  unique_id: "tripUuid"
 
 # === 3. Dependency Paths ===
 # Paths to pre-downloaded resources required by the pipeline.
 dependencies:
-  solar_coverage_medium: "/solar-api-coverage/SolarAPIMediumArea.shp"
-  solar_coverage_high: "/solar-api-coverage/SolarAPIHighArea.shp"
+  solar_coverage_medium: "/data/clean_data/solar-api-coverage-exp/SolarAPIMediumArea.shp"
+  solar_coverage_high: "/data/clean_data/solar-api-coverage-exp/SolarAPIHighArea.shp"
   sam_checkpoint: "data/sam_vit_h_4b8939.pth"
 
 # === 4. Seasonal & Timezone Parameters ===
 seasons:
   # Seasons are defined based on daylight savings periods
   summer:
-    utc: 2
+    utc: -4
     dst: 0
     tree_transmissivity: 10
   winter:
-    utc: 1
+    utc: -5
     dst: 0
     tree_transmissivity: 45
 
 # Daylight Saving Time configuration for each year
 year_configs:
   # Define daylight savings and solstice dates for the years in your dataset
+  2014:
+    solstice_day: "2014-06-21"
+    dst_start: "2014-03-30"
+    dst_end: "2014-10-26"
+  2015:
+  solstice_day: "2015-06-21"
+  dst_start: "2015-03-29"
+  dst_end: "2015-10-25"
   2021:
     solstice_day: "2021-06-21"
     dst_start: "2021-03-28"
@@ -74,7 +82,7 @@ solar_api:
   min_points_per_tile: 1
 
 # Define maximum number of workers in parallel processing
-max_workers: 2
+max_workers: 32
 
 # Choose what parameters you would like the model to output. Definitions in README.
 extra_outputs:
