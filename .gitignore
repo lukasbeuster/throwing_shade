@@ -5,6 +5,7 @@
 __pycache__
 /code/lightning_logs
 /code/temp.DS_Store
+/cache
 .thermal_drift
 .venv
 .DS_Store
