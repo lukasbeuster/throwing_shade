@@ -2,6 +2,7 @@
 /data
 /code/cache
 /code/__pycache__
+__pycache__
 /code/lightning_logs
 /code/temp.DS_Store
 .thermal_drift
