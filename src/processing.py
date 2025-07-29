@@ -954,7 +954,8 @@ def process_dataset(dataset, year, osmid, config):
         return (None, None, None)
 
     modified_dataset["season"] = modified_dataset["binned_date"].apply(
-    lambda date: assign_summer_winter(date, datetime.fromisoformat(config['year_configs'][year]['dst_start']).date(), datetime.fromisoformat(config['year_configs'][year]['dst_end']).date())
+        lambda date: assign_summer_winter(date, datetime.fromisoformat(config['year_configs'][year]['dst_start']).date(), datetime.fromisoformat(config['year_configs'][year]['dst_end']).date()
+        )
     )
 
     modified_dataset = modified_dataset.reset_index()
@@ -1112,22 +1113,23 @@ def assign_summer_winter(p_date, dst_start, dst_end):
 
 def get_interval_stamp(timestamp, interval=30):
     """
-    Rounds a given timestamp to the nearest time interval boundary (in minutes) since midnight.
+    Floors the given timestamp to the previous interval boundary (in minutes) since midnight.
 
     This function is useful for aligning timestamps to consistent time bins (e.g., 30-minute intervals)
     when processing or aggregating time-based data.
 
     Parameters:
-        timestamp (datetime.datetime): The input timestamp to round.
+        timestamp (datetime.datetime): The input timestamp to round down
         interval (int, optional): The interval size in minutes. Defaults to 30.
 
     Returns:
-        datetime.datetime: A new timestamp rounded to the nearest interval boundary.
+        datetime.datetime or pd.NaT: Timestamp floored to the interval, or NaT if input is NaT.
     """
-    minutes_since_midnight = timestamp.hour * 60 + timestamp.minute
-    rounded_minutes = round(minutes_since_midnight / interval) * interval
-    r_hour = rounded_minutes // 60
-    r_minute = rounded_minutes % 60
+    total_minutes = timestamp.hour * 60 + timestamp.minute
+    rounded_total = (total_minutes // interval) * interval
+    r_hour = rounded_total // 60
+    r_minute = rounded_total % 60
+
 
     return timestamp.replace(hour=r_hour, minute=r_minute, second=0, microsecond=0)
 
