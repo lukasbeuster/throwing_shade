@@ -45,7 +45,7 @@ def run_shade_processing(config, osmid, year, year_data):
         print(f"User Warning: The dataset result for year {year} is empty. Make sure dataset geometry overlaps with processed rasters in step 4")
         return empty_gdf
 
-    # run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, year, config)
+    run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, year, config)
 
     dataset_with_shade = extract_and_merge_shade_values(dataset_gdf, osmid, binned, config)
 
