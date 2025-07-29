@@ -82,10 +82,10 @@ def get_solar_data(
         "pixelSizeMeters": pixelSizeMeters,
         "key": api_key,
     }
-    print(params)
+    # print(params)
     solar_data = requests.get(url, params=params).json()
     # solar_data = requests.get(url, params=params, headers=header).json()
-    print(solar_data)
+    # print(solar_data)
 
     links = {}
 
