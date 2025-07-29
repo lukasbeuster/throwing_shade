@@ -5,6 +5,7 @@
 /code/lightning_logs
 /code/temp.DS_Store
 .thermal_drift
+.venv
 .DS_Store
 .env
 scr/.env
