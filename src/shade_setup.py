@@ -233,7 +233,7 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
             # Number of intervals of length `timeInterval` minutes
             itera = int(time_diff // timeInterval)
 
-            print(f"Shading will be calculated from 00:00 to {final_stamp.strftime('%H:%M')} in {itera} intervals")
+            print(f"Shading will be simulated from 00:00 to {final_stamp.strftime('%H:%M')} in {itera} intervals")
 
             # itera = int(np.round(1440 / timeInterval))
 
@@ -259,6 +259,7 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
 
     try:
         # TODO: change this to adapt to start time
+        # TODO: pass all times to the sun_position function at one, so that it becomes one function call.
         for i in range(0, itera + 1):
             if onetime == 0:
                 # Calculate current time
@@ -311,6 +312,8 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
             time_vector = dt.datetime(year, month, day, time_dict['hour'], time_dict['min'], time_dict['sec'])
             timestr = time_vector.strftime("%Y%m%d_%H%M")
 
+            print(f'Looked up {c_time}, the sun is {alt[i]} degrees relative to the horizon')
+
             if alt[i] > 0:
                 if height_str != '':
                     check_path = folder + '/' + tile_no + '_'+ height_str + '_Shadow_' + timestr + '_LST.tif'
@@ -348,7 +351,7 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
 
                     continue  # Skip the calculation step and move to the next iteration
 
-                print(f"I am about to calculate shadows for this time {time_vector}, there is sun")
+                print(f"I am about to simulate shadows for this time {time_vector}, there is sun")
                 if wallshadow == 1:  # Include wall shadows (Issue #121)
                     if usevegdem == 1:
                         vegsh, sh, _, wallsh, _, wallshve, _, _ = shadow.shadowingfunction_wallheight_23(dsm, vegdem, vegdem2,
