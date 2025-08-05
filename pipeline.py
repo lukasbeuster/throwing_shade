@@ -209,13 +209,13 @@ def process_shade(config):
     # Load dataset flexibly based on file format
     dataset = load_dataset_flexibly(cfg)
     timestamp_col = cfg['columns']['timestamp']
-    dataset[timestamp_col] = pd.to_datetime(dataset[timestamp_col], errors='coerce')
+    dataset[timestamp_col] = pd.to_datetime(dataset[timestamp_col], utc=True, errors='coerce')
     
     n_invalid = dataset[timestamp_col].isna().sum()
     print(f"{n_invalid} rows failed to parse timestamps and became NaT")
 
-    # Drop the bad ones before analysis
-    dataset = dataset[timestamp_col].dropna()
+    # Drop the bad rows before analysis
+    dataset = dataset.dropna(subset=[timestamp_col])
 
     all_year_results = []
 
