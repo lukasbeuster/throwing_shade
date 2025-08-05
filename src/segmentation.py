@@ -58,7 +58,7 @@ def run_segmentation(config, osmid):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         # Predict bounding boxes using DeepForest
-        predicted_boxes = model.predict_tile(str(raster_path), return_plot=False, patch_size=800, patch_overlap=0.25)
+        predicted_boxes = model.predict_tile(str(raster_path), return_plot=False, patch_size=300, patch_overlap=0.25)
 
         # Check if any trees were detected
         if predicted_boxes is None or predicted_boxes.empty:
