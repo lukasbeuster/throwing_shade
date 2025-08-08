@@ -10,6 +10,7 @@ from pathlib import Path
 from scipy.ndimage import minimum_filter
 import startinpy
 import concurrent.futures
+from rasterio.warp import reproject, Resampling
 
 # --- Main Entry Point for the Module ---
 
@@ -89,6 +90,45 @@ def process_raster(config, path, osmid):
 
 # --- Internal Helper Functions ---
 
+# Ensure two Affine transforms are effectively equal (within small tolerance)
+
+def _affine_close(t1, t2, tol=1e-9):
+    return (
+        abs(t1.a - t2.a) <= tol and
+        abs(t1.e - t2.e) <= tol and
+        abs(t1.b - t2.b) <= tol and
+        abs(t1.d - t2.d) <= tol and
+        abs(t1.c - t2.c) <= 1e-6 and
+        abs(t1.f - t2.f) <= 1e-6
+    )
+
+
+# Read a mask and guarantee it matches the DSM grid (CRS, size, transform).
+# If not, reproject with nearest-neighbour to avoid bleeding.
+
+def _read_mask_on_grid(mask_path, ref_meta, dtype='uint8'):
+    with rasterio.open(mask_path) as src:
+        if (
+            src.crs == ref_meta['crs'] and
+            src.width == ref_meta['width'] and
+            src.height == ref_meta['height'] and
+            _affine_close(src.transform, ref_meta['transform'])
+        ):
+            arr = src.read(1)
+            return arr.astype(dtype)
+
+        dst = np.zeros((ref_meta['height'], ref_meta['width']), dtype=dtype)
+        reproject(
+            source=rasterio.band(src, 1),
+            destination=dst,
+            src_transform=src.transform,
+            src_crs=src.crs,
+            dst_transform=ref_meta['transform'],
+            dst_crs=ref_meta['crs'],
+            resampling=Resampling.nearest,
+        )
+        return dst
+
 def _prepare_masks(config, osmid, dsm_data, dsm_crs, dsm_bounds, tile_stem, dsm_meta):
     """
     Loads and combines building and canopy masks to create analysis masks.
@@ -99,8 +139,7 @@ def _prepare_masks(config, osmid, dsm_data, dsm_crs, dsm_bounds, tile_stem, dsm_
     chm_mask_path = output_dir / f"step3_segmentation/{osmid}/{tile_stem}_rgb_segmented.tif"
 
     if chm_mask_path.exists():
-        with rasterio.open(chm_mask_path) as chm_src:
-            chm_mask = chm_src.read(1).astype(bool)
+        chm_mask = _read_mask_on_grid(chm_mask_path, dsm_meta, dtype='uint8').astype(bool)
         canopy_dsm = np.where(chm_mask, dsm_data, np.nan)
     else:
         print(f"Warning: CHM mask not found at {chm_mask_path}. Canopy DSM will be empty.")
@@ -110,7 +149,7 @@ def _prepare_masks(config, osmid, dsm_data, dsm_crs, dsm_bounds, tile_stem, dsm_
     # Load building mask from original solar data
     mask_path = output_dir / f"step2_solar_data/{osmid}/{tile_stem}_mask.tif"
     with rasterio.open(mask_path) as src:
-        bldg_mask = src.read(1).astype(bool)
+        bldg_mask = _read_mask_on_grid(mask_path, dsm_meta, dtype='uint8').astype(bool)
 
     # Load and rasterize OSM building footprints
     dsm_bbox_gdf = gpd.GeoDataFrame({'geometry': [box(*dsm_bounds)]}, crs=dsm_crs)
@@ -213,15 +252,32 @@ def apply_minimum_filter(data, nodata_value, size=3, nodata=True):
     return filtered_data
 
 def crop_and_save_raster(raster, meta, n, out_path):
-    # (Your existing function, simplified slightly)
-    # Calculate new transformation matrix
+    # Defensive: work on a fresh copy of meta and validate crop size
+    meta = meta.copy()
+    if n <= 0:
+        data = raster
+        if np.isnan(data).any():
+            min_value = np.nanmin(data)
+            data = np.nan_to_num(data, nan=min_value)
+        with rasterio.open(out_path, 'w', **meta) as dst:
+            dst.write(data.astype(meta['dtype']), 1)
+        return
+
+    h, w = raster.shape
+    if (2*n) >= h or (2*n) >= w:
+        raise ValueError(f"Crop size n={n} too large for raster of shape {raster.shape}")
+
     t = meta['transform']
-    new_transform = t * Affine.translation(n, n)
 
     # Crop the data by removing n pixels from each edge
     cropped_data = raster[n:-n, n:-n]
 
-    # Fill remaining NaN values with the local minimum
+    # Compute the exact transform of that window
+    from rasterio.windows import Window
+    window = Window(n, n, w - 2*n, h - 2*n)
+    new_transform = rasterio.windows.transform(window, t)
+
+    # Fill remaining NaN values with the local minimum (avoid holes)
     if np.isnan(cropped_data).any():
         min_value = np.nanmin(cropped_data)
         cropped_data = np.nan_to_num(cropped_data, nan=min_value)
@@ -229,7 +285,7 @@ def crop_and_save_raster(raster, meta, n, out_path):
     # Update the metadata
     meta.update({
         'height': cropped_data.shape[0],
-        'width': cropped_data.shape[1],
+        'width':  cropped_data.shape[1],
         'transform': new_transform
     })
 
