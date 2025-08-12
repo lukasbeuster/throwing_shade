@@ -18,6 +18,7 @@ from shapely.geometry import box
 import concurrent.futures
 from pathlib import Path
 import json
+from functools import lru_cache
 
 
 importlib.reload(shade)
@@ -26,6 +27,9 @@ importlib.reload(shade)
 gdal.UseExceptions()
 
 # --- Daylight guards ---------------------------------------------------------
+@lru_cache(maxsize=16384)
+def _raster_lonlat_cached(raster_path: str):
+    return _raster_lonlat(raster_path)
 
 def _raster_lonlat(raster_path):
     """Return (lon, lat) of the lower-left corner of a raster in WGS84."""
@@ -641,7 +645,7 @@ def get_dataset_shaderesult(dataset, osmid, binned, config):
         ]
         if building_mask_file:
             building_mask_path = building_mask_file[0]
-            lon, lat = _raster_lonlat(building_mask_path)
+            lon, lat = _raster_lonlat_cached(building_mask_path)
 
             # derive UTC and DST offset
             year_key = str(rounded_ts.year)
