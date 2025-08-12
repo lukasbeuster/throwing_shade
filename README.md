@@ -189,6 +189,26 @@ For automated workflows, you can execute the entire pipeline with a single comma
 python pipeline.py run-all --min-points 10
 ```
 
+### Managing Runs (switching & reverting)
+
+Changing `config.yaml` **does not** create a new run. The pipeline uses the current run ID (`osmid`) stored in `results/output/run_info.json`. Use these helpers to manage runs:
+
+```bash
+# Show the currently selected run (from run_info.json)
+python pipeline.py current-run --config config.yaml
+
+# List all previous runs found under step2_solar_data/
+python pipeline.py list-runs --config config.yaml
+
+# Switch back to a previous run by its OSMID
+python pipeline.py set-run --config config.yaml <OSMID>
+
+# Start fresh (clears run_info.json; the next `check` will initialize a new run)
+python pipeline.py new-run --config config.yaml
+```
+
+Tip: For fully isolated experiments, you can also change `output_dir` in `config.yaml` to a new folder, but for most cases the commands above are enough.
+
 -----
 
 ## ⚙️ Configuration Details
