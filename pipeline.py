@@ -49,6 +49,21 @@ def save_run_info(output_dir: Path, data: dict, fresh_start: bool = False):
     with open(run_info_path, 'w') as f:
         json.dump(existing_data, f, indent=4)
 
+# --- Run Management Utilities ---
+from typing import List
+
+def list_existing_runs(output_dir: Path) -> List[str]:
+    """Return available run IDs (osmid) by scanning step2_solar_data subfolders."""
+    base = Path(output_dir) / 'step2_solar_data'
+    if not base.exists():
+        return []
+    return sorted([p.name for p in base.iterdir() if p.is_dir()])
+
+
+def get_current_run_info(cfg):
+    out = Path(cfg['output_dir'])
+    return load_run_info(out)
+
 
 # --- Flexible Dataset Loader ---
 def load_dataset_flexibly(config):
@@ -89,6 +104,7 @@ def load_dataset_flexibly(config):
 
     return gdf
 
+
 # --- The Main CLI Group ---
 
 @click.group()
@@ -97,8 +113,63 @@ def cli():
     A command-line tool for the 'Throwing Shade' simulation pipeline.
     Run steps in order: check -> download -> segment -> process-rasters -> process-shade
     Or use 'run-all' to execute the entire pipeline.
+\nUtility commands:\n  current-run     Show the selected run stored in run_info.json\n  list-runs       List available osmid folders found under output_dir\n  set-run <id>    Point the pipeline to a previous run ID\n  new-run         Clear run_info.json to start a fresh run
     """
     pass
+
+
+# --- Run Management Commands ---
+
+@cli.command()
+@click.option('--config', default='config.yaml', type=click.Path(exists=True), help='Path to the configuration file.')
+def current_run(config):
+    """Show the currently selected run (from run_info.json)."""
+    cfg = load_config(config)
+    info = get_current_run_info(cfg)
+    if not info:
+        click.secho('No current run set. run_info.json is empty or missing.', fg='yellow')
+        return
+    click.echo(json.dumps(info, indent=2))
+
+
+@cli.command(name='list-runs')
+@click.option('--config', default='config.yaml', type=click.Path(exists=True), help='Path to the configuration file.')
+def list_runs_cmd(config):
+    """List all discovered runs (osmid directories) available under output_dir."""
+    cfg = load_config(config)
+    runs = list_existing_runs(Path(cfg['output_dir']))
+    if not runs:
+        click.secho('No runs found under step2_solar_data/.', fg='yellow')
+        return
+    click.echo("Available runs (osmid):")
+    for r in runs:
+        click.echo(f"  - {r}")
+
+
+@cli.command(name='set-run')
+@click.option('--config', default='config.yaml', type=click.Path(exists=True), help='Path to the configuration file.')
+@click.argument('osmid')
+def set_run_cmd(config, osmid):
+    """Point the pipeline to an existing run ID (osmid)."""
+    cfg = load_config(config)
+    output_dir = Path(cfg['output_dir'])
+    # Validate that this osmid exists (at least step2 data present)
+    step2_dir = output_dir / 'step2_solar_data' / osmid
+    if not step2_dir.exists():
+        click.secho(f"Run '{osmid}' not found at {step2_dir}. Use 'list-runs' to see options.", fg='red')
+        return
+    save_run_info(output_dir, {'osmid': osmid}, fresh_start=False)
+    click.secho(f"Current run set to '{osmid}'.", fg='green')
+
+
+@cli.command(name='new-run')
+@click.option('--config', default='config.yaml', type=click.Path(exists=True), help='Path to the configuration file.')
+def new_run_cmd(config):
+    """Start a fresh run (clears run_info.json). Next 'check' will populate it."""
+    cfg = load_config(config)
+    output_dir = Path(cfg['output_dir'])
+    save_run_info(output_dir, {}, fresh_start=True)
+    click.secho('Cleared run_info.json. Run \"check\" to begin a new run.', fg='green')
 
 # --- STEP 1: Interactive Coverage Check ---
 
@@ -209,7 +280,8 @@ def process_shade(config):
     # Load dataset flexibly based on file format
     dataset = load_dataset_flexibly(cfg)
     timestamp_col = cfg['columns']['timestamp']
-    dataset[timestamp_col] = pd.to_datetime(dataset[timestamp_col], utc=True, errors='coerce')
+    dataset[timestamp_col] = pd.to_datetime(dataset[timestamp_col], errors='coerce')
+    # Important: keep these as naive LOCAL timestamps so they match the LST times in your shade filenames.
     
     n_invalid = dataset[timestamp_col].isna().sum()
     print(f"{n_invalid} rows failed to parse timestamps and became NaT")
