@@ -1007,9 +1007,17 @@ def process_dataset(dataset, year, osmid, config):
 
     dataset_copy = dataset.copy()
 
-    # Convert DataFrame to GeoDataFrame
-    dataset_copy["geometry"] = gpd.points_from_xy(dataset_copy[config['columns']['longitude']], dataset_copy[config['columns']['latitude']])
-    df_gdf = gpd.GeoDataFrame(dataset_copy, geometry="geometry", crs="EPSG:4326")
+    # If geometry exists and is Point, keep it; otherwise build from lon/lat
+    if "geometry" in dataset_copy.columns and hasattr(dataset_copy["geometry"], "geom_type"):
+        df_gdf = gpd.GeoDataFrame(dataset_copy, geometry="geometry")
+        if df_gdf.crs is None:
+            df_gdf = df_gdf.set_crs("EPSG:4326")
+    else:
+        dataset_copy["geometry"] = gpd.points_from_xy(
+            dataset_copy[config['columns']['longitude']],
+            dataset_copy[config['columns']['latitude']]
+        )
+        df_gdf = gpd.GeoDataFrame(dataset_copy, geometry="geometry", crs="EPSG:4326")
 
     # Reproject points to match raster CRS
     df_gdf = df_gdf.to_crs(raster_crs)
