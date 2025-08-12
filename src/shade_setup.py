@@ -167,12 +167,9 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
 
                 if onetime == 0:
                     timestr = time_vector.strftime("%Y%m%d_%H%M")
-
-                    # Changed filepath to include the tile_id in the filename.
                     savestr = '_shadow_fraction_on_'
                 else:
                     timestr = time_vector.strftime("%Y%m%d_%H%M")
-                    # savestr = '/Shadow_at_'
                     savestr = 'Shadow_at_'
 
                 if height_str != '':
@@ -182,8 +179,11 @@ def shadecalculation_setup(filepath_dsm='None', filepath_veg='None', tile_no='/'
 
                 print("File path trying to save at:", filename)
 
-                ## TODO: change to saverasternd or other function
-                saveraster(gdal_dsm, filename, shfinal)
+                # Avoid re-writing the same fraction raster if already present (parallel safety)
+                if os.path.exists(filename):
+                    print(f"Skipping save, file already exists: {filename}")
+                else:
+                    saveraster(gdal_dsm, filename, shfinal)
     except Exception as e:
         print(f"Error in shade calc somewhere around daily shading: {e}")
 
@@ -254,6 +254,9 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
         # final list of dictionaries to return with all shadow fractions recorded
         # - 1 dict for each shadefraction interval
         final_shadowresults = []
+        # Track last daylight time and avoid duplicate fraction writes
+        last_daylight_time_vector = None
+        _written_fraction_times = set()
     except Exception as e:
         print(f"There is an error at the beginning of dailyshading somewhere for {tile_no}, {e}")
 
@@ -329,6 +332,8 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
                     # Add to total shadow calculation
                     shtot = shtot + sh
                     index += 1  # Increment the index as if we calculated it
+                    # track last daylight time
+                    last_daylight_time_vector = time_vector
 
                     # Convert hour, min, sec into a time object
                     search_time = time(time_dict['hour'], time_dict['min'], time_dict['sec'])
@@ -338,16 +343,22 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
                                         search_time_rounded.minute,
                                         search_time_rounded.second)
 
-                    if i == itera: # on the last file
-                        shfinal = shtot / index
-                        final_shadowresults.append({'shfinal': shfinal, 'time_vector': time_vector})
+                    if i == itera:  # on the last loop step
+                        # Only write a single daily fraction here if no explicit checkpoints were requested
+                        if not shade_fractions:
+                            shfinal = shtot / index
+                            if time_vector not in _written_fraction_times:
+                                final_shadowresults.append({'shfinal': shfinal, 'time_vector': time_vector})
+                                _written_fraction_times.add(time_vector)
                         return final_shadowresults
 
                     # Check if any timestamp in the list matches the time
-                    if shade_fractions and (onetime==0):
+                    if shade_fractions and (onetime == 0):
                         if any(ts.time() == search_time_rounded for ts in shade_fractions):
                             shfinal = shtot / index
-                            final_shadowresults.append({'shfinal': shfinal, 'time_vector': time_vector_rounded})
+                            if time_vector_rounded not in _written_fraction_times:
+                                final_shadowresults.append({'shfinal': shfinal, 'time_vector': time_vector_rounded})
+                                _written_fraction_times.add(time_vector_rounded)
 
                     continue  # Skip the calculation step and move to the next iteration
 
@@ -398,20 +409,26 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
 
                 shtot = shtot + sh
                 index += 1
+                # track last daylight time
+                last_daylight_time_vector = time_vector
 
                 # Convert hour, min, sec into a time object
                 search_time = time(time_dict['hour'], time_dict['min'], time_dict['sec'])
                 search_time_rounded = round_time_obj(search_time)
 
                 # Check if any timestamp in the list matches the time
-                if shade_fractions and (onetime==0):
+                if shade_fractions and (onetime == 0):
                     if any(ts.time() == search_time_rounded for ts in shade_fractions):
                         shfinal = shtot / index
-                        time_vector_rounded = dt.datetime(year, month, day,
-                                    search_time_rounded.hour,
-                                    search_time_rounded.minute,
-                                    search_time_rounded.second)
-                        final_shadowresults.append({'shfinal': shfinal, 'time_vector': time_vector_rounded})
+                        time_vector_rounded = dt.datetime(
+                            year, month, day,
+                            search_time_rounded.hour,
+                            search_time_rounded.minute,
+                            search_time_rounded.second,
+                        )
+                        if time_vector_rounded not in _written_fraction_times:
+                            final_shadowresults.append({'shfinal': shfinal, 'time_vector': time_vector_rounded})
+                            _written_fraction_times.add(time_vector_rounded)
 
                 shfinal = shtot / index
 
@@ -425,7 +442,12 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
     except Exception as e:
         print(f"Error at iteration {i}: {e}")
 
-    final_shadowresults.append({'shfinal': shfinal, 'time_vector': time_vector})
+    # If no explicit checkpoints were requested, write a single daily fraction at the last daylight time
+    if not shade_fractions and (onetime == 0) and (index > 0) and (last_daylight_time_vector is not None):
+        shfinal = shtot / index
+        if last_daylight_time_vector not in _written_fraction_times:
+            final_shadowresults.append({'shfinal': shfinal, 'time_vector': last_daylight_time_vector})
+            _written_fraction_times.add(last_daylight_time_vector)
 
     return final_shadowresults
 
