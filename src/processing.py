@@ -4,6 +4,7 @@ import glob
 import importlib
 import rasterio
 from rasterio.transform import rowcol
+from rasterio.windows import from_bounds, Window
 import datetime as dt
 from osgeo import gdal, osr
 from osgeo.gdalconst import *
@@ -45,7 +46,7 @@ def run_shade_processing(config, osmid, year, year_data):
         print(f"User Warning: The dataset result for year {year} is empty. Make sure dataset geometry overlaps with processed rasters in step 4")
         return empty_gdf
 
-    run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, year, config)
+    # run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, year, config)
 
     dataset_with_shade = extract_and_merge_shade_values(dataset_gdf, osmid, binned, config)
 
@@ -544,97 +545,181 @@ def get_dataset_shaderesult(dataset, osmid, binned, config):
 
 def extract_values_from_raster(raster_path, building_mask_path, dataset, buffer, crop_pixels):
     """
-    Extracts shade values, correctly accounting for a cropped shade raster
-    by using the building mask as a reference grid and applying a pixel offset.
+    Extracts shade values using robust, transform-based lookups.
+
+    Args:
+        raster_path: Path to the shade raster file
+        building_mask_path: Path to the building mask raster file
+        dataset: GeoDataFrame containing point geometries
+        buffer: Buffer distance in meters
+        crop_pixels: Number of pixels to crop from edges (unused in current implementation)
+    This method relies on each raster's own georeferencing, avoiding manual
+    index calculations and potential misalignment bugs.
     """
     if not os.path.exists(raster_path):
         print(f"Warning: Raster file {raster_path} not found.")
         return np.full(len(dataset), np.nan)
 
+    values = np.full(len(dataset), np.nan)
+
     with rasterio.open(raster_path) as src, rasterio.open(building_mask_path) as bsrc:
-        raster_data = src.read(1, masked=False)
-        building_mask = bsrc.read(1, masked=False)
+        dataset = dataset.to_crs(src.crs)
+        dataset = dataset.reset_index(drop=True)
 
         raster_nodata = src.nodata if src.nodata is not None else np.nan
 
-        # We only need the transform from the larger, reference raster (building mask)
-        building_transform = bsrc.transform
+        if buffer == 0:
+            coords = [(row.geometry.x, row.geometry.y) for _, row in dataset.iterrows()]
 
-        # Reproject points to match the reference raster CRS
-        dataset = dataset.to_crs(bsrc.crs)
-        dataset = dataset.reset_index(drop=True)
+            # sample both rasters
+            shade_vals = np.array([v[0] for v in src.sample(coords)])
+            building_vals = np.array([v[0] for v in bsrc.sample(coords)])
 
-        values = np.full(len(dataset), np.nan)
+            values = np.where((building_vals == 1) | (shade_vals == raster_nodata), np.nan, shade_vals)
+            return values
 
-        # Buffer in pixels is calculated from the reference raster's resolution
-        res_x, _ = bsrc.res
-        buffer_pixels = int(buffer / res_x) if buffer > 0 else 0
+        res_x, _ = src.res # Use shade raster resolution for buffer
+        buffer_pixels = int(buffer / res_x)
 
         for idx, row in dataset.iterrows():
             x, y = row.geometry.x, row.geometry.y
 
             try:
-                # --- Step 1: Get the pixel location ONLY from the un-cropped building mask ---
-                building_row, building_col = rowcol(building_transform, x, y)
-            except Exception as e:
-                print(f"⚠️ Error converting coordinates: {e}")
-                continue
-
-            # Check bounds for the reference building mask
-            if not (0 <= building_row < building_mask.shape[0] and 0 <= building_col < building_mask.shape[1]):
-                print(f"❌ Point is outside the building mask boundary")
-                continue
-
-            # --- Step 2: Calculate the corresponding location in the cropped raster ---
-            #    This is the key step: we apply the offset.
-            raster_row = building_row - crop_pixels
-            raster_col = building_col - crop_pixels
-
-            # --- Step 3: Check if this new, calculated location is valid in the cropped raster ---
-            if not (0 <= raster_row < raster_data.shape[0] and 0 <= raster_col < raster_data.shape[1]):
-                # This means the point was in the margin that got cropped out.
-                print(f"❌ Point falls within the cropped margin, no shade data available.")
-                continue
-
-            if buffer == 0:
-                if building_mask[building_row, building_col] == 1:
+                s_row, s_col = src.index(x, y)
+                b_row, b_col = bsrc.index(x, y)
+                if bsrc.read(1, window=Window(b_col, b_row, 1, 1))[0,0] == 1:
                     values[idx] = np.nan
-                else:
-                    val = raster_data[raster_row, raster_col]
-                    values[idx] = np.nan if val == raster_nodata else val
-            else:
-                # Buffer window for the building mask (using its original indices)
-                b_row_start = max(building_row - buffer_pixels, 0)
-                b_row_end = min(building_row + buffer_pixels + 1, building_mask.shape[0])
-                b_col_start = max(building_col - buffer_pixels, 0)
-                b_col_end = min(building_col + buffer_pixels + 1, building_mask.shape[1])
-                building_window = building_mask[b_row_start:b_row_end, b_col_start:b_col_end]
+                    continue
 
-                # Buffer window for the shade raster (using its OFFSET indices)
-                r_row_start = max(raster_row - buffer_pixels, 0)
-                r_row_end = min(raster_row + buffer_pixels + 1, raster_data.shape[0])
-                r_col_start = max(raster_col - buffer_pixels, 0)
-                r_col_end = min(raster_col + buffer_pixels + 1, raster_data.shape[1])
-                raster_window = raster_data[r_row_start:r_row_end, r_col_start:r_col_end]
+            except IndexError:
+                # point is outside bounds of either shade or building raster.
+                continue
 
-                # The windows are now geographically aligned but might have slightly different
-                # shapes if a buffer goes over an edge. We trim to the smallest intersection.
-                min_rows = min(raster_window.shape[0], building_window.shape[0])
-                min_cols = min(raster_window.shape[1], building_window.shape[1])
+            size = 2 * buffer_pixels + 1
+            shade_window = Window(
+                s_col - buffer_pixels,
+                s_row - buffer_pixels,
+                size, size
+            ).intersection(Window(0, 0, src.width, src.height))
 
-                raster_window_synced = raster_window[:min_rows, :min_cols]
-                building_window_synced = building_window[:min_rows, :min_cols]
+            window_bounds = src.window_bounds(shade_window)
 
-                filtered = np.where(
-                    (building_window_synced == 1) | (raster_window_synced == raster_nodata),
-                    np.nan,
-                    raster_window_synced
-                )
+            building_window = bsrc.window(*window_bounds)
 
-                valid_vals = filtered[~np.isnan(filtered)]
-                values[idx] = np.nanmean(valid_vals) if valid_vals.size > 0 else np.nan
+            # Round the window to avoid float precision issues and ensure it aligns to pixels
+            building_window = building_window.round_offsets().round_lengths()
+
+            raster_arr = src.read(1, window=shade_window)
+            building_arr = bsrc.read(1, window=building_window)
+
+            if raster_arr.shape != building_arr.shape:
+                values[idx] = np.nan
+                continue
+
+            filtered = np.where(
+                (building_arr == 1) | (raster_arr == raster_nodata),
+                np.nan,
+                raster_arr
+            )
+
+            valid_vals = filtered[~np.isnan(filtered)]
+            values[idx] = np.nanmean(valid_vals) if valid_vals.size > 0 else np.nan
 
     return values
+
+# def extract_values_from_raster(raster_path, building_mask_path, dataset, buffer, crop_pixels):
+#     """
+#     Extracts shade values, correctly accounting for a cropped shade raster
+#     by using the building mask as a reference grid and applying a pixel offset.
+#     """
+#     if not os.path.exists(raster_path):
+#         print(f"Warning: Raster file {raster_path} not found.")
+#         return np.full(len(dataset), np.nan)
+
+#     with rasterio.open(raster_path) as src, rasterio.open(building_mask_path) as bsrc:
+#         raster_data = src.read(1, masked=False)
+#         building_mask = bsrc.read(1, masked=False)
+
+#         raster_nodata = src.nodata if src.nodata is not None else np.nan
+
+#         # We only need the transform from the larger, reference raster (building mask)
+#         building_transform = bsrc.transform
+
+#         # Reproject points to match the reference raster CRS
+#         dataset = dataset.to_crs(bsrc.crs)
+#         dataset = dataset.reset_index(drop=True)
+
+#         values = np.full(len(dataset), np.nan)
+
+#         # Buffer in pixels is calculated from the reference raster's resolution
+#         res_x, _ = bsrc.res
+#         buffer_pixels = int(buffer / res_x) if buffer > 0 else 0
+
+#         for idx, row in dataset.iterrows():
+#             x, y = row.geometry.x, row.geometry.y
+
+#             try:
+#                 # --- Step 1: Get the pixel location ONLY from the un-cropped building mask ---
+#                 building_row, building_col = rowcol(building_transform, x, y)
+#             except Exception as e:
+#                 print(f"⚠️ Error converting coordinates: {e}")
+#                 continue
+
+#             # Check bounds for the reference building mask
+#             if not (0 <= building_row < building_mask.shape[0] and 0 <= building_col < building_mask.shape[1]):
+#                 print(f"❌ Point is outside the building mask boundary")
+#                 continue
+
+#             # --- Step 2: Calculate the corresponding location in the cropped raster ---
+#             #    This is the key step: we apply the offset.
+#             raster_row = building_row - crop_pixels
+#             raster_col = building_col - crop_pixels
+
+#             # --- Step 3: Check if this new, calculated location is valid in the cropped raster ---
+#             if not (0 <= raster_row < raster_data.shape[0] and 0 <= raster_col < raster_data.shape[1]):
+#                 # This means the point was in the margin that got cropped out.
+#                 print(f"❌ Point falls within the cropped margin (a building footprint), no shade data available.")
+#                 continue
+
+#             if buffer == 0:
+#                 if building_mask[building_row, building_col] == 1:
+#                     values[idx] = np.nan
+#                 else:
+#                     val = raster_data[raster_row, raster_col]
+#                     values[idx] = np.nan if val == raster_nodata else val
+#             else:
+#                 # Buffer window for the building mask (using its original indices)
+#                 b_row_start = max(building_row - buffer_pixels, 0)
+#                 b_row_end = min(building_row + buffer_pixels + 1, building_mask.shape[0])
+#                 b_col_start = max(building_col - buffer_pixels, 0)
+#                 b_col_end = min(building_col + buffer_pixels + 1, building_mask.shape[1])
+#                 building_window = building_mask[b_row_start:b_row_end, b_col_start:b_col_end]
+
+#                 # Buffer window for the shade raster (using its OFFSET indices)
+#                 r_row_start = max(raster_row - buffer_pixels, 0)
+#                 r_row_end = min(raster_row + buffer_pixels + 1, raster_data.shape[0])
+#                 r_col_start = max(raster_col - buffer_pixels, 0)
+#                 r_col_end = min(raster_col + buffer_pixels + 1, raster_data.shape[1])
+#                 raster_window = raster_data[r_row_start:r_row_end, r_col_start:r_col_end]
+
+#                 # The windows are now geographically aligned but might have slightly different
+#                 # shapes if a buffer goes over an edge. We trim to the smallest intersection.
+#                 min_rows = min(raster_window.shape[0], building_window.shape[0])
+#                 min_cols = min(raster_window.shape[1], building_window.shape[1])
+
+#                 raster_window_synced = raster_window[:min_rows, :min_cols]
+#                 building_window_synced = building_window[:min_rows, :min_cols]
+
+#                 filtered = np.where(
+#                     (building_window_synced == 1) | (raster_window_synced == raster_nodata),
+#                     np.nan,
+#                     raster_window_synced
+#                 )
+
+#                 valid_vals = filtered[~np.isnan(filtered)]
+#                 values[idx] = np.nanmean(valid_vals) if valid_vals.size > 0 else np.nan
+
+#     return values
 
 def hours_before_shadow_fr(dataset, base_path, building_mask_path, shade_type, rounded_timestamp, tile_number, osmid, hours_before, buffer, crop_pixels):
     """
