@@ -6,6 +6,7 @@ import rasterio
 from rasterio.transform import rowcol
 from rasterio.windows import from_bounds, Window
 import datetime as dt
+import sun_position as sp
 from osgeo import gdal, osr
 from osgeo.gdalconst import *
 import shade_setup as shade
@@ -18,10 +19,95 @@ import concurrent.futures
 from pathlib import Path
 import json
 
+
 importlib.reload(shade)
 
 # Set exception handling
 gdal.UseExceptions()
+
+# --- Daylight guards ---------------------------------------------------------
+
+def _raster_lonlat(raster_path):
+    """Return (lon, lat) of the lower-left corner of a raster in WGS84."""
+    ds = gdal.Open(raster_path)
+    gt = ds.GetGeoTransform()
+    width = ds.RasterXSize
+    height = ds.RasterYSize
+
+    # lower-left corner
+    minx = gt[0]
+    miny = gt[3] + width * gt[4] + height * gt[5]
+
+    old_cs = osr.SpatialReference()
+    old_cs.ImportFromWkt(ds.GetProjection())
+
+    wgs84_wkt = """
+    GEOGCS["WGS 84",
+        DATUM["WGS_1984",
+            SPHEROID["WGS 84",6378137,298.257223563,
+                AUTHORITY["EPSG","7030"]],
+            AUTHORITY["EPSG","6326"]],
+        PRIMEM["Greenwich",0,
+            AUTHORITY["EPSG","8901"]],
+        UNIT["degree",0.01745329251994328,
+            AUTHORITY["EPSG","9122"]],
+        AUTHORITY["EPSG","4326"]]"""
+    new_cs = osr.SpatialReference()
+    new_cs.ImportFromWkt(wgs84_wkt)
+
+    transform = osr.CoordinateTransformation(old_cs, new_cs)
+    lonlat = transform.TransformPoint(minx, miny)
+
+    gdalver = float(gdal.__version__[0])
+    if gdalver >= 3.0:
+        lon = lonlat[1]
+        lat = lonlat[0]
+    else:
+        lon = lonlat[0]
+        lat = lonlat[1]
+
+    return float(lon), float(lat)  # altitude not critical here
+
+
+def _is_daylight(ts, lon, lat, utc_offset, dst):
+    """True if solar altitude > 0° at timestamp ts (naive local)."""
+    time_dict = {
+        'UTC': utc_offset,
+        'year': ts.year,
+        'month': ts.month,
+        'day': ts.day,
+        'hour': ts.hour - dst,   # aligns with how dailyshading builds UT
+        'min': ts.minute,
+        'sec': ts.second,
+    }
+    location = {'longitude': lon, 'latitude': lat, 'altitude': 0}
+    sun = sp.sun_position(time_dict, location)
+    alt_deg = 90.0 - sun['zenith']
+    return alt_deg > 0
+
+
+def _restrict_to_daylight(all_intervals, start_time, final_stamp, lon, lat, utc_offset, dst):
+    """
+    Filter requested intervals to daylight and tighten [start_time, final_stamp].
+    Returns (filtered_intervals, new_start, new_final). If none remain, returns ([], None, None).
+    """
+    if not all_intervals:
+        return [], None, None
+
+    filtered = [ts for ts in all_intervals if _is_daylight(ts, lon, lat, utc_offset, dst)]
+    if not filtered:
+        return [], None, None
+
+    new_start = min(filtered)
+    new_final = max(filtered)
+
+    # Respect user-provided tighter bounds
+    if start_time and new_start < start_time:
+        new_start = start_time
+    if final_stamp and new_final > final_stamp:
+        new_final = final_stamp
+
+    return filtered, new_start, new_final
 
 def run_shade_processing(config, osmid, year, year_data):
     """
@@ -46,7 +132,7 @@ def run_shade_processing(config, osmid, year, year_data):
         print(f"User Warning: The dataset result for year {year} is empty. Make sure dataset geometry overlaps with processed rasters in step 4")
         return empty_gdf
 
-    # run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, year, config)
+    run_shade_simulations(tile_grouped_days, dataset_gdf, osmid, year, config)
 
     dataset_with_shade = extract_and_merge_shade_values(dataset_gdf, osmid, binned, config)
 
@@ -320,6 +406,40 @@ def shade_processing(bldg_path, matched_chm_path, osmid, date, timestamps, start
         print(f"The file {matched_chm_path} exists.")
     else:
         print(f"The file {matched_chm_path} does not exist.")
+
+        # --- Daylight guard: avoid simulating after sunset/before sunrise ---
+    try:
+        lon, lat = _raster_lonlat(bldg_path)
+    except Exception as e:
+        print(f"Warning: could not resolve lon/lat from raster; proceeding without daylight guard: {e}")
+        lon, lat = None, None
+
+    # Intervals you plan to simulate this run
+    # (built earlier as 'all_intervals'; includes final if present)
+    if lon is not None and lat is not None and all_intervals:
+        filtered_intervals, new_start, new_final = _restrict_to_daylight(
+            all_intervals=all_intervals,
+            start_time=start_time,
+            final_stamp=final_stamp if final_stamp is not None else date,
+            lon=lon,
+            lat=lat,
+            utc_offset=inputs['utc'],
+            dst=inputs['dst'],
+        )
+
+        if not filtered_intervals:
+            print("All requested intervals fall outside daylight. Skipping this tile/date.")
+            return
+
+        # Tighten the iteration window so dailyshading doesn't loop through the night
+        all_intervals = filtered_intervals
+        if new_start is not None:
+            start_time = max(start_time, new_start)
+        if final_stamp is not None:
+            final_stamp = new_final
+        else:
+            # when final_stamp was None, 'date' carries the final timestamp later
+            date = new_final
 
     folder_no = identifier.split('_')[-1]
     folder_no = folder_no
