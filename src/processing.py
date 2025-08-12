@@ -611,6 +611,54 @@ def get_dataset_shaderesult(dataset, osmid, binned, config):
                             shade_columns.append(f"bldg_{hr}_before_shadow_fraction_buffer{bf}")
 
             return pd.concat([dataset, pd.DataFrame({col: np.nan for col in shade_columns}, index=dataset.index)], axis=1)
+        
+        # --- Helper to build an empty result with the right columns ----------------
+    def _empty_result_df():
+        shade_columns = []
+        for bf in config['simulation']['buffers']:
+            if config['extra_outputs']['building_shade_step']:
+                shade_columns.append(f"building_shade_buffer{bf}")
+            if config['extra_outputs']['tree_shade_step']:
+                shade_columns.append(f"combined_shade_buffer{bf}")
+            if config['extra_outputs']['bldg_shadow_fraction']:
+                shade_columns.append(f"bldg_shadow_fraction_buffer{bf}")
+            if config['extra_outputs']['tree_shadow_fraction']:
+                shade_columns.append(f"combined_shadow_fraction_buffer{bf}")
+            if config['extra_outputs']['hours_before']:
+                for hr in config['extra_outputs']['hours_before']:
+                    assert isinstance(hr, (int, float)), "hours_before must be int/float"
+                    if config['extra_outputs']['tree_shade_step']:
+                        shade_columns.append(f"combined_{hr}_before_shadow_fraction_buffer{bf}")
+                    if config['extra_outputs']['building_shade_step']:
+                        shade_columns.append(f"bldg_{hr}_before_shadow_fraction_buffer{bf}")
+        return pd.concat([dataset, pd.DataFrame({col: np.nan for col in shade_columns}, index=dataset.index)], axis=1)
+
+    # --- Daylight guard at extraction time ------------------------------------
+    try:
+        # locate building mask to derive lon/lat for this tile
+        building_mask_file = [
+            b for b in glob.glob(os.path.join(str(Path(config['output_dir']) / f"step2_solar_data/{osmid}"), '*mask.tif')) if f"{tile_id}_" in b
+        ]
+        if building_mask_file:
+            building_mask_path = building_mask_file[0]
+            lon, lat = _raster_lonlat(building_mask_path)
+
+            # derive UTC and DST offset
+            year_key = str(rounded_ts.year)
+            year_cfg = config['year_configs'][year_key]
+            dst_start = datetime.fromisoformat(year_cfg['dst_start']).date()
+            dst_end = datetime.fromisoformat(year_cfg['dst_end']).date()
+            is_dst = 1 if (dst_start <= rounded_ts.date() < dst_end) else 0
+            # prefer explicit UTC from config seasons; fallback to +1
+            utc = config.get('seasons', {}).get('summer', {}).get('utc', 1)
+
+            if not _is_daylight(rounded_ts, lon, lat, utc, is_dst):
+                # Night time: skip heavy I/O and return NaNs quickly
+                return _empty_result_df()
+        else:
+            print("Warning: no building mask found for daylight check; proceeding without it.")
+    except Exception as e:
+        print(f"Daylight check failed ({e}); proceeding.")
 
     # Start raster extraction
     base_path = Path(config['output_dir']) / f"step5_shade_results/{osmid}"
@@ -623,9 +671,30 @@ def get_dataset_shaderesult(dataset, osmid, binned, config):
         "tree_shadow_fraction": f"{base_path}/combined_shade/{tile_number}/{osmid}_{tile_id}_shadow_fraction_on_{ts_str}.tif",
     }
 
-    building_mask_file = [
-        b for b in glob.glob(os.path.join(str(Path(config['output_dir']) / f"step2_solar_data/{osmid}"), '*mask.tif')) if f"{tile_id}_" in b
+        # --- Availability window guard (avoid fruitless lookups) ------------------
+    bldg_dir = f"{base_path}/building_shade/{tile_number}"
+    comb_dir = f"{base_path}/combined_shade/{tile_number}"
+
+    # check the earliest and latest simulated times for this date
+    earliest_candidates = [
+        get_earliest_timestamp(bldg_dir, rounded_ts),
+        get_earliest_timestamp(comb_dir, rounded_ts),
     ]
+    latest_candidates = [
+        get_latest_timestamp(bldg_dir, rounded_ts),
+        get_latest_timestamp(comb_dir, rounded_ts),
+    ]
+    earliest = min([t for t in earliest_candidates if t is not None], default=None)
+    latest = max([t for t in latest_candidates if t is not None], default=None)
+
+    if earliest is None or latest is None:
+        # nothing was simulated for that date
+        return _empty_result_df()
+
+    if not (earliest <= rounded_ts <= latest):
+        # timestamp falls outside simulated daylight window
+        return _empty_result_df()
+
     if not building_mask_file:
         raise Exception("Couldn't find building mask file to extract shade values")
     building_mask_path = building_mask_file[0]
@@ -1044,6 +1113,38 @@ def get_earliest_timestamp(directory, date_obj):
                     timestamps.append(timestamp)
 
     return min(timestamps) if timestamps else None
+
+def get_latest_timestamp(directory, date_obj):
+    """
+    Finds the latest timestamp from raster filenames in a directory
+    that match the given date.
+
+    Parameters:
+    - directory (str): Path to the directory containing the raster files.
+    - date_obj (datetime): The reference date.
+
+    Returns:
+    - datetime: The latest timestamp for the given date, or None if no match is found.
+    """
+    date_str = date_obj.strftime("%Y%m%d")
+    pattern = re.compile(r".*_(\d{8})_(\d{4})_LST\.tif")
+
+    timestamps = []
+
+    if not os.path.exists(directory):
+        print(f"Shade directory {directory} doesn't exist. Skipping extraction (latest).")
+        return None
+
+    for filename in os.listdir(directory):
+        if filename.endswith(".tif") and not filename.endswith(".tif.ovr"):
+            match = pattern.match(filename)
+            if match:
+                file_date, file_time = match.groups()
+                if file_date == date_str:
+                    timestamp = datetime.strptime(f"{file_date} {file_time}", "%Y%m%d %H%M")
+                    timestamps.append(timestamp)
+
+    return max(timestamps) if timestamps else None
 
 def extract_datetime_from_path(file_path):
     """
