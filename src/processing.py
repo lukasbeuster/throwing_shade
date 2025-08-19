@@ -257,7 +257,13 @@ def aggregate_results(dataset_with_shade, original_dataset, config):
     # Aggregate using all shade-related columns
     dataset_aggregated = dataset_cleaned.groupby(config['columns']['unique_id'], as_index=False)[shade_columns].mean()
 
+    # Select and preserve intermediate metadata columns from dataset_with_shade
+    metadata_cols = ["tile_number", "rounded_timestamp", "binned_date", "season"]
+    metadata = dataset_with_shade[[config['columns']['unique_id']] + metadata_cols].drop_duplicates()
+
+    # Merge shade values and metadata into original dataset
     merged = original_dataset.merge(dataset_aggregated, on=config['columns']['unique_id'], how="inner")
+    merged = merged.merge(metadata, on=config['columns']['unique_id'], how="left")
     return gpd.GeoDataFrame(merged, geometry='geometry')
 
 def main_shade(osmid, tile_id, timestamps, sim_date, inputs, config):
