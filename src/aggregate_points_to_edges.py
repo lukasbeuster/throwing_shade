@@ -67,7 +67,7 @@ if missing_geom:
 gout = gpd.GeoDataFrame(out, geometry="geometry", crs=edges.crs)
 
 # 5) Save
-save_path = points_path.parent / f"edges_aggregated_{stat}.geojson"
+save_path = points_path.parent / f"edges_aggregated_all_months_{stat}.geojson"
 save_path.parent.mkdir(parents=True, exist_ok=True)
 gout.to_file(save_path, driver="GeoJSON")
 
