@@ -178,13 +178,11 @@ def process_raster(path, osmid):
 
                 # Load the CHM mask (assuming it’s already in the same resolution and extent)
                 with rasterio.open(chm_mask_file) as chm_src:
-                    chm_mask = chm_src.read(1)  # Assuming it's a single-band mask
-                
-                # Apply the CHM mask to the DSM data
-                canopy_dsm = np.where(chm_mask, dsm_data, np.nan)  # Use NaN for masked-out areas
+                    chm_mask = chm_src.read(1).astype(bool)  # Assuming it's a single-band mask
 
             else:
                 print(f"CHM mask not found: {chm_mask_file}. Skipping mask application.")
+                chm_mask = np.zeros_like(dsm_data, dtype=bool)
 
             # Read building_mask
             mask_path = path.replace("dsm", "mask")
@@ -358,10 +356,15 @@ def process_raster(path, osmid):
             directory_check(directory=processing_directory, shadow_check=False)
 
 
-            # Replace nan values with 0 for canopy raster: 
+            # Build a normalised canopy height raster (DSM - DTM, constrained by canopy mask)
+            dtm_surface = np.where(np.isnan(post_interpol_filter), dsm_data, post_interpol_filter)
+            canopy_dsm = np.where(chm_mask, dsm_data - dtm_surface, 0)
+            canopy_dsm = np.clip(canopy_dsm, 0, None)
             canopy_dsm = np.nan_to_num(canopy_dsm, nan=0)
 
             n = 50
+            assert dsm_buildings.shape == dsm_data.shape, (dsm_buildings.shape, dsm_data.shape)
+            assert canopy_dsm.shape    == dsm_data.shape, (canopy_dsm.shape, dsm_data.shape)
 
             crop_and_save_raster(canopy_dsm, dsm_transform, dsm_meta, nodata_value, n,file_name_trees)
             crop_and_save_raster(dsm_buildings, dsm_transform, dsm_meta, nodata_value, n,file_name_building)
